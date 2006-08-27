@@ -1,0 +1,52 @@
+%
+% Item point
+%
+\renewcommand{\labelitemi}{$\circ$}
+
+%
+% Framed box
+%
+\newcommand{\fb}[1]{
+ \begin{center}
+    \fbox{\parbox{.9\textwidth}{#1}}
+ \end{center}
+ \vspace{0.1ex}
+}
+
+%
+% Equations
+%
+\newcommand{\be}{\begin{equation}}
+\newcommand{\ee}{\end{equation}}
+
+%
+% Difficult names
+%
+\newcommand{\yildirim}{Y{\i}ld{\i}r{\i}m\ }
+
+%
+% Theorems
+%
+\newtheorem{prop}[subsection]{Proposition}
+\newtheorem{thm}[subsection]{Theorem}
+\newtheorem*{thm*}{Theorem}
+\newtheorem{lemma}[subsection]{Lemma}
+\newtheorem*{lemma*}{Lemma}
+\newtheorem{cor}[subsection]{Corollary}
+\newtheorem{claim}[subsection]{Claim}
+\newtheorem{condition}[subsection]{Condition}
+\newtheorem{conjecture}[subsection]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{defn}[subsection]{Definition}
+\newtheorem*{defn*}{Definition}
+\newtheorem{exm}[subsection]{Example}
+\newtheorem{exms}[subsection]{Examples}
+\newtheorem{notelabel}[subsection]{Note}
+\newtheorem{note}[subsection]{Note}
+\newtheorem{question}[subsection]{Question}
+\newtheorem*{question*}{Question}
+
+%
+% Multiline comments
+%
+\newcommand{\ignore}[1]{}

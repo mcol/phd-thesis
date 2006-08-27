@@ -1,0 +1,90 @@
+%Started on Wednesday, 9th August 2006
+%Aug: 11, 22, 23
+
+\documentclass[phd,draft]{msthesis}
+
+%
+% Packages
+%
+\usepackage{amsfonts,amssymb, amsmath, verbatim, amsthm, amscd, 
+enumerate,longtable,graphicx}
+
+%\usepackage[all]{xy}
+%\CompileMatrices
+
+%\usepackage[notcite,notref]{showkeys}
+
+
+%
+% Macros
+%
+\input{macros}
+
+\frenchspacing
+
+\title{Computational Improvements of Interior Point Methods \\
+       for Linear Programming.}
+\author{Marco Colombo}
+\submityear{2006}
+
+
+%
+% Begin document
+%
+\begin{document}
+
+\maketitle
+
+\dedication{For my family and my friends.}
+
+\standarddeclaration
+
+%
+% Abstract
+%
+\begin{abstract}
+  \input{abstract}
+\end{abstract}
+
+%
+% Acknowledgements
+%
+\begin{acknowledgements}
+  \input{acknowledgements}
+\end{acknowledgements}
+
+%
+% Table of contents
+%
+\tableofcontents
+
+%
+% Chapters
+%
+\chapter{Background and introduction.}
+\input{introduction}
+
+\chapter{Weighted corrector directions.}
+\input{correctors}
+
+\chapter{Warm-start strategies for stochastic linear programs.}
+\input{warmstart}
+
+%
+% Appendix
+%
+%\appendix
+%\chapter{}\label{App_Chapter}
+%\input{appendix}
+
+%
+% Bibliography
+%
+%\input{nocites}
+\bibliographystyle{plain}
+\bibliography{bibliography}
+
+%
+% End
+%
+\end{document}
