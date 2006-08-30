@@ -1,0 +1,145 @@
+%Started on 30th August 2006
+
+%
+% Chapter: Background and introduction.
+%
+\label{ch:Introduction}
+
+In this chapter we present the background and motivations for
+this research.
+
+%
+% Section
+%
+\section{Linear programming}
+
+\fb{
+An historical account of linear programming is given in \cite{Schrijver86}.
+}
+
+\fb{
+The simplex method as an active set method.
+}
+
+The simplex method reaches a solution by visiting a sequence of 
+vertices of the polyhedron, moving from one vertex to an adjacent 
+one characterized by a better objective function value. The polyhedron 
+corresponding to a linear system of $m$ constraints in $n$ variables 
+($m < n$) has a number of vertices equal to
+\[
+\binom{n}{m} = \frac{n!}{m!(n-m)!}.
+\]
+
+\fb{
+Klee and Minty's example of bad behaviour of the simplex method
+(when Dantzig's pivoting rule is used).
+}
+
+In real-life problems, this situation never arises, and not all of 
+these vertices will have to be visited. Besides, given the monotonic
+way of choosing the next vertex, in the non-degenerate case the set 
+of possible vertices decreases after each iteration. Degeneracy
+complicates things because at a degenerate vertex, the simplex method
+may try different changes of basis without actually moving away
+from the vertex.
+
+\fb{
+Discussion on the complexity of linear programming. How the simplex
+method is exponential.
+}
+
+\fb{
+The search for a polynomial algorithm and the ellipsoid method.
+
+In Khachiyan's ellipsoid method, the polyhedron is inscribed in a sequence
+of ellipsoids of decreasing size. If the problem has a solution, the 
+centers of these ellipsoids converge to the optimal solution; otherwise,
+their size decreases to zero.
+
+The ellipsoid method finds a solution in $\bigO(n^2L)$ iterations,
+thus has polynomial complexity. Since this worst-case bound
+is generally attained, its practical performance is not competitive
+with other solution methods. Besides, other problems relate to round-off
+errors and dense matrix computation.
+
+However, the ellipsoid method is often used in the contex of
+combinatorial optimization as an analytic tool to prove complexity
+results for algorithms.
+}
+
+We know polynomial-time algorithms for linear programming, 
+namely the ellipsoid method (see \cite[ch.~13]{Schrijver86} 
+and \cite[ch.~I.6]{ip:NemhauserWolsey88}) and interior point 
+methods (\cite{ipm:Wright97}). Despite being an exponential 
+algorithm, the simplex method shows polynomial complexity in 
+the average time, and is therefore widely adopted in the 
+solution of linear programming problems.
+
+
+%
+% Section
+%
+\section{Interior point methods}
+
+Since their introduction following Karmarkar's groundbreaking paper
+\cite{Karmarkar}, interior point methods (IPMs for short) have attracted 
+the interest of a growing number of researchers.
+
+\fb{
+Karmarkar's algorithm is a primal algorithm based on a projection
+in some transformed space and steepest descent. It uses a potential
+function to measure the progress. It has $\bigO(nL)$ complexity.
+
+}
+
+Over the last 20 years, an impressive wealth of theoretical research
+has been published, and computational developments have brought life
+to a field, that of Linear Programming, that seemed not to attract much
+attention anymore.
+
+\fb{
+Cite the reports on how much the simplex method has improved as a 
+consequence of that.
+}
+
+Interior point methods are well-suited to solving very
+large scale optimization problems. Their theory is well understood
+\cite{ipm:Wright97} and the techniques used in their implementation are
+documented in extensive literature (see, for example, 
+\cite{AndersenGondzioMeszarosXu,GondzioTerlaky} and the references therein).
+
+\fb{
+Cases where the simplex method cannot be beaten: hyper-sparsity.
+}
+
+\fb{
+Contrary to active set algorithms, interior point methods reach a
+solution only asymptotically. Mention crossover strategies and finite
+termination.
+Once a solution with a prescribed optimality tolerance has been found,
+such a point can be projected upon a face of the polyhedron.
+}
+
+%
+% Section
+%
+\section{Other stuff}
+
+A generic optimization algorithm can be summarised in the folllowing
+scheme:
+
+\bt{
+\begin{description}
+\item[Given] an initial iterate;
+\item[Repeat] for $k=0,1,2,\ldots$ 
+  \begin{itemize}
+  \item Determine a search direction.
+
+  \item Determine how far to move along it.
+
+  \item Move to the next point.
+  \end{itemize}
+
+\item[Until] some termination criteria are met.
+\end{description}
+}

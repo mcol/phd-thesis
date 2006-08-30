@@ -6,12 +6,31 @@
 %
 % Framed box
 %
+\addtolength{\fboxsep}{0.5ex}
 \newcommand{\fb}[1]{
  \begin{center}
     \fbox{\parbox{.9\textwidth}{#1}}
  \end{center}
- \vspace{0.1ex}
 }
+
+%
+% Bounded text
+%
+\newcommand{\bt}[1]{
+\noindent\hrulefill
+\vspace{-2\parsep} {#1} \vspace{-2\parsep}
+\noindent\hrulefill
+}
+
+%
+% Set of real numbers
+%
+\newcommand{\R}{\mathbb{R}}
+
+%
+% Big-O
+%
+\newcommand{\bigO}{\mathcal{O}}
 
 %
 % Equations

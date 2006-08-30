@@ -1,12 +1,42 @@
 %Started on Friday, 11 August 2006
-%Aug: 23
+%Aug: 23, 29, 30
 
 %
 % Chapter: 
 %
 \label{ch:Correctors}
 
+The use of Mehrotra's predictor--corrector algorithm \cite{Mehrotra92},
+as already discussed in Section~\ref{sec:MehrotraPC}, is at the basis of all
+interior point implementations. In particular, as was noted by
+Mehrotra himself \cite{Mehrotra92}, the main advantage comes from 
+the use of the second-order term in the corrector direction.
+This technique works extremely well, and the practical superiority of 
+a second-order algorithm over a first-order one is broadly recognised.
 
+However, failures of Mehrotra's corrector have been known by practitioners 
+since its introduction. In practical implementations, it was noticed 
+that Mehrotra's corrector would sporadically produce a stepsize 
+shorter than the one obtained in the predictor direction. 
+In such situations, it is common 
+to reject the corrector, then try to use some multiple centrality 
+correctors or move along the predictor direction alone.
+
+\fb{
+Run netlib problems with HOPDM, print out Mehrotra rejected, and count them.
+}
+
+In this chapter we illustrate the theoretical understanding of 
+these issues, drawing particularly from \cite{Cartis04,Cartis05}.
+We then discuss subspace searches as a way to determine better
+search directions.
+
+
+
+%
+% Section
+%
+\section{Theoretical understanding}
 
 Newton's method applied to the primal--dual path-following algorithm 
 provides a first-order approximation of the central path, in which
@@ -17,6 +47,10 @@ is valid locally, in a small neighbourhood of the point where
 it is computed. Depending on the specific characteristics of the point, 
 such an approximation may not be a good direction at all 
 if used outside this neighbourhood.
+
+\fb{
+Reference for Newton's method.
+}
 
 Mehrotra's algorithm adds a second-order correction to the search 
 direction in order to construct a quadratic approximation 
@@ -29,21 +63,15 @@ of a high degree and segments in which it is approximately straight.
 Given the complexity of this curve, it is unrealistic to be able 
 to approximate it everywhere with a second-order curve.
 
-Failures of Mehrotra's corrector have been known by practitioners 
-since its introduction. In practical implementations, it was noticed 
-that Mehrotra's corrector would sporadically produce a stepsize 
-shorter than the one obtained in the predictor direction. 
-In such situations, it is common 
-to reject the corrector, then try to use some multiple centrality 
-correctors or move along the predictor direction alone.
-%
+\hrulefill
+
 This issue has recently been analysed by Cartis \cite{Cartis04}, 
 who provided an example in which the second-order corrector does 
 not behave well. Cartis' analysis is based on an algorithm 
 that combines a standard primal--dual path-following method with 
 a second-order correction. Despite not being exactly Mehrotra's 
 predictor--corrector algorithm, both are very close in spirit.
-The example shows that for certain starting points the corrector 
+Cartis' example shows that for certain starting points the corrector 
 is always orders of magnitude larger than the predictor, in both 
 primal and dual spaces. Whilst the predictor points towards 
 the optimum, the second-order corrector points away from it.
@@ -53,16 +81,186 @@ As the final direction is given by
 \]
 the combined direction is influenced almost exclusively by the corrector, 
 hence it is not accurate. 
-%  {\bf Where does this misbehaviour come from?}
-The solution outlined by Cartis in \cite{Cartis04}, and then further developed 
-in \cite{Cartis05}, is to reduce the influence exerted by the corrector 
-by weighting it by the square of the stepsize. 
-%  Besides ensuring that the corrector is really considered 
-%  a second-order term as in a rigorous Taylor expansion, 
-%  this proposal allows for better convergence results ({\bf which?}).
+
+\fb{
+Where does this misbehaviour come from?
+}
+
+The solution outlined by Cartis in \cite{Cartis04}, and then further 
+developed in \cite{Cartis05}, is to reduce the influence exerted by 
+the corrector by weighting it by the square of the stepsize. 
+
+Besides ensuring that the corrector is really considered 
+a second-order term as in a rigorous Taylor expansion, 
+this proposal allows for better convergence results.
+
+\fb{
+Present some results.
+}
+
 In a similar way, Salahi et al. \cite{SalahiPengTerlaky} propose to find 
 the corrector by weighting the term $\Delta_a X \Delta_a S e$ in 
-(\ref{MehrotraRhs}) by the allowed stepsize for the affine-scaling direction.
+(\ref{eq:MehrotraRhs}) by the allowed stepsize for the affine-scaling 
+direction.
+
+
+%
+% Section
+%
+\section{Subspace searches}
+
+\fb{
+Subspace searches are a different strategy of generating search 
+directions. 
+They usually derived differently than from the Newton system, and 
+are built according to some criteria that are believed to be essential 
+for a good search direction.
+}
+
+
+Jarre and Wechs \cite{JarreWechs} took a more pragmatic view and
+looked for an implementable technique for generating efficient 
+higher-order search directions in a primal--dual interior-point framework.
+In the Newton system, while it is clear what to consider as right-hand 
+side for primal and dual feasibility constraints (the residual 
+at the current point), the complementarity component leaves more 
+freedom in choosing a target $t$. They argue that there exists 
+an optimal choice for which the corresponding Newton system would 
+produce immediately the optimizer; however, it is not obvious how 
+to find it.
+Therefore, they propose to search a subspace spanned by $k$ different 
+directions $\Delta w_1, \Delta w_2, \ldots, \Delta w_k$ generated 
+from some affinely independent targets $t_1,t_2,\ldots,t_k$.
+As the quality of a search direction can be measured by the length 
+of the stepsize and the reduction in complementarity gap, they aim 
+to find the combination 
+\[
+\Delta w = \Delta w(\rho) 
+         = \rho_1\Delta w_1 + \rho_2\Delta w_2 + \ldots + \rho_k\Delta w_k
+\]
+that maximizes these measures.
+This can be formulated as a small linear subproblem which can 
+be solved approximately to produce a search direction $\Delta w$ 
+that is generally better than Mehrotra's predictor--corrector direction.
+%
+%  They noticed that following targets generated by iterating 
+%  Mehrotra's corrector in a straightforward recursion of the type
+%  \[
+%    t^{k+1} = \mu e - XSe -\Delta X^k\Delta S^k e
+%  \]
+%  is usually divergent for general positive starting points.
+
+
+\fb{
+Present analysis from Jarre-Wechs \cite{JarreWechs}.
+}
+
+While the approach presented in Section~\ref{sec:MultipleCC} 
+generates a series of correctors 
+that are evaluated and applied recursively, Mehrotra and Li 
+\cite{MehrotraLi} propose a scheme in which a collection of linearly 
+independent directions is combined through a small linear subproblem.
+
+Following the approach explored by Jarre and Wechs \cite{JarreWechs}, 
+they express the requirements for a good search direction as a linear 
+program. In particular, they impose conditions aimed at ensuring 
+global convergence of the algorithm when using generic search directions.
+The directions considered in the subspace search can include all 
+sorts of linearly independent directions: affine-scaling direction, 
+Mehrotra's corrector, multiple centrality correctors, Jarre--Wechs 
+directions. 
+In the recently proposed approach, Mehrotra and Li \cite{MehrotraLi}
+generate directions using a Krylov subspace mechanism.
+
+% This new approach for generating corrector directions uses an exact 
+% factorization from an earlier iteration to generate directions 
+% via Krylov subspaces. 
+% Therefore, information obtained from an iterative scheme is used 
+% to improve the performance of an implementation based on direct 
+% methods. In some sense, it is a hybrid of direct and iterative methods.
+
+% When generating correctors through Krylov subspaces, the directions 
+% have to satisfy the primal--dual feasibility constraints, but not 
+% the complementarity constraints. This means that any convex combination 
+% of these directions will still satisfy the feasibility requirements; 
+% this gives the additional freedom of choosing the combination that 
+% satisfies the complementarity conditions in the best possible way. 
+% {\bf (Note: M\&L don't require the linear combination to be convex.)}
+
+At the $k$-th iteration of interior point method we have to solve 
+the Newton system $H_k \Delta_k = \xi_k$, where 
+\[
+\xi_k = 
+%\left[
+%  \begin{array}{c}
+%    \xi_p \\
+%    \xi_d \\
+%    \xi_{\mu} 
+%  \end{array}
+%  \right] =
+\left[
+  \begin{array}{c}
+    b - A x^k \\
+    c - A^T y^k - s^k \\
+    \mu e - X^k S^k e 
+  \end{array}
+  \right]
+\]
+is the right-hand side evaluated at the current iterate and $H_k$ 
+is the corresponding Jacobian matrix. 
+%
+The direction $\Delta_k$ is used to compute a trial point:
+\[
+\tilde{x} = x^k + \alpha_P \Delta_k x, \quad
+\tilde{y} = y^k + \alpha_D \Delta_k y, \quad
+\tilde{s} = s^k + \alpha_D \Delta_k s.
+\]
+%
+At the trial point $(\tilde x, \tilde y, \tilde s)$, a usual 
+interior point method would have to solve the system
+$\tilde H \tilde \Delta = \tilde \xi$
+in order to find the next search direction. Instead, 
+Mehrotra and Li \cite{MehrotraLi} generate a Krylov subspace 
+for $\tilde H \tilde \Delta = \tilde \xi$.
+The Krylov subspace of dimension $j$ is defined as
+\[
+K_j (H_k, \tilde H, \, \tilde \xi) =
+{\mbox{span}} \{ \xi_H, G \xi_H, G^2 \xi_H, \dots,  G^{j-1} \xi_H \}, 
+\]
+where $\xi_H = H_k^{-1} \tilde \xi$, and $G = I - H_k^{-1} \tilde H$. 
+Note that for stability reasons $\tilde H$ is preconditioned with $H_k$, 
+the factors of which have already been computed.
+The subspace thus generated contains $j$ linearly independent directions. 
+
+In the algorithm of \cite{MehrotraLi}, the affine-scaling
+direction $\Delta_a$, Mehrotra's corrector $\Delta_0$, 
+the first $j$ directions $\Delta_1, \Delta_2, \dots, \Delta_j$ 
+from $K_j (H_k, \tilde H, \tilde \xi)$ and, but only under some 
+circumstances, a pure recentering direction $\Delta_{cen}$ are 
+combined with appropriate weights $\rho$:
+\[
+\Delta(\rho) = \rho_a\Delta_a + \sum_{i=0}^j \rho_i \Delta_i 
+             + \rho_{cen}\Delta_{cen}.
+\]
+The choice of the best set of weights $\rho$ in the combined search 
+direction is obtained by solving an auxiliary linear programming 
+subproblem. The subproblem maximizes the rate of decrease 
+in duality gap whilst satisfying a series of requirements:
+non-negativity of the new iterate,
+upper bounds on the magnitude of the search direction,
+upper bounds on infeasibilities,
+decrease in the average complementarity gap,
+and closeness to the central path.
+
+%Both the theoretical formulation and the computer implementation 
+%allow for the independent choice of weights $\rho$ for the primal 
+%and dual spaces.
+
+
+%
+% Section
+%
+\section{A practical implementation}
 
 The theoretical findings 
 outlined above give rise to the following generalisation
@@ -85,11 +283,20 @@ the choice $\hat\omega=1$ yields Mehrotra's corrector again.
 %  On the other hand, $\omega=\alpha$ produces the algorithm 
 %  suggested by Salahi~{\em et al.} \cite{SalahiPengTerlaky}.
 
+\fb{
+Discuss the difficulties related to the choice of $\omega$.
+}
+
+%
+%
+\subsection{Extension to multiple centrality correctors}
+
 We have applied the weighting strategy to multiple centrality correctors 
 as well. The justification in this case comes from the following argument.
-In Section~\ref{ss:MultipleCC} we have seen that the target point 
+In Section~\ref{sec:MultipleCC} we have seen that the target point 
 in the multiple centrality correctors technique depends on a parameter 
 $\delta$ which measures the greediness of the centrality corrector. 
+
 In the previous implementations, this parameter was fixed at coding time 
 to a value determined after tuning to a series of representative 
 test problems. However, for a specific problem such a value may be 
@@ -98,17 +305,23 @@ be optimal throughout a problem. Hence, it makes sense to provide
 a mechanism to adaptively change these correctors in order 
 to increase their effectiveness.
 
+\fb{
+Maybe present a table where for a subset of problems we show the 
+the value of the stepsizes for a fixed $\delta$ and for an
+adaptive $\delta\omega$.
+}
+
 Below we formalize the weighted correctors algorithm.
 \begin{description}
 \item[Given] an initial iterate $(x^0,y^0,s^0)$ such that $(x^0, s^0) > 0$;
 \item[Repeat] for $k=0,1,2,\ldots$ until some convergence criteria are met:
   \begin{itemize}
   \item Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_1$
-        (\ref{PredictorRhs}) for a predictor direction $\Delta_a$.
+        (\ref{eq:PredictorRhs}) for a predictor direction $\Delta_a$.
 
-  \item Set $\mu$ according to (\ref{Mu}) and find Mehrothra's corrector 
+  \item Set $\mu$ according to (\ref{eq:Mu}) and find Mehrothra's corrector 
         direction $\Delta_c$ by solving system (\ref{eq:NewtonSystem}) 
-        with right-hand side (\ref{MehrotraRhs}).
+        with right-hand side (\ref{eq:MehrotraRhs}).
 
   \item Do a linesearch to find the optimal $\hat\omega$ that maximizes 
         the stepsize $\alpha$ in $\Delta^\omega = \Delta_a +\omega\Delta_c$.
@@ -118,7 +331,7 @@ Below we formalize the weighted correctors algorithm.
     \item[Do]
       \begin{itemize}
       \item Solve system (\ref{eq:NewtonSystem}) with right-hand side
-	$(0,0,t)$, $t$ given by (\ref{Target}) for a centrality corrector
+	$(0,0,t)$, $t$ given by (\ref{eq:Target}) for a centrality corrector
 	direction $\Delta_m$.
       \item Perform a linesearch to find the optimal $\hat\omega$ that maximizes 
         the stepsize $\alpha$ in $\Delta^\omega = \Delta_p +\omega\Delta_m$.
@@ -131,12 +344,9 @@ Below we formalize the weighted correctors algorithm.
 \item[End]
 \end{description}
 
-
 %
-% Section
 %
-\section{Numerical results}
-\label{NumRes}
+\subsection{Technicalities}
 
 We have implemented our proposal within the HOPDM interior point solver 
 \cite{HOPDM}. 
@@ -185,6 +395,10 @@ that the straight use of $\omega = \omega_{\min} = \alpha_P\alpha_D$
 is too conservative. Still, such $\omega_{\min}$ is a reliable lower 
 bound for attractive weights $\omega$. 
 
+\fb{
+Show a table or a figure for this.
+}
+
 In our crude linesearch procedure we choose 9 points uniformly distributed 
 in the interval $[\alpha_P\alpha_D, 1]$ 
 and evaluate, for each of these points, the stepsizes in both spaces. 
@@ -220,8 +434,14 @@ product $\alpha_P\alpha_D$ of about 0.375.
   \caption{Relationship between $\omega$ and $\alpha_P\alpha_D$ in two iterations of problem {\tt capri}.}
   \label{fig:alphaomega}
 \end{figure}
+
 %
-\\We tested our implementation in a series of computational 
+% Section
+%
+\section{Numerical results}
+\label{NumRes}
+
+We tested our implementation in a series of computational 
 experiments, using test problems from different collections. 
 As a comparison, we present the results obtained by PCx \cite{PCx}, 
 a reference implementation of interior point methods. Since the two 
@@ -237,7 +457,11 @@ are met:
 \frac{\|b-Ax\|}{1+\|b\|} \le 10^{-8},  \qquad
 \frac{\|c-A^Ty-s\|}{1+\|c\|} \le 10^{-8}.
 \ee
-%
+
+\fb{
+Criticize these criteria.
+}
+
 We present our results in terms of number of iterations and number 
 of backsolve operations. The rationale behind this decision is that 
 the multiple centrality correctors technique determines the number 
@@ -412,6 +636,180 @@ a few iterations.
 In particular, it suggests that if we had a cheap way of generating
 search directions, then it would be beneficial to have as many as possible.
 
+
+%
+% Section
+%
+\section{Symmetric neighbourhood}
+\label{sec:SymNeighbourhood}
+
+The quality of centrality (understood in a simplified way as complementarity)
+is {\it not} well characterised by either of two neighbourhoods 
+$N_2$ or $N_{-\infty}$ commonly used in theoretical developments of IPMs.
+Instead, we propose to use a symmetric neighbourhood $N_s(\gamma)$,
+in which complementarity pairs have to satisfy 
+$\gamma \mu \leq x_i s_i \leq \gamma^{-1} \mu$, where $\gamma \in (0,1)$, 
+for a strictly feasible iterate $(x,y,s)$.
+
+\hrulefill
+
+
+Practical experience with the primal--dual algorithm in HOPDM \cite{HOPDM}
+suggests that one of the features responsible 
+for its efficiency is the way in which the quality of centrality 
+is assessed. By ``centrality'' we understand here the spread 
+of complementarity products $x_i s_i$, $i = 1,\dots,n$.
+Large discrepancies within the complementarity 
+pairs, and therefore bad centering, create problems for the search 
+directions: an unsuccessful iteration is caused not only by small
+complementarity products, but also by very large ones.
+%
+ This can be explained by the fact that
+Newton's direction tries to compensate for very 
+large products, as they provide the largest gain in complementarity 
+gap when a full step is taken. However, the direction thus generated 
+may not properly consider the presence of very small products, 
+which then become blocking components when the stepsizes are computed.
+
+The notion of spread in complementarity products
+is not well characterised by either 
+of the two neighbourhoods $N_2$ or $N_{-\infty}$ commonly used 
+in theoretical developments of IPMs.
+To overcome this disadvantage, here we formalise a variation 
+on the usual $\mathcal{N}_{-\infty}(\gamma)$ neighbourhood, 
+in which we introduce an upper bound on the complementary pairs. 
+This neighbourhood was implicitly used in the previous section 
+to define an achievable target for multiple centrality correctors.
+We define the symmetric neighbourhood to be the set
+\[
+  \mathcal{N}_s(\gamma)=\{(x,y,s)\in \mathcal{F}^0: 
+  \gamma\mu\le x_is_i \le \frac{1}{\gamma}\mu, \; i=1,\ldots,n\},
+\]
+where $\mathcal{F}^0=\{(x,y,s) : Ax=b,A^Ty+s=c,(x,s)>0\}$ 
+is the set of strictly feasible primal--dual points,
+$\mu = x^Ts/n$, and $\gamma \in (0,1)$.
+
+While the $\mathcal{N}_{-\infty}$ neighbourhood ensures that some 
+products do not approach zero too early, it does not prevent products
+from becoming too large with respect to the average.
+In other words, it does not provide a complete 
+picture of the centrality of the iterate. The symmetric 
+neighbourhood $\mathcal{N}_s$, on the other hand, promotes 
+the decrease of complementarity pairs which are too large, thus taking 
+better care of centrality.
+
+The analysis is done for the long-step feasible path-following algorithm 
+and follows closely the presentation of \cite[Chapter~5]{ipm:Wright97}. 
+%
+In this context, the search direction $(\Delta x, \Delta y, \Delta s)$ 
+is found by solving system (\ref{eq:NewtonSystem}) with 
+$r=(0,\; 0,-XSe+\sigma\mu e)^T$, $\sigma\in(0,1)$, $\mu=x^Ts/n$.
+
+First we need a technical result, the proof of which can be found 
+in \cite[Lemma~5.10]{ipm:Wright97} and is unchanged by the use 
+of $\mathcal{N}_s$ rather than $\mathcal{N}_{-\infty}$.
+%
+\begin{lemma} \label{Wright:5.10}
+If $(x,y,s)\in \mathcal{N}_s(\gamma)$, then\,
+\(
+  \|\Delta X\Delta Se\| \le 2^{-3/2}\left( 1+ \displaystyle{\frac{1}{\gamma}} \right)n\mu.
+\)
+\end{lemma}
+
+Our main result is presented in Lemma~\ref{SymLemma}. We prove that 
+it is possible to find a strictly positive stepsize $\alpha$ 
+such that the new iterate 
+$(x(\alpha),y(\alpha),s(\alpha))=(x,y,s)+\alpha(\Delta x, \Delta y, \Delta s)$
+will not leave the symmetric neighbourhood, 
+and thus this neighbourhood is well defined. This result extends 
+Theorem~5.11 in \cite{ipm:Wright97}.
+
+\begin{lemma} \label{SymLemma}
+  If $(x,y,s)\in\mathcal{N}_s(\gamma)$, then 
+  $\left(x(\alpha),y(\alpha),s(\alpha)\right)\in\mathcal{N}_s(\gamma)$ for all
+  \[
+  \alpha\in \left[0,2^{3/2}\gamma\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} \right].
+  \]
+\end{lemma}
+%
+\begin{proof}
+%
+Let us express the complementarity product in terms of the stepsize 
+$\alpha$ along the direction $(\Delta x, \Delta y, \Delta s)$:
+%
+\begin{eqnarray} \label{eq:CompProdAlpha}
+x_i(\alpha)s_i(\alpha)&=&(x_i+\alpha\Delta x_i)(s_i+\alpha\Delta s_i)\nonumber\\ 
+&=& x_is_i+\alpha(x_i\Delta s_i +s_i\Delta x_i) +\alpha^2\Delta x_i\Delta s_i\\
+&=& (1-\alpha)x_is_i + \alpha\sigma\mu + \alpha^2\Delta x_i\Delta s_i.\nonumber
+\end{eqnarray}
+%
+We need to study what happens to this complementarity product 
+with respect to both bounds of the symmetric neighbourhood.
+%
+Let us first consider the bound $x_is_i\le \frac{1}{\gamma}\mu$.
+By Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
+\[
+x_i(\alpha)s_i(\alpha) \le (1-\alpha)\frac{1}{\gamma}\mu +\alpha\sigma\mu 
++ \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
+\]
+At the new point $(x(\alpha),y(\alpha),s(\alpha))$, the new duality gap
+is $x(\alpha)^Ts(\alpha) = n\mu(\alpha)$.
+The relation $x_i(\alpha)s_i(\alpha)\le \frac{1}{\gamma}\mu(\alpha)$ 
+holds provided that
+\[
+(1-\alpha)\frac{1}{\gamma}\mu +\alpha\sigma\mu + \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu 
+\le\frac{1}{\gamma}(1-\alpha+\alpha\sigma)\mu,
+\]
+from which we derive a first bound on the stepsize:
+\[
+\alpha \le 2^{3/2}\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} = \bar\alpha_1.
+\]
+%
+Considering now the bound $x_is_i\ge \gamma\mu$ and proceeding as before,
+%By Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
+%\[
+%x_i(\alpha)s_i(\alpha) \ge (1-\alpha)\gamma\mu + \alpha\sigma\mu 
+%- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
+%\]
+%Hence, $x_i(\alpha)s_i(\alpha)\ge \gamma\mu(\alpha)$ provided that
+%\[
+%(1-\alpha)\gamma\mu + \alpha\sigma\mu- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu 
+%\ge\gamma(1-\alpha+\alpha\sigma)\mu,
+%\]
+we derive a second bound on the stepsize:
+\[
+\alpha\le 2^{3/2}\gamma\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} =\bar\alpha_2.
+\]
+
+Therefore, we satisfy both bounds and guarantee that 
+$(x(\alpha),y(\alpha),s(\alpha))\in \mathcal{N}_s(\gamma)$ if
+\[
+\alpha \in [0,\min(\bar\alpha_1,\bar\alpha_2)],
+\]
+which proves the claim, as $\gamma \in (0,1)$.
+\end{proof}
+
+It is interesting to note that the introduction of the upper bound 
+on the complementarity pairs does not change the polynomial complexity 
+result proved for the $\mathcal{N}_{-\infty}(\gamma)$ neighbourhood 
+\cite[Theorem~5.12]{ipm:Wright97}. Therefore, the symmetric 
+neighbourhood provides a better practical environment without any 
+theoretical loss. This understanding provides some additional 
+insight into the desired characteristics of a well-behaved iterate.
+With this theoretical guidance, in the next section we will proceed 
+to discuss the practical implications derived from here.
+
+%
+% Section
+%
+\section{Other stuff}
+
+\fb{
+It would be good to try and implement using the search direction from
+the previous iteration as another (free) direction to span the subspace.
+}
+
+
 %
 %
 \subsection{Beyond Netlib}
@@ -448,6 +846,10 @@ produces savings from about 10\% to 30\%, with the remarkable results
 in {\tt rail2586} and {\tt rail4284}, for which the relative savings 
 reach 45\% and 65\%, respectively.
 
+More numerical results obtained on some collections of stochastic
+programming problems and quadratic problems can be found in
+\cite{ColomboGondzio05}.
+
 \begin{small}
 \begin{longtable}{|l|rrr|r|r|r|} \hline 
   \multicolumn{1}{|c|}{Problem}
@@ -459,7 +861,8 @@ reach 45\% and 65\%, respectively.
 & \multicolumn{1}{c|}{Change}\\ \hline
 \endhead
 \hline
-\multicolumn{7}{c}{\raisebox{-1ex}{Table~\ref{TimeBN}: Time comparison on other large problems (times are in seconds).}}
+\multicolumn{7}{c}{\raisebox{-1ex}{Table~\ref{TimeBN}: Time comparison on 
+other large problems (times are in seconds).}}
 \endfoot
 \label{TimeBN}
 CH & 3852 & 5062 & 42910 & 1.03 & 1.23 & 19.4\% \\
@@ -509,30 +912,30 @@ fome13 & 48568 & 97840 & 334984 & 1545.05 & 990.62 & -35.9\% \\
 \end{longtable} 
 \end{small}
 
-The collection of stochastic programming problems contains 119 examples
-and comes from
-\begin{center}
-{\tt http://www.sztaki.hu/\~{}meszaros/public\_ftp/lptestset/stochlp/}. 
-\end{center}
-
-We have also tested the implementation on a collection of 29 quadratic 
-programming problems, available from
-\begin{center}
-{\tt http://www.sztaki.hu/\~{}meszaros/public\_ftp/qpdata/}.
-\end{center}
-
-Normally, HOPDM automatically chooses between direct and iterative 
-approaches for computing directions. A higher-order correcting scheme
-makes much more sense with the direct approach when 
-backsolve is significantly less expensive than the factorization.
-In order to maintain consistency, we forced HOPDM to use a direct 
-approach when 
-solving this class of problems, rather than an iterative scheme.
+% The collection of stochastic programming problems contains 119 examples
+% and comes from
+% \begin{center}
+% {\tt http://www.sztaki.hu/\~{}meszaros/public\_ftp/lptestset/stochlp/}. 
+% \end{center}
+% 
+% We have also tested the implementation on a collection of 29 quadratic 
+% programming problems, available from
+% \begin{center}
+% {\tt http://www.sztaki.hu/\~{}meszaros/public\_ftp/qpdata/}.
+% \end{center}
+%
+% Normally, HOPDM automatically chooses between direct and iterative 
+% approaches for computing directions. A higher-order correcting scheme
+% makes much more sense with the direct approach when 
+% backsolve is significantly less expensive than the factorization.
+% In order to maintain consistency, we forced HOPDM to use a direct 
+% approach when 
+% solving this class of problems, rather than an iterative scheme.
 
 %
 % Section
 %
-\section{Conclusions}
+\subsection{Conclusions}
 \label{Conclusions}
 
 In this paper we have revisited the technique of multiple centrality 

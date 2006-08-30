@@ -1,4 +1,455 @@
+%Started on Monday 28 August 2006
+%Aug: 29, 30
+
 %
 % Chapter: Warm-start
 %
 \label{ch:Warmstart}
+
+%
+%
+%
+\section{Stochastic programming}
+
+By Stocastic Programming, we mean decision and control models in which 
+data evolves over time, and are subject to significant uncertainty.
+
+\hrulefill
+
+Uncertainty in the data is a commonly observed phenomenon in
+optimization problems coming from applications. Uncertainty
+affects problems that aim to plan future actions based on forecasted
+prices or costs. In can be argued that nearly all practical
+optimization problems display uncertainty in the data, even if this is
+not made explicit in the chosen solution method. 
+
+A standard approach to the problem of optimization under uncertainty
+has been to replace the uncertain data by their expected value and
+solve an {\em average case} problem. However, this approach is not
+suitable when some sort of provision of hedging against risk has to be
+taken into account. Another popular approach is {\em Robust
+optimization}, or the optimization of the {\em worst case}
+scenario. 
+
+When the uncertainty cannot be conveniently forecasted, the use of 
+deterministic models is considered inadequate for decision making. In 
+these situations, being able to describe and model the uncertain parameters
+becomes a requirement for robust decision making. Stochastic 
+programming \cite{KallWallace} is the discipline that studies the 
+methods and provides the tools for modelling uncertainty.
+
+Stochastic programming aims to take all possible future scenarios 
+into account, weighing them
+with their respective probabilities. Its strength lies in the
+adaptability which allows to express preferences such as restricting
+the exposure to risk. Unlike alternative approaches, it allows to model
+situations in which possible future events are correlated or follow a
+time-structure, in that realisations become known in stages and it is
+possible to react to the observed events.
+
+Its perceived weaknesses are the need for reliable forecasts
+of the probabilities of the future events under consideration
+(which may not be available), and the fact that stochastic programming
+(especially when applied to multi-stage models) tends to lead to
+problems with very large dimensions, thus making their solution
+challenging. The proposed research addresses this second point.
+
+\subsection{Stochastic programming concepts}
+
+%Stochastic Programming (SP) is a widely used technique to help 
+%decision-making in many areas of applied mathematics, 
+%engineering, economics. Many practical optimization problems have
+%unknown parameters and hence should be solved by stochastic
+%programming. If they are not it is due to lack of solution methods.
+
+A stochastic programming problem incorporates the uncertain parameters
+in the model, as can be illustrated by the problem
+%
+\begin{equation}
+\min_x E_\xi(f(x, \xi)) \;\text{ subject to }\; c(x, \xi) \le 0,
+\label{continuousSP}
+\end{equation}
+%
+where $\xi$ is a random variable and $E_\xi$ is the expectation function.
+This is usually interpreted as an optimization
+problem in which some parameters or coefficients are unknown.
+
+In stochastic programming, the uncertain environment is described 
+through a stochastic process which is assumed to be known or can be
+either estimated from 
+historical data or conjectured according to prescribed properties. The 
+continuous process $\xi$ is usually further approximated by a discrete 
+distribution, $\xi \in \{\xi_1, \ldots,\xi_n\}$, $p(\xi=\xi_i) = p_i$,
+in order to obtain a computationally amenable description. 
+%
+In such a case, the most common technique generates a 
+finite, but usually very large, number of scenarios that represent an 
+approximate description of the possible outcomes.
+
+%The decision variables $x$ are
+%split depending on the timing of the decision: $x_0$ are those
+%variables whose value is to be decided {\em before} the random event
+%becomes known, $x_i$ are decisions taken as a reaction to the outcome
+%of $\xi$ being $\xi_i$ (recourse action). Problem
+%(\ref{continuousSP}) then becomes
+%\begin{equation}
+%\min_{x} \sum_{i=1}^n p_i f(x_0, x_i, \xi_i)) \text{~subject
+%to~}c(x_0, x_i, \xi_i) \le 0,
+%\label{SP}
+%\end{equation}
+
+In a planning approach, the evolution of uncertainties can be 
+described as an alternating sequence of decisions and random 
+realisations that occur at different points in time (stages).
+The discrete stochastic process can be represented as an event tree.
+
+Each node of the tree denotes a point in time when a realisation 
+of the random process becomes known and a subsequent decision is taken.
+To each node of the event tree we associate a set of constraints, an 
+objective function, and the conditional probability of visiting the 
+node from its parent node in the previous stage.
+A path from the root to a leaf node of the event tree represents a 
+scenario. The probability of each scenario is the product of the 
+conditional probabilities of visiting each node on the path.
+
+Techniques of generating appropriate scenario trees have been extensively
+studied in the literature. For a survey see for example \cite{HoylandWallace}.
+
+%{\em this really is the deterministic equivalent formulation, not the
+%stochastic program as such. This section needs a proper write-up, to
+%mention
+%\begin{itemize}
+%\item Underlying probability distribution, with proper notation (to
+%express problems where the distribution is successively approximated)
+%\item Recourse formulation
+%\item multi-stage formulation
+%\item Block structure of the (multi-stage) SP 
+%\item Need to mention scenario tree and block structure.
+%\end{itemize}
+%}
+
+%
+%
+\subsection{Deterministic equivalent formulation for stochastic programs}
+\label{DetEqForm}
+
+A natural formulation of a stochastic programming problem relies on 
+recursion to describe the dynamics of the modelled process.
+The term {\it recourse} means that, at each time period, the decision 
+variables adapt to the different outcomes of the random parameters.
+
+A multistage stochastic program with recourse is a multi-period 
+mathematical program where parameters are assumed to be uncertain 
+along the time path.
+%
+To formulate the deterministic equivalent of the multi-stage 
+stochastic programming problem we first need to enumerate all nodes 
+of the event tree. We use a breadth-first 
+search order, i.e., we start from a root node corresponding 
+to the initial stage and end with leaf nodes corresponding 
+to the last stage.
+
+Let $t = 1,2,\ldots,T$ denote the stage and $l_t$ be the index of a 
+node at stage $t$.
+Let $L_t$ denote the last node at stage $t$. Hence 
+the nodes that belong to stage $t > 1$ have indices 
+$l_t = L_{t-1} \! + \! 1, L_{t-1} \! + \! 2, \dots, L_t$. 
+With $a(l_t)$ we denote the direct ancestor of node $l_t$ (which is a 
+node that belongs to stage $t-1$).
+All decision variables $x$ are superscripted with the node number 
+$l_t$.
+
+The main constraint that describes the dynamics of the system has the form 
+\[
+  T^{l_t}x^{a(l_t)} +W^{l_t}x^{l_t} =h^{l_t}, \qquad l_t =L_{t-1}+1,\dots,L_t,
+\]
+%
+where $T^{l_t}$ is the technology matrix that varies 
+with the node in the event tree, and $W^{l_t}$ is the recourse
+matrix that, in general, depends on realisations within the same stage,
+but often varies only with time.
+
+The deterministic equivalent formulation of the multi-stage 
+problem has the following general form:
+
+\begin{equation}
+  \begin{array}{rrclll}
+    \min & (q^{l_1})^T x^{l_1} & + & \!\!\!\!{\displaystyle \sum_{l_2=L_1 \!+\! 1}^{L_2}} \!\!\! p^{l_2} (q^{l_2})^T x^{l_2} && \!\!\!\!\!\!  + \; \ldots \; + {\displaystyle \sum_{l_T = L_{T-1} \! + \! 1}^{L_T}} \!\!\!\!\! p^{l_T} (q^{l_T})^T x^{l_T} \\
+    \mbox{s.t.} & & & W^{l_1} x^{l_1} & \hspace{-1.5cm} = h^{l_1}, \\
+    & T^{l_2} x^1 & + & W^{l_2} x^{l_2} & \hspace{-1.5cm} = h^{l_2}, & l_2 = L_1 \!+\! 1,\dots,L_2, \\
+    & & \vdots & & \hspace{-1.4cm} \vdots \\
+    & T^{l_T} x^{a(l_T)} & + &  W^{l_T} x^{l_T} & \hspace{-1.5cm} = h^{l_T}, & l_T = L_{T-1} \! + \! 1, \dots, L_T, \\
+    & & & x^{l_t} & \hspace{-1.5cm} \geq 0, & l_t = 1,\dots, L_{T}. \\
+    \label{DetEquiv}
+  \end{array} 
+\end{equation}
+
+Note that the probabilities in the objective function of problem 
+(\ref{DetEquiv}) are the unconditional path probabilities: $p^n$ is 
+the probability that a path goes through node $n$, which equals the 
+product of the conditional probabilities along the path from the root 
+to the node.
+
+If the event tree is traversed with depth-first-search ordering of the 
+nodes during the generation of the mathematical program, the 
+corresponding constraint matrix displays a nested dual block-angular 
+structure.
+%
+While the different ordering of blocks whithin the matrix is not 
+relevant for general-purpose solvers (besided possibly different 
+reductions achieved by the presolve analysis), the 
+structure-exploiting software OOPS \cite{GondzioSarkissian} can take 
+fully advantage of the nested structure.
+
+
+%
+% Section
+%
+\section{Random notes}
+
+\begin{itemize}
+\item The reduced tree approach to construct a warmstart iterate 
+doesn't seem to be IPM specific, and could be exploited also by a 
+simplex solver (in which case, how would such a solver obtain the 
+complete basis?). However, the advantage of IPM are the possibility 
+of solving huge scale problems, parallelism, and extension to 
+quadratic problems.
+
+\item Provide a comparison between initial infeasibilities 
+produced by Mehrotra's heuristic and the reduced-tree starting 
+point. It would be great to have some sort of theoretical back-up 
+about the relationship between magnitude of perturbation and 
+initial infeasibilities.
+
+\item Point out that the way we generate our starting point 
+guarantees better centrality (at least in the sense of 
+complementary pairs). Possibly this could be compared again 
+with the points generated by Mehrotra's starting point heuristic.
+
+\item Explain what we do with probabilities: how we adjust them 
+in the reduced tree, and how they affect the dual iterates.
+
+\item Point out that if we knew about the underlying 
+stochastic process, then we could exploit it directly in the 
+generation of the reduced tree (althogh, in such a case how 
+could we ensure the correspondence of nodes between the reduced 
+and the complete tree?)
+
+\item Compare the efficiency of the strategy according to the 
+number of variations in the stochastic file. Also, how many 
+variations happen in our test problems?
+
+\item Clarify the issue of nonanticipativity constraints: 
+since we have our own deterministic equivalent generator, we 
+already avoid duplication without using those constraints.
+
+\item Mention that if the iterate produced by a reduced tree 
+is not good enough (according to what criteria?), another one 
+can be produced by generating a modified reduced tree (more 
+bushy for example).
+\end{itemize}
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+
+%
+% Section
+%
+\section{Theoretical analysis}
+
+Once we formulate the complete deterministic equivalent $A$, we need 
+to satisfy the following system:
+\[
+Ax=b,
+\]
+where $A\in \R^{m\times n}$ is a block-structured matrix of 
+large dimension. Since this is a challenging task, we consider 
+only a fraction of the scenarios we are interested in. Therefore, 
+instead of the complete event tree, we will focus on a subtree. 
+This corresponds to partitioning the deterministic equivalent 
+like this:
+\[
+A = \left[ \begin{array}{cc}
+    \tilde{A} & 0 \\ Q & T \\
+    \end{array} \right],
+\]
+where $\tilde{A}$ contains only the scenarios corresponding 
+to the subtree, $T$ contains the remaining scenarios, and $Q$ 
+provides the linking blocks. For computational purposes, the 
+dimension of $\tilde{A}$ is much smaller than that of $A$.
+
+Therefore, to obtain a warm-starting solution we need to solve 
+the reduced system
+\[
+\tilde{A}\tilde{x}=\tilde{b},
+\]
+where we adopted a similar partitioning for $x$ and $b$.
+
+In the context of primal--dual interior point methods, we are 
+solving the system
+\[
+\left[ \begin{array}{ccc}
+    \tilde{A} & 0 & 0 \\
+    0 & \tilde{A}^T & I \\
+    \tilde{S} & 0 & \tilde{X}
+    \end{array} \right]
+\left[ \begin{array}{c}
+    \Delta\tilde{x} \\ \Delta\tilde{y} \\ \Delta\tilde{s}
+\end{array} \right] = 
+\left[ \begin{array}{c}
+      0 \\ 0 \\ -\tilde{X}\tilde{S}e - \sigma\mu e
+\end{array} \right]
+\]
+
+Given an optimality tolerance $\epsilon$, we need to solve 
+the above system for some primal--dual solution 
+$(\tilde{x}^*, \tilde{s}^*, \tilde{y}^*)$. This will be used 
+as a warm-starting iterate for the complete system.
+
+We face now the problem of how to reconcile the solution from 
+the subtree to the solution for the complete tree.
+
+\hrulefill
+
+Later stages are the more subject to variation because they 
+depend on the realisations of all previous stages. Stages 
+closer to the root display less variability when additional 
+scenarios are considered.
+
+%
+%
+\subsection{Initialising the warm-start iterate}
+
+As observed in the literature review above, the perturbations 
+studied were of two types:
+\begin{itemize}
+\item changes in the data that do not affect the problem size;
+\item changes that affect the problem size, by increasing the 
+number of constraints (in either the primal or the dual problem).
+\end{itemize}
+
+In our approach, we have to face a different sort of 
+perturbation, where the size of the problem changes in both 
+the number of constraints and the number of variables in the 
+primal and in the dual. Therefore, we are faced with the 
+challenge of using the solution of the small instance to 
+provide a warm-start iterate for the complete system. This 
+entails initialising both the primal and the dual vectors, of 
+which only a fraction of the elements are known. This objective 
+can be achieved by exploiting the inherent structure of the problem.
+
+We start by showing how to initialise the warm-start iterate 
+in the simplest case possible. Let the primal problem be
+\[
+\begin{array}{rllllll}
+  \min & c^T x_0 + c_1^Tx_1 + c_2^Tx_2 + c_3^Tx_3 \\
+  \mbox{s.t.} & Fx_0 &   \!\!\! + \; Gx_1 &&& = & b_1 \\
+              & Fx_0 &&  \!\!\! + \; Gx_2 &&  = & b_2 \\
+              & Fx_0 &&& \!\!\! + \; Gx_3 &   = & b_3 \\
+              & x_i \ge 0, \quad i = 0, 1, 2, 3.
+\end{array}
+\]
+
+Notice how the technology matrix $F$ and the recourse matrix 
+$G$ are the same for all scenarios. This fact is fundamental 
+in our approach, and is not overly simplistic: many real life 
+situations are modelled this way. 
+
+Suppose we solve a reduced problem with only two scenarios. 
+While such a reduction is not sensible in practice, it will 
+make our approach evident.
+
+%
+%
+\subsection{Dual initialisation}
+
+After having solved the reduced problem, we want to obtain 
+proper initial values for $(x_3, y_3, s_3)$. To do this, let 
+us consider the dual formulation (WHY?)
+\[
+\begin{array}{rrrrllllll}
+\max & b_1^T y_1 & \!\!\! + \;\,\, b_2^T y_2 & \!\!\! + \;\,\, b_3^T y_3 \\
+\mbox{s.t.} & F^T y_1 & \!\!\! + \; F^Ty_2 & \!\!\! +\; F^Ty_3 & \!\!\! +\; s_0 &&&& \!\!\!= c_0 \\
+            & G^T y_1 &&&& \!\!\! + \; s_1 &&&  \!\!\!= c_1 \\
+            && G^T y_2 &&&&  \!\!\! + \; s_2 && \!\!\!= c_2 \\
+            &&& G^T y_3 &&&& \!\!\! + \; s_3 &  \!\!\!= c_3 \\
+            &&&&&&&& \hspace{-7.8cm} s_i \ge 0, \quad i = 0, 1, 2, 3.
+\end{array}
+\]
+
+We notice that the last set of equations depends only on the 
+newly added variables. Hence, we may want to find a feasible 
+solution with respect to these constraints. By neglecting the 
+first set of constraints, we will likely violate them. We accept 
+this as the unavoidable price to pay if we want to find a 
+computationally viable starting point.
+
+By linearity, if we find weights $\omega_1$ and $\omega_2$ such that
+\[
+  \omega_1 c_1 + \omega_2 c_2 = c_3,
+\]
+then we would immediately retrieve $y_3$ and $s_3$:
+\[
+  y_3 = \omega_1 y_1 + \omega_2 y_2, \quad s_3 = \omega_1 s_1 + \omega_2 s_2.
+\]
+
+However, without imposing conditions on $\omega_1$ and $\omega_2$, 
+we have no guarantee to obtain $s_3 \ge 0$.
+
+Let us first consider the unconstrained subproblem. As the system 
+is overdetermined, we aim for a least squares solution. Hence we 
+try to find weights such that
+\[
+  \min \; \| c_3 - C\omega\|_2^2,
+\]
+where $C = [c_1 \; c_2]$ and $\omega = [\omega_1 \; \omega_2]^T$. 
+This corresponds to
+\[
+  \min \; (c_3 - C\omega)^T(c_3 - C\omega),
+\]
+whose solution satisfies
+\[
+  C^T C\omega = C^T c_3.
+\]
+
+Let us now turn to the constrained problem
+\begin{eqnarray*}
+  &\min &(c_3 - C\omega)^T(c_3 - C\omega) \\
+  &\mbox{s.t.} &Sw \ge 0,
+\end{eqnarray*}
+where $S = [s_1 \; s_2]$. The solution to this problem satisfies
+\[
+  C^T C\omega = C^T c_3 + \frac{1}{2}S^T\lambda,
+\]
+where $\lambda$ is the vector of Lagrange multipliers and can be 
+used to penalise solutions that violate the non-negativity 
+constraints. We first set $\lambda = 0$ and thus solve the 
+unconstrained problem. If this produces an iterate $s_3 \ge 0$, 
+then we are done. Otherwise, we set $\lambda^{(j)} > 0$ for the 
+components $s_3^{(j)} <0$ and solve again. This may need to be 
+repeated until we obtain weights $\omega$ for which $S\omega \ge 0$.
+
+This ad-hoc mechanism may be too complicated to be 
+computationally viable. Another possibility is to solve the 
+constrained problem as a quadratic programming problem. However, 
+this possibility may still require more effort than what 
+we are willing to use.
+
+For a practical implementation, we may resort to the simpler 
+strategy of shifting any negative values of $S\omega$. 
+We observe that a similar approach is used in finding the starting 
+point for interior point methods \cite{Mehrotra92}.
+
+%
+%
+\subsection{Primal initialisation}
+
+How to initialise the primal variables:
+\begin{itemize}
+\item From dual such that $x_3s_3 = \mu$;
+\item From $Gx_3 = b_3 - Fx_0$ (maybe plus additional conditions 
+on centrality since it's an underdetermined system).
+\end{itemize}
