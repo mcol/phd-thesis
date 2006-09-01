@@ -1,4 +1,6 @@
 %Started on 30th August 2006
+%Aug: 31
+%Sep:  1
 
 %
 % Chapter: Background and introduction.
@@ -19,6 +21,11 @@ An historical account of linear programming is given in \cite{Schrijver86}.
 
 \fb{
 The simplex method as an active set method.
+}
+
+\fb{
+Maybe something on the difficulty of LP? And something that motivates
+the fact that a solution has to be at a vertex.
 }
 
 The simplex method reaches a solution by visiting a sequence of 
@@ -104,8 +111,8 @@ consequence of that.
 
 Interior point methods are well-suited to solving very
 large scale optimization problems. Their theory is well understood
-\cite{ipm:Wright97} and the techniques used in their implementation are
-documented in extensive literature (see, for example, 
+\cite{ipm:Wright97} and the techniques used in their implementation 
+are documented in extensive literature (see, for example, 
 \cite{AndersenGondzioMeszarosXu,GondzioTerlaky} and the references therein).
 
 \fb{
@@ -125,7 +132,7 @@ such a point can be projected upon a face of the polyhedron.
 %
 \section{Other stuff}
 
-A generic optimization algorithm can be summarised in the folllowing
+A generic optimization algorithm can be summarised in the following
 scheme:
 
 \bt{
@@ -143,3 +150,73 @@ scheme:
 \item[Until] some termination criteria are met.
 \end{description}
 }
+
+Each of the point of this simplified algorithm has to be specialised
+to the specific algorithm we are talking about.
+
+%
+% Section
+%
+\section{Motivation of this thesis}
+
+Optimization algorithms are extremely important in real-life 
+applications. Theoretical advances are necessary for the 
+understanding of the current state and the opening of new avenues 
+of research. 
+
+However, theory per se has rarely a direct impact on the lives 
+of those who use optimization as a tool to solver their problems.
+It is therefore necessary that the understanding gathered from
+theoretical studies is then transformed into actual practical
+tools. This often requires the implementation of computer programs.
+
+The process of creating computationally efficient methods from
+theoretical studies is not as direct as it might sound. It usually
+involves relaxing many of the theoretical assumptions, and ensuring
+other properties.
+
+Therefore we will put great effort in accompanying theoretical
+results with the corresponding computational considerations. While
+in a few cases these can be treated simultaneously, generally that
+will not be possible. There are a few reasons for this:
+\begin{itemize}
+\item Theoretical assumptions may not be realistic: this is the case
+when a condition stated in a theorem is not realistically satisfiable 
+in practice (for examples, bounds on some quantities). 
+\item Theoretical assumptions may be too restrictive: this happens
+when the theory predicts a certain behaviour under some conditions
+but actually in practice it happens anyway, or provides a worst-case 
+result which may be far from the average one.
+\item Theoretical requirement is computationally expensive: this 
+may happen when the satisfaction of a certain condition is not 
+computationally viable, and workarounds are usually employed.
+\end{itemize}
+
+Besides this, the practical implementation of an algorithm happens
+in a context that is not amenable to theoretical analysis for the
+following reasons:
+\begin{itemize}
+\item Finite precision of floating-point arithmetic;
+\item Heuristic choices;
+\item 
+\end{itemize}
+
+%
+%
+\section{Main references}
+
+The original results presented in this thesis are mainly based on two
+papers that have been submitted for publication.
+
+The first \cite{ColomboGondzio05} is a joint work with Jacek Gondzio.
+The main objective of this paper was to analyze the efficiency of
+corrector directions in the light of the theoretical studies of Cartis
+\cite{Cartis04,Cartis05}. It concentrates on ensuring that a corrector
+direction computed at the current iterate is not rejected because it
+produces a short stepsize. Such a behaviour usually is manifested when
+the point is badly centered or highly infeasible.
+
+The second \cite{ColomboGondzioGrothey06} is a joint work with
+Jacek Gondzio and Andreas Grothey. It aims at developing an
+efficient way of constructing a starting point for structured 
+large-scale linear stochastic programs.

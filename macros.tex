@@ -17,9 +17,16 @@
 % Bounded text
 %
 \newcommand{\bt}[1]{
-\noindent\hrulefill
-\vspace{-2\parsep} {#1} \vspace{-2\parsep}
-\noindent\hrulefill
+\begin{center}
+\parbox{.9\textwidth}{
+\hrulefill 
+\vspace{-2ex} 
+#1
+ \vspace{-3ex}
+\hrulefill
+} 
+\end{center}
+\vspace{\parsep}
 }
 
 %
@@ -46,24 +53,29 @@
 %
 % Theorems
 %
-\newtheorem{prop}[subsection]{Proposition}
-\newtheorem{thm}[subsection]{Theorem}
-\newtheorem*{thm*}{Theorem}
-\newtheorem{lemma}[subsection]{Lemma}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
 \newtheorem*{lemma*}{Lemma}
-\newtheorem{cor}[subsection]{Corollary}
+\newtheorem{proposition}[subsection]{Proposition}
+\newtheorem{corollary}[subsection]{Corollary}
 \newtheorem{claim}[subsection]{Claim}
 \newtheorem{condition}[subsection]{Condition}
 \newtheorem{conjecture}[subsection]{Conjecture}
+
+%
+% Definitions
+%
 \theoremstyle{definition}
 \newtheorem{defn}[subsection]{Definition}
 \newtheorem*{defn*}{Definition}
-\newtheorem{exm}[subsection]{Example}
-\newtheorem{exms}[subsection]{Examples}
-\newtheorem{notelabel}[subsection]{Note}
+\newtheorem{example}[subsection]{Example}
+\newtheorem{examples}[subsection]{Examples}
 \newtheorem{note}[subsection]{Note}
 \newtheorem{question}[subsection]{Question}
 \newtheorem*{question*}{Question}
+\newtheorem{remark}{Remark}[chapter]
+\newtheorem*{remark*}{Remark}
 
 %
 % Multiline comments

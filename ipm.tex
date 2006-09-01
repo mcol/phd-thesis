@@ -1,5 +1,6 @@
 %Started on 9th August 2006
-%Aug: 11, 22, 23, 24, 25, 28, 29, 30
+%Aug: 11, 22, 23, 24, 25, 28, 29, 30, 31
+%Sep:  1
 
 %
 % Chapter: Interior point methods
@@ -129,9 +130,14 @@ the {\em central path}.
 %
 \subsection{The central path}
 
-The study of the notion of central path and its properties was started by
-Megiddo's seminal paper \cite{Megiddo}, which is still considered a basic 
-reference in the interior-point literature.
+\fb{
+Find out who started the study of the notion of central path. Gonzaga
+says it was Bayer and Lagarias and Megiddo.
+}
+
+The study of the primal--dual properties of the central path 
+was started by Megiddo's seminal paper \cite{Megiddo}, which is 
+still considered a basic reference in the interior-point literature.
 
 Many algorithms used in mathematical programming can be interpreted as path-following. What is studied here is the path described by the barrier functions in linear programming.
 
@@ -194,6 +200,16 @@ and straight line towards the end \cite{Megiddo}.
  Klee-Minty example, discussion with Coralia (she mentioned a 
 chapter in Ye's book).
 \end{itemize}
+}
+
+\fb{
+Gonzaga \cite{Gonzaga92} mentions various centers (center of gravity, 
+analytic center). See also Nick Gould's slides at cerfacs.
+}
+
+\fb{
+In \cite[Section 8]{Gonzaga92} there is a nice part on scaling,
+and also on primal--dual scaling.
 }
 
 %
@@ -283,7 +299,6 @@ in terms of conditioning (much worse for normal equations).
 }
 
 
-
 %
 % Section
 %
@@ -304,7 +319,7 @@ $O(\sqrt{n}L)$ iterations.
 
 \fb{
 Not sure about that reference! Mehrotra actually cites another paper
-from M-A.
+from Monteiro and Adler.
 }
 
 %
@@ -989,7 +1004,6 @@ the case of stochastic linear programming problems will be analysed.
 
 Present common termination criteria used in practice.
 
-\fb{
 From \cite{GondzioTerlaky}:
 Primal feasibility:
 \[
@@ -1010,6 +1024,7 @@ In the literature, it is common to use the value $p = 8$.
 The third condition is usually the most important, as once that
 is attained, also the 2 before are attained as well.
 
+\fb{
 Dependence on scaling.
 }
 
@@ -1057,6 +1072,7 @@ by the KKT conditions.
 Choice of step length: either use neighbourhoods or strict 
 positivity of iterates. The latter works very efficiently 
 in practice but does not ensure global convergence.
+
 
 %
 %
@@ -1161,19 +1177,36 @@ such as in reoptimization.
 Two neighbourhoods are often used in theoretical developments.
 
 The first is based on the Euclidean norm, and it is often referred
-to as the {\em small neighbourhood}:
+to as the {\em tight neighbourhood}:
 \[
 \mathcal{N}_2(\theta) = \{ (x,y,s) \in \mathcal{F}^0 :
                          \| XSe - \mu e \|_2 \le \theta\mu \}
 \]
+Such a neighbourhood follows very closely the central path, thus
+allowing the algorithm to decrease the barrier parameter
+by a small amount at each iteration (giving rise to the name
+of {\em short step algorithms}). However,
+since the iterates are very close to the central path, the 
+search directions can be followed with full step.
 
 The other is instead based on the infinity norm, and it is often
 called {\em wide neighbourhood}:
 \[
 \mathcal{N}_{-\infty}(\gamma) = \{ (x,y,s) \in \mathcal{F}^0 :
-                         x_is_i \ge \gamma\mu \forall i \}
+                         x_is_i \ge \gamma\mu, \; \forall i \}
 \]
+Algorithms based on such a neighbourhood are allowed to generate
+iterates that follow more loosely the central path. The iterates 
+have more freedom of movement, and these algorithms are less 
+conservative. However, the Newton direction computed from such 
+points has weaker properties, and a linesearch procedure is
+needed to ensure that the positivity of the $(x,s)$ iterates is
+preserved.
 
 In Section (\ref{sec:SymNeighbourhood}) we will study a variation
 of the $\mathcal{N}_{-\infty}$ neighbourhood which better describes
 the centrality requirements needed for a practical algorithm.
+
+\fb{
+Describe the analytic center and its properties.
+}
