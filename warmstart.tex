@@ -1,21 +1,52 @@
 %Started on Monday 28 August 2006
 %Aug: 29, 30
+%Sep:  7,  8
 
 %
 % Chapter: Warm-start
 %
 \label{ch:Warmstart}
 
+Stochastic programming \cite{BirgeLouveaux,KallWallace}
+is a technique to inform decision-making 
+in many areas of applied mathematics, engineering, economics and 
+finance where some parameters are unknown.
 %
+Stochastic programming models uncertainty through the analysis 
+of possible future outcomes (scenarios). The more detailed the 
+description is, the more robust are the decisions taken. 
+
+Taking into account a large number of possible scenarios leads
+to the generation of large-scale structured optimization problems.
+With the growing industrial acknowledgement of the benefits of 
+considering uncertainty for planning purposes, it is expected that the 
+need for solving very large instances will grow as well.
+As the dimensions of the problems increase, the computational advantages 
+of relying on interior point solvers become more and more evident. 
+
+In this chapter we develop an efficient way of constructing a 
+starting point for structured large-scale stochastic linear programs.
+
+This chapter is designed as follows. We first present the relevant
+concepts of stochastic programming and introduce a measure of
+the distance between scenarios. Then we review some studies on 
+warm-start techniques for interior point methods. Then we introduce 
+the proposed method of generating a good starting point for 
+stochastic programming that exploits the inherent structure of the
+problem. Finally, we present an analysis of the warm-start strategy.
+
+The results presented in this chapter have been the subject
+of a joint work with Jacek Gondzio and Andreas Grothey
+\cite{ColomboGondzioGrothey06}. 
+
 %
+% Section
 %
 \section{Stochastic programming}
 
-By Stocastic Programming, we mean decision and control models in which 
+By stochastic programming, we mean decision and control models in which 
 data evolves over time, and are subject to significant uncertainty.
-
-\hrulefill
-
+%
 Uncertainty in the data is a commonly observed phenomenon in
 optimization problems coming from applications. Uncertainty
 affects problems that aim to plan future actions based on forecasted
@@ -35,11 +66,11 @@ When the uncertainty cannot be conveniently forecasted, the use of
 deterministic models is considered inadequate for decision making. In 
 these situations, being able to describe and model the uncertain parameters
 becomes a requirement for robust decision making. Stochastic 
-programming \cite{KallWallace} is the discipline that studies the 
-methods and provides the tools for modelling uncertainty.
+programming \cite{BirgeLouveaux,KallWallace} is the discipline that 
+studies the methods and provides the tools for modelling uncertainty.
 
 Stochastic programming aims to take all possible future scenarios 
-into account, weighing them
+into account, weighting them
 with their respective probabilities. Its strength lies in the
 adaptability which allows to express preferences such as restricting
 the exposure to risk. Unlike alternative approaches, it allows to model
@@ -52,32 +83,41 @@ of the probabilities of the future events under consideration
 (which may not be available), and the fact that stochastic programming
 (especially when applied to multi-stage models) tends to lead to
 problems with very large dimensions, thus making their solution
-challenging. The proposed research addresses this second point.
+challenging. 
 
+%
+%
 \subsection{Stochastic programming concepts}
-
-%Stochastic Programming (SP) is a widely used technique to help 
-%decision-making in many areas of applied mathematics, 
-%engineering, economics. Many practical optimization problems have
-%unknown parameters and hence should be solved by stochastic
-%programming. If they are not it is due to lack of solution methods.
 
 A stochastic programming problem incorporates the uncertain parameters
 in the model, as can be illustrated by the problem
 %
-\begin{equation}
-\min_x E_\xi(f(x, \xi)) \;\text{ subject to }\; c(x, \xi) \le 0,
-\label{continuousSP}
-\end{equation}
+\be \label{eq:SP}
+\min_x \E_\xi(f(x, \xi)) \;\text{ subject to }\; g(x, \xi) \le 0,
+\ee
 %
-where $\xi$ is a random variable and $E_\xi$ is the expectation function.
-This is usually interpreted as an optimization
+where $\xi$ is a random variable and $\E_\xi$ is the expectation function.
+This can be interpreted as an optimization
 problem in which some parameters or coefficients are unknown.
+Formulation {\ref{eq:SP}) is however an unsatisfactory model, since
+it is unclear how to interpret the {\em probabilistic} constraint
+$g(x,\xi) \le 0$. A better formulation is the stochastic program
+with recourse:
+%
+\begin{eqnarray} \label{eq:SPRecourse}
+\min_x \hspace{-1.5em} && \E_\xi[f(x, \xi) + Q(x, \xi)] \nonumber \\ 
+  && Q(x,\xi) = \min_y \{\, q(y) : u_i(y) \ge g_i^+(x, \xi),\:\forall i \,\},\\
+  && g_i^+(x, \xi) = \max \{\, g_i(x, \xi), \, 0 \,\}. \nonumber
+\end{eqnarray}
 
-In stochastic programming, the uncertain environment is described 
-through a stochastic process which is assumed to be known or can be
-either estimated from 
-historical data or conjectured according to prescribed properties. The 
+\fb{
+Explain what the recourse is.
+}
+
+In stochastic programming, the uncertain environment is 
+described through a stochastic process which is assumed to be 
+known or can be either estimated from historical data or 
+conjectured according to some prescribed properties. The 
 continuous process $\xi$ is usually further approximated by a discrete 
 distribution, $\xi \in \{\xi_1, \ldots,\xi_n\}$, $p(\xi=\xi_i) = p_i$,
 in order to obtain a computationally amenable description. 
@@ -98,35 +138,43 @@ approximate description of the possible outcomes.
 %\label{SP}
 %\end{equation}
 
-In a planning approach, the evolution of uncertainties can be 
+The model can be generalised to a multi-stage model in which 
+the evolution of uncertainties can be 
 described as an alternating sequence of decisions and random 
 realisations that occur at different points in time (stages).
-The discrete stochastic process can be represented as an event tree.
-
-Each node of the tree denotes a point in time when a realisation 
+The discrete stochastic process can be represented as an event tree,
+where each node denotes a stage when a realisation 
 of the random process becomes known and a subsequent decision is taken.
+A path from the root to a leaf node of the event tree represents a 
+scenario.
+A very simple event tree is shown in Figure~\ref{fig:EventTree}.
+%
+\begin{figure}[ht]
+  \begin{center}
+    \includegraphics[scale=0.6]{figures/tree.eps}
+    \caption{Event tree.}
+    \label{fig:EventTree}
+  \end{center}
+  \vspace{-3ex}
+\end{figure}
+
 To each node of the event tree we associate a set of constraints, an 
 objective function, and the conditional probability of visiting the 
 node from its parent node in the previous stage.
-A path from the root to a leaf node of the event tree represents a 
-scenario. The probability of each scenario is the product of the 
+The probability of each scenario is the product of the 
 conditional probabilities of visiting each node on the path.
 
-Techniques of generating appropriate scenario trees have been extensively
-studied in the literature. For a survey see for example \cite{HoylandWallace}.
+The question of how to generate an appropriate scenario tree
+is not trivial, and has received extensive attention in the
+literature \cite{DupacovaConsigliWallace,HoylandKautWallace,HoylandWallace,Pflug01}.
 
-%{\em this really is the deterministic equivalent formulation, not the
-%stochastic program as such. This section needs a proper write-up, to
-%mention
-%\begin{itemize}
-%\item Underlying probability distribution, with proper notation (to
-%express problems where the distribution is successively approximated)
-%\item Recourse formulation
-%\item multi-stage formulation
-%\item Block structure of the (multi-stage) SP 
-%\item Need to mention scenario tree and block structure.
-%\end{itemize}
-%}
+\fb{
+It should be noted that usually a very large number of scenarios is
+needed to adequately capture the characteristics of the underlying
+continuous distribution, particularly in the multi-stage setting.
+In this case, the number of scenarios grows exponentially with the
+number of decisions considered at each stage.
+}
 
 %
 %
@@ -135,19 +183,58 @@ studied in the literature. For a survey see for example \cite{HoylandWallace}.
 
 A natural formulation of a stochastic programming problem relies on 
 recursion to describe the dynamics of the modelled process.
-The term {\it recourse} means that, at each time period, the decision 
+The term {\it recourse} means that, at each stage, the decision 
 variables adapt to the different outcomes of the random parameters.
 
 A multistage stochastic program with recourse is a multi-period 
 mathematical program where parameters are assumed to be uncertain 
 along the time path.
+
+For ease of presentation, we consider the linear version of the
+general recourse problem (\ref{eq:SPRecourse}):
 %
+\be \label{eq:SLPRecourse}
+\begin{array}{rl}
+\min & c^T x + \E_\xi[\min q(y)^T y(\xi)] \\
+\raisebox{2.8ex}{\mbox{s.t.}} & \!\!\begin{array}{lcl}
+	       Ax                       &=& b,     \\
+	       T(\xi) x + W(\xi) y(\xi) &=& h(\xi), \\
+	       x \geq 0,\; y(\xi) \ge 0,
+	      \end{array}
+\end{array}
+\ee
+%
+where $y(\xi)$ denotes the recourse action which depends on the 
+outcome of the random process $\xi$. After discretizing $\xi$ 
+according to $P(xi=\xi_i) = p_i$, and using the notation 
+$T_i = T(\xi_i)$ (and analogously for $h_i$, $W_i$, $y_i$ and $q_i$), 
+problem (\ref{eq:SLPRecourse}) can be written in the 
+{\em deterministic equivalent formulation}:
+\be \label{eq:DetEq-2stage}
+\begin{array}{rlllll}
+\min & c^T x + \sum_i p_iq_i^T y_i \\
+\mbox{s.t.} & Ax              &        &          & = b,   \\
+            & T_1 x + W_1 y_1 &        &          & = h_1  \\
+	    & \vdots          & \hspace{-1em}\ddots & & \;\vdots \\
+            & T_1 x           &        &+\; W_n y_n & = h_n \\
+            & x \geq 0,\; y_i \ge 0.
+\end{array}
+\ee
+
+Problem (\ref{eq:DetEq-2stage}) displays dual-block angular structure
+in the constraint matrix.
+
+\fb{
+Explain why deterministic.
+}
+
 To formulate the deterministic equivalent of the multi-stage 
 stochastic programming problem we first need to enumerate all nodes 
 of the event tree. We use a breadth-first 
 search order, i.e., we start from a root node corresponding 
 to the initial stage and end with leaf nodes corresponding 
-to the last stage.
+to the last stage. In this case, the constrint matrix displays
+a nested dual-block angular structure.
 
 Let $t = 1,2,\ldots,T$ denote the stage and $l_t$ be the index of a 
 node at stage $t$.
@@ -201,11 +288,385 @@ reductions achieved by the presolve analysis), the
 structure-exploiting software OOPS \cite{GondzioSarkissian} can take 
 fully advantage of the nested structure.
 
+\fb{
+Kall and Mayer \cite{KallMayer} provided a comparison of different
+solution algorithms for stochastic linear programming problems.
+}
 
 %
 % Section
 %
-\section{Random notes}
+\section{Warm-start with interior point methods}
+\label{sec:WarmStart}
+
+Consider again the linear programming problem in standard form
+\[
+\min\;  c^T x \;\quad \mbox{s.t. }\; Ax = b, \;\; x \ge 0,
+\]
+where $A \in \R^{m \times n}$ is full rank, 
+$x, c \in \R^{n}$ and $b \in \R^{m}$. 
+As discussed in Section~\ref{sec:StartingPoint}, the problem of 
+finding a starting point is usually solved by using 
+Mehrotra's starting point heuristic \cite{Mehrotra92}, which is 
+considered to be computationally effective for generic problems.
+
+However, many practical applications rely on solving a sequence 
+of closely related problems, where the instances differ by some 
+perturbation. This happens within algorithms that are sequential 
+in their nature, such as sequential linear programming or
+sequential quadratic programming.
+It is also very common in (mixed) integer programming, when the
+problems are solved by relaxing the integrality constraints and
+introducing some branching strategy, such as in branch-and-bound,
+branch-and-cut, branch-and-price.
+Similarly, sequential problems appear in the context solution 
+methods based on cutting planes.
+
+In these situations, we expect the solution of an instance to be 
+close to the solution of the next one, in the sense that some of
+the information gathered in the solution process may still be valid. 
+Therefore, (warm) starting the 
+optimization of one problem from the solution of the previous one
+should reduce the computational effort of solving the perturbed instance.
+
+Warm-start techniques are very successful 
+when implemented with a simplex solver (see, for example, 
+\cite{Bixby02}). 
+
+\fb{
+More on the simplex.
+}
+
+However, in the context of interior point methods, it 
+is much more difficult to implement successfully, for the reasons
+we outline below.
+
+%
+%
+\subsection{Difficulties}
+\label{sec:WarmStartDifficulties}
+
+An optimal solution of a linear programming problem found with 
+interior point methods is very close to the optimal vertex of 
+the feasible polytope. With changes in the polytope (e.g. because 
+of the addition of cutting planes or other changes in the 
+problem data), the optimal solution changes as well.
+In such a case the previous solution is very close to a non optimal
+vertex or, in other words, very far from the central path. 
+
+The effectiveness of an interior point algorithm degrades when an 
+iterate gets too close to a boundary before optimality is reached. 
+
+\fb{
+As said in Chapter~\ref{ch:Ipm}, interior point methods approach 
+the solution to the KKT system of optimality conditions by relaxing 
+the complementarity requirements.
+This is equivalent to postponing the choice of the optimal partitioning.
+
+Therefore, moving toward a vertex can be interpreted as making 
+a decision on the optimal partitioning. If the vertex is not an 
+optimal one, then the central path will not approach it.
+
+Therefore the algorithm may spend several iterations in recovering
+centrality, during which small steps are usually generated and thus
+very slow progress is achieved.
+}
+
+Hipolito \cite{Hipolito} considered the issue of robustness of 
+search directions in interior point methods in these situations.
+In his analysis, Hipolito showed that if the iterate is close 
+to a boundary, the affine-scaling direction may be parallel to 
+the nearby constraints. In such cases, the corrector direction 
+may also display the same behaviour, and short stepsizes are 
+obtained for the resulting search direction.
+
+The required features for a good warm-start candidate for an
+interior point algorithm are somewhat contradictory.
+The point should not be too close to the boundary of the feasible 
+region in order to be able to absorb larger perturbations in the 
+problem data. 
+However, it should be sufficiently advanced to provide 
+computational savings over a cold-start iterate.
+A common way of accommodating these requirements is to store an 
+approximate $\mu$-center well before reaching optimality 
+\cite{Gondzio98,GondzioGrothey03,GondzioVial,YildirimWright}.
+
+The theory and practice of warm-start techniques for interior point 
+methods is a relatively new and still open field of study.
+In the remainder of this section we present a review of some 
+of the warm-start approaches proposed in the interior point literature.
+
+%
+%
+\subsection{Changes in the problem size}
+
+Mitchell \cite{Mitchell88} and Mitchell and Todd \cite{MitchellTodd}
+analyse the potential reduction interior point method within
+a cutting plane algorithm. They exploit the fact that
+the primal feasible point can be constructed after a set of new
+columns is added to the problem. They use this strategy with success
+in column generation scheme and more generally in the solution 
+of combinatorial optimization problems.
+
+Gondzio \cite{Gondzio98} presents a warm-start procedure for 
+primal--dual interior point methods in the context of a cutting 
+plane method. The interior 
+point method is used to solve a sequence of restricted master 
+problems, which differ by one or more cutting planes.
+%
+% Therefore, by construction the solution to one problem violates 
+% some of the newly added constraints.
+% The optimal solution to a problem is necessarily very close 
+% to the boundary, thus is an unattractive starting point 
+% for a perturbed problem. Therefore, an alternative warm-start 
+% iterate needs to be defined.
+%
+The idea proposed in \cite{Gondzio98} is to store a nearly optimal 
+point (3--4 digits of accuracy) to be employed as a warm-start point.
+%
+% Because of the cutting plane setting, the problem is then solved 
+% to optimality (7--8 digits of accuracy) in order to generate 
+% appropriate cuts.
+%
+As one requirement for a good iterate is centrality, it is of interest 
+to perform a few centering steps on the stored iterate, the cost of 
+which is marginal, as a factorisation is already available. The 
+recentering steps proposed are based on
+centrality correctors \cite{Gondzio96}.
+An auxiliary feasibility recovery procedure may be needed as, due to 
+the addition of cuts, large infeasibilities are often produced.
+
+% The role of interior point methods in integer and combinatorial 
+% optimization has been comprehensively surveyed in \cite{Mitchell96} 
+% and \cite{MitchellPardalosResende98}.
+
+%
+%
+\subsection{Perturbations that do not affect the problem size}
+
+Hipolito \cite{Hipolito} studies an alternative centering direction 
+in the context of the dual affine-scaling algorithm. Such a 
+direction is designed to move the iterate away from the boundary, 
+overcoming the risk of moving parallel to it that was mentioned 
+in Section~\ref{sec:WarmStartDifficulties}. 
+By considering a weighted least squares formulation, Hipolito 
+develops the dual affine-scaling and the corresponding Newton 
+centering directions. 
+This study has an immediate interest for warm-starting approaches,
+as the resulting direction point towards the interior of the 
+feasible region, thus providing the algorithm with the necessary 
+space to make fast progress. 
+Unfortunately, it is developed only for the dual affine-scaling 
+algorithm, and to the best of our knowledge there have been no 
+studies on how to obtain a similar search direction in the 
+primal--dual context.
+
+The warm-start approach proposed in \cite{Gondzio98} is extended
+in \cite{GondzioVial} to the case of solving a sequence of problems 
+with the same dimensions but changing problem data (the objective 
+function or the right-hand side). Such situations arise 
+in the context of decomposition approaches for large structured 
+linear programs. 
+In the case of Dantzig--Wolfe decomposition, successive subproblems 
+differ only in the objective function, while in the case 
+of Benders decomposition they differ only in the right-hand sides.
+Following \cite{Gondzio98}, nearly optimal points are saved and used 
+to warm start the solution of subsequent subproblems \cite{GondzioVial}.
+
+% An advanced application of this technique is studied in 
+% \cite{GondzioVial}, where a decomposition approach for large 
+% structured linear programs is implemented within an interior point 
+% framework. In this setting, a sequence of linear problems is generated 
+% by adding cutting planes to provide a polyhedral approximation of a 
+% non-differentiable convex function, and a warm-start strategy is 
+% applied when solving each subproblem.
+
+\yildirim and Wright \cite{YildirimWright} consider again the case 
+of solving a sequence of problems in fixed dimensions, and
+analyse the number of iterations required to converge to a 
+solution of the perturbed instance from the warm-start point and 
+obtain worst-case estimates.
+They show that these estimates depend on the size of the perturbation 
+as well as on the conditioning %and other properties 
+of the problem 
+instances. Thus they obtain conditions under which the complexity 
+of the warm-start approach is better than for the cold start case.
+
+The strategy proposed in \cite{YildirimWright} aims at correcting the 
+primal and dual infeasibilities introduced by the perturbation in just 
+one step.
+% relying on the centrality of the iterate from one instance
+% to provide enough centrality for the starting point of the next instance.
+In this strategy, they backtrack to an iterate for which $\mu$ is 
+large enough to allow a full step for the correction they produce. 
+Hence, the amount of necessary backtracking depends on the magnitude 
+of the perturbation.
+This is intuitively justified considering that a large perturbation 
+will produce a large adjustment, and it is essential to guarantee that 
+a full step will not compromise the non-negativity requirements of the 
+iterate.
+%
+To ensure the availability of an approximate $\mu$-center from which 
+the perturbation can be absorbed in one step, a subset of 
+iterates for different values of $\mu$ is stored.
+When the size of the perturbation becomes known, the closest $\mu$ 
+available is retrieved, and the corresponding iterate is used as a 
+warm-start point for the next problem in the sequence.
+%
+In \cite{YildirimWright}, two different corrections for the perturbation
+are studied: one is based on least squares, the other on a Newton step 
+correction.
+A detailed computational comparison of these strategies has been 
+carried out by John and \yildirim \cite{JohnYildirim}.
+
+Gondzio and Grothey \cite{GondzioGrothey03} propose a different 
+reoptimization technique for interior point methods.
+As in \cite{YildirimWright}, they aim at obtaining conditions for 
+perturbations that can be absorbed in one Newton step.
+Hence, they introduce a relative measure of perturbations, in which 
+the primal and the dual spaces are analysed independently.
+
+%They derive the directions for absorbing primal and dual 
+%infeasibilities from the system
+%\[
+%\left[ \begin{array}{ccc}
+%    A & 0 & 0 \\ 0 &A^T & I \\ S & 0 & X
+%  \end{array} \right]
+%\left[ \begin{array}{c}
+%    \Delta x \\ \Delta \lambda \\ \Delta s
+%  \end{array} \right] = 
+%\left[ \begin{array}{c}
+%    -r_b \\ -r_c \\ 0
+%  \end{array} \right].
+%\]
+%This formulation aims at restoring feasibility, while the requirement 
+%for a well-centred iterate is considered separately. 
+
+Their reoptimization procedure is based on two phases: first, an attempt 
+is made to absorb the infeasibilities caused by the perturbation with a full 
+Newton step; second, the centrality of the iterate is improved.
+Another key feature of their approach is that the primal search 
+direction is governed only by the primal perturbation, and similarly 
+for the dual space. This corresponds to solving the Newton system 
+(\ref{eq:NewtonSystem}) for the two right-hand sides independently
+%
+\be \label{eq:NewtonSystem2}
+\left[ \begin{array}{ccc}
+    A & 0 & 0 \\ 0 &A^T & I \\ S & 0 & X
+  \end{array} \right]
+\left[ \begin{array}{c}
+    \Delta x \\ \Delta y \\ \Delta s
+  \end{array} \right] = 
+\left[ \begin{array}{c}
+    \xi_b \\ 0 \\ 0
+  \end{array} \right] +
+\left[ \begin{array}{c}
+    0 \\ \xi_c \\ 0
+  \end{array} \right].
+\ee
+%
+They produce bounds on the magnitude of primal perturbation $\xi_b$ 
+and dual perturbation $\xi_c$ that can be absorbed in a single 
+Newton step. As opposed to the results of \cite{YildirimWright}, 
+the bounds of \cite{GondzioGrothey03} are easy to compute and 
+thus can be used in practice.
+
+If the perturbation is bounded above by some quantity depending 
+on $n$ and $\theta$, a full Newton step can be taken in the dual space. 
+This happens for both the $\mathcal{N}_2$ and $\mathcal{N}_\infty$ 
+neighbourhoods. Similarly, a full Newton step can be taken in the 
+primal feasibility restoration direction. These conditions may not 
+be satisfied in practice. In such case, a different iterate further 
+away from optimality may be more likely to allow for a full Newton step.
+
+A practical implementation is developed within an infeasible interior 
+point method. In this context, a stronger emphasis may be put on 
+reducing the infeasibilities. This is accomplished with additional 
+centering steps.
+
+An approximate $\mu$-center is stored for a tolerance level that 
+depends on the magnitude of the expected perturbation. This does not 
+exclude the possibility of storing a sequence of iterates, as proposed 
+in \cite{YildirimWright}, thus postponing the choice of the one to 
+use.
+As the problem size does not change, an approximate $\mu$-center 
+can immediately be used as an iterate for the next problem.
+If only one iterate is stored, then the absorption of infeasibilities 
+may be spread across a few iterations whenever the stepsizes fall 
+below a predefined level.
+
+As this strategy does not make assumptions upon the centrality of the 
+warm-start iterate,
+% (as opposed to what is assumed in \cite{YildirimWright}), 
+it can be initialised with any iterate.
+Gondzio and Grothey \cite{GondzioGrothey03} apply this warm-start 
+strategy successfully to structured problems for crash-start points that 
+come from a cross-decomposition scheme, and thus may lack centrality.
+
+% This feature is exploited when we use a warm-start iterate generated
+% from a reduced event tree, as discussed in the following sections.
+
+A different approach has been studied by Benson and Shanno 
+\cite{BensonShanno}. They investigate how to improve the efficiency 
+of interior point methods in a reoptimization context by the use of 
+a primal--dual penalty approach.
+While standard penalty techniques are effective only in one space, 
+the introduction of penalty parameters in both the primal and the 
+dual problems allows to capture perturbations in both spaces.
+%
+% For example, an $l_1$ penalty can deal with changes in the right-hand
+% side of the constraints (primal changes), but has virtually no effect
+% in perturbations of the objective coefficients (dual changes).
+%
+The penalised problem allows the variables to become negative, with
+the immediate advantage of accepting larger stepsizes along 
+the computed search direction, thus favouring a faster progress
+especially in the first few iterations.
+% This is of particular importance in reoptimization, as the optimal
+% solution of the previous problem is necessarily close to a boundary.
+
+
+\hrulefill
+
+
+Large or huge-scale problems, however, create more than one difficulty 
+to general purpose solvers. Problems of these sizes can be solved by 
+exploiting the structure present in the matrix. A further advantage 
+comes from assigning the work to be done to more than one processing unit. 
+This is where structure-exploiting parallel solvers such as OOPS 
+\cite{GondzioSarkissian} excel. Moreover, structure-exploiting interior 
+point methods can be used not only for linear programming problems, 
+but also for quadratic and nonlinear problems \cite{GondzioGrothey04}.
+
+In a large scenario tree there may be very little difference among 
+scenarios, and so the large-scale problem can provide a fine-grained 
+solution to a problem that could have been solved more coarsely by 
+using a much smaller tree. This observation suggests a
+warm-start technique that can be applied in the context of interior 
+point methods. A warm-start solution is obtained by solving the 
+stochastic optimization problem for a reduced event tree, whose 
+dimension is much smaller than that of the complete one. The solution 
+to the reduced problem is used to construct an advanced iterate for 
+the complete formulation. We provide evidence that this novel way 
+of exploiting the problem structure to generate an initial point 
+provides a better iterate (in terms of centrality, feasibility, 
+and closeness to optimality) than the one produced by a generic 
+strategy.
+
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+
+
+%
+% Section
+%
+
+%
+% Section
+%
+\section{Other stuff}
 
 \begin{itemize}
 \item The reduced tree approach to construct a warmstart iterate 
@@ -250,15 +711,7 @@ bushy for example).
 \end{itemize}
 
 
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-
-
-%
-% Section
-%
-\section{Theoretical analysis}
+\subsection{Theoretical analysis}
 
 Once we formulate the complete deterministic equivalent $A$, we need 
 to satisfy the following system:

@@ -1,6 +1,6 @@
 %Started on 9th August 2006
 %Aug: 11, 22, 23, 24, 25, 28, 29, 30, 31
-%Sep:  1
+%Sep:  1,  7,  8
 
 %
 % Chapter: Interior point methods
@@ -25,9 +25,6 @@ arguments.
 \section{Primal--dual path-following methods}
 \label{sec:Derivation}
 
-%In this section we recall the main ideas leading to the use of centrality
-%correctors techniques.
-
 Consider the following primal--dual pair of linear programming problems 
 in standard form
 %
@@ -44,6 +41,8 @@ where $A \in \R^{m \times n}$, $x, s, c \in \R^{n}$
 and $y, b \in \R^{m}$. It is assumed, without loss of generality,
 that $A$ has full row rank, as linearly dependent rows can be
 removed without changing the solution set.
+This also implies that a feasible $s \ge 0$ determines in a unique
+way the value of $y$.
 
 We recall here some well-known results on the relationship between
 problems $\mathcal{P}$ and $\mathcal{D}$ in linear programming. 
@@ -297,6 +296,9 @@ in terms of conditioning (much worse for normal equations).
 \item Dependence on linear algebra.
 \end{itemize}
 }
+
+Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
+study of the properties of the augmented system formulation.
 
 
 %
@@ -921,6 +923,7 @@ methods.
 %
 %
 \subsection{Mehrotra's starting point heuristic}
+\label{sec:StartingPoint}
 
 The choice of an initial iterate for interior point methods is a
 critical one. It challenges both the feasible and infeasible
