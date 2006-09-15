@@ -1,6 +1,6 @@
 %Started on Monday 28 August 2006
 %Aug: 29, 30
-%Sep:  7,  8
+%Sep:  7,  8, 13
 
 %
 % Chapter: Warm-start
@@ -77,6 +77,14 @@ the exposure to risk. Unlike alternative approaches, it allows to model
 situations in which possible future events are correlated or follow a
 time-structure, in that realisations become known in stages and it is
 possible to react to the observed events.
+
+\fb{
+The stages do not necessarily refer to time periods, they correspond
+to steps in the decision process. The main interest lies in the 
+first-stage decisions which consist of all decisions that have to
+be made before the information is revealed. Later-stage decisions 
+are allowed to adapt to the information gathered up to that point.
+}
 
 Its perceived weaknesses are the need for reliable forecasts
 of the probabilities of the future events under consideration
@@ -166,7 +174,8 @@ conditional probabilities of visiting each node on the path.
 
 The question of how to generate an appropriate scenario tree
 is not trivial, and has received extensive attention in the
-literature \cite{DupacovaConsigliWallace,HoylandKautWallace,HoylandWallace,Pflug01}.
+literature 
+\cite{DupacovaConsigliWallace,HoylandKautWallace,HoylandWallace,Pflug01}.
 
 \fb{
 It should be noted that usually a very large number of scenarios is
@@ -174,6 +183,9 @@ needed to adequately capture the characteristics of the underlying
 continuous distribution, particularly in the multi-stage setting.
 In this case, the number of scenarios grows exponentially with the
 number of decisions considered at each stage.
+
+The size of the scenario tree determines the size of the optimization
+program.
 }
 
 %
@@ -243,6 +255,12 @@ the nodes that belong to stage $t > 1$ have indices
 $l_t = L_{t-1} \! + \! 1, L_{t-1} \! + \! 2, \dots, L_t$. 
 With $a(l_t)$ we denote the direct ancestor of node $l_t$ (which is a 
 node that belongs to stage $t-1$).
+
+\fb{
+For any node in the tree at stage $t$ there is only one immediate
+ancestor at stage $t-1$ and a finite number of descendants at $t+1$.
+}
+
 All decision variables $x$ are superscripted with the node number 
 $l_t$.
 
@@ -703,6 +721,12 @@ variations happen in our test problems?
 \item Clarify the issue of nonanticipativity constraints: 
 since we have our own deterministic equivalent generator, we 
 already avoid duplication without using those constraints.
+
+\fb{
+Nonanticipativity means that the decisions taken at any stage 
+do not depend on future realizations of the random parameter or 
+on future decisions, but only on the history.
+}
 
 \item Mention that if the iterate produced by a reduced tree 
 is not good enough (according to what criteria?), another one 
