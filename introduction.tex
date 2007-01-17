@@ -1,6 +1,7 @@
 %Started on 30th August 2006
 %Aug: 31
 %Sep:  1,  8
+%Jan 2007: 15
 
 %
 % Chapter: Background and introduction.
@@ -30,7 +31,8 @@ the fact that a solution has to be at a vertex.
 
 The simplex method reaches a solution by visiting a sequence of 
 vertices of the polyhedron, moving from one vertex to an adjacent 
-one characterized by a better objective function value. The polyhedron 
+one characterized by a better objective function value
+(in the non-degenerate case). The polyhedron 
 corresponding to a linear system of $m$ constraints in $n$ variables 
 ($m < n$) has a number of vertices equal to
 \[
@@ -46,9 +48,12 @@ In real-life problems, this situation never arises, and not all of
 these vertices will have to be visited. Besides, given the monotonic
 way of choosing the next vertex, in the non-degenerate case the set 
 of possible vertices decreases after each iteration. Degeneracy
-complicates things because at a degenerate vertex, the simplex method
+happens when a vertex in $\R^m$ is traversed by $p > m$ constraints.
+In this case, there are $\binom{p}{m}$ different bases for the same
+verted. Therefore, the simplex method
 may try different changes of basis without actually moving away
-from the vertex.
+from the vertex and thus not obtaining an improvement in the objective
+function value.
 
 \fb{
 Discussion on the complexity of linear programming. How the simplex
@@ -71,7 +76,7 @@ errors and dense matrix computation.
 
 However, the ellipsoid method is often used in the contex of
 combinatorial optimization as an analytic tool to prove complexity
-results for algorithms.
+results for algorithms \cite{ip:NemhauserWolsey88}.
 }
 
 We know polynomial-time algorithms for linear programming, 
@@ -165,15 +170,16 @@ understanding of the current state and the opening of new avenues
 of research. 
 
 However, theory per se has rarely a direct impact on the lives 
-of those who use optimization as a tool to solver their problems.
+of those who use optimization as a tool to solve their problems.
 It is therefore necessary that the understanding gathered from
 theoretical studies is then transformed into actual practical
-tools. This often requires the implementation of computer programs.
+tools. This usually requires the implementation of computer programs
+with the aims of accuracy, speed and reliability.
 
 The process of creating computationally efficient methods from
-theoretical studies is not as direct as it might sound. It usually
-involves relaxing many of the theoretical assumptions, and ensuring
-other properties.
+theoretical studies is not as direct as it might sound, but is somewhat
+of an art in itself. It often involves relaxing many of the theoretical 
+assumptions, while ensuring other properties and conditions.
 
 Therefore we will put great effort in accompanying theoretical
 results with the corresponding computational considerations. While
@@ -182,14 +188,14 @@ will not be possible. There are a few reasons for this:
 \begin{itemize}
 \item Theoretical assumptions may not be realistic: this is the case
 when a condition stated in a theorem is not realistically satisfiable 
-in practice (for examples, bounds on some quantities). 
+in practice (for example, bounds on some quantities). 
 \item Theoretical assumptions may be too restrictive: this happens
 when the theory predicts a certain behaviour under some conditions
 but actually in practice it happens anyway, or provides a worst-case 
 result which may be far from the average one.
-\item Theoretical requirement is computationally expensive: this 
-may happen when the satisfaction of a certain condition is not 
-computationally viable, and workarounds are usually employed.
+\item Theoretical requirements may be computationally expensive: this 
+happens when the satisfaction of a certain condition is not 
+computationally viable, in which case workarounds are usually employed.
 \end{itemize}
 
 Besides this, the practical implementation of an algorithm happens
@@ -209,7 +215,7 @@ The original results presented in this thesis are mainly based on two
 papers that have been submitted for publication.
 
 The first \cite{ColomboGondzio05} is a joint work with Jacek Gondzio.
-The main objective of this paper was to analyze the efficiency of
+The main objective of this paper is to analyze the efficiency of
 corrector directions in the light of the theoretical studies of Cartis
 \cite{Cartis04,Cartis05}. It concentrates on ensuring that a corrector
 direction computed at the current iterate is not rejected because it
@@ -220,3 +226,6 @@ The second \cite{ColomboGondzioGrothey06} is a joint work with
 Jacek Gondzio and Andreas Grothey. It aims at developing an
 efficient way of constructing a starting point for structured 
 large-scale stochastic linear programs.
+It shows that it is possible to obtain a computationally viable
+warmstart point by solving a stochastic problem of much smaller
+dimension.

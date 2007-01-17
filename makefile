@@ -7,10 +7,13 @@ dvi:
 	latex $(INPUT).tex
 
 ps: $(INPUT).dvi
-	dvips $(INPUT).dvi -o
+	dvips -Ppdf $(INPUT).dvi -o
 
 ps2: ps
 	psnup -2 $(INPUT).ps th2.ps
+
+pdf: ps
+	ps2pdf $(INPUT).ps $(INPUT).pdf
 
 clean:
 	-rm $(CRUFT)
