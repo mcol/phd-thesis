@@ -1,12 +1,13 @@
 %Started on 9th August 2006
 %Aug: 11, 22, 23, 24, 25, 28, 29, 30, 31
 %Sep:  1,  7,  8
-%Jan 2007: 15, 16, 17
+%Jan 2007: 15, 16, 17, 22
+%Feb:  1,  2
 
 %
-% Chapter: Interior point methods
+% Chapter: Practical implementations of Interior point methods
 %
-\label{ch:Ipm}
+\label{ch:PracticalIpm}
 
 Interior point methods are well-suited to solving very
 large scale optimization problems. Their theory is well understood
@@ -14,443 +15,14 @@ large scale optimization problems. Their theory is well understood
 documented in extensive literature (see, for example, 
 \cite{AndersenGondzioMeszarosXu,GondzioTerlaky} and the references therein).
 
-This chapter is devoted to the derivation and analysis of interior 
-point methods. 
-The theoretical developments presented will be accompanied by computational 
-arguments.
+In this chapter we turn our attention to the computational side of
+Interior point methods, and concentrate on the main strategies which are
+at the basis of effective implementations for linear programming. Also,
+we address other issues that are peculiar to practical algorithms.
 
 
 %
 % Section
-%
-\section{Primal--dual path-following methods}
-\label{sec:Derivation}
-
-Consider the following primal--dual pair of linear programming problems 
-in standard form
-%
-\begin{eqnarray} \label{eq:PrimalDualPair}
-  \begin{array}{rlp{2cm}rl}
-%   \mbox{\small Primal } & & & \mbox{\small Dual } \\[0.1cm]
-    \mbox{ min }  & c^T x  & & \mbox{ max }  & b^T y \\
-    \mbox{ s.t. } & Ax = b,& & \mbox{ s.t. } & A^T y + s = c, \\
-                  & x \geq 0; &  &   & y \mbox{ free,} \;\; s \geq 0,
-  \end{array}
-\end{eqnarray}
-%
-where $A \in \R^{m \times n}$, $x, s, c \in \R^{n}$ 
-and $y, b \in \R^{m}$. We assume, without loss of generality,
-that $A$ has full row rank, as linearly dependent rows can be
-removed without changing the solution set.
-This also implies that a feasible $s \ge 0$ determines in a unique
-way the value of $y$.
-
-We recall here some well-known results on the relationship between
-problems $\mathcal{P}$ and $\mathcal{D}$ in linear programming. 
-These can be found in plenty of sources, for example \cite{lp:Chvatal} \ldots
-
-\fb{
-Find these sources!
-}
-
-We define the set of primal feasible points
-\be \label{eq:PrimalFeasibleSet}
-\mathcal{F} = \{ x : Ax = b, \; x \ge 0 \},
-\ee
-and equivalently the set of dual feasible points
-\be \label{eq:DualFeasibleSet}
-\mathcal{D} = \{ (y,s) : A^T y + s = c, \; s \ge 0 \}.
-\ee
-
-The primal--dual pair (\ref{eq:PrimalDualPair}) can therefore be written as
-\be \label{eq:PrimalDualPair2}
-\min \; c^T x \quad x \in \mathcal{F}, \qquad
-\min \; b^T y \quad (y,s) \in \mathcal{D},
-\ee
-
-Problem P has a solution iff $\mathcal{F} \ne \emptyset$;
-if also $\mathcal{D} \ne \emptyset$, then both problems admit an
-optimal solution $(x^*, y^*, s^*)$, and the objective function 
-values of both problems at that point coincide (strong duality).
-
-However, one of the sets might be empty: in such a case, an optimal
-solution for problem (\ref{eq:PrimalDualPair2}) does not exist,
-as the set is either unbounded or empty as well.
-
-\fb{
-Formalize these results.
-}
-
-\fb{
-Introduce barrier problems and show similar theorems for them,
-as done in Megiddo \cite{Megiddo}.
-}
-
-The Karush-Kuhn-Tucker (KKT) conditions express first-order optimality 
-conditions for the primal--dual pair (\ref{eq:PrimalDualPair}).
-They can be expressed as
-\be  \label{eq:KKT}
-\begin{array}{rcl}
-  Ax      &=& b \\
-  A^Ty +s &=& c \\
-  XSe     &=& 0 \\
-  (x,s)   &\ge& 0,
-\end{array}
-\ee
-where $X, S \in \R^n$ are diagonal matrices with elements 
-$x_i$ and $s_i$ respectively, and $e \in \R^n$ is a vector 
-of ones. In other words, an optimal solution is characterised by 
-primal feasibility, dual feasibility and complementarity.
-
-\fb{
-Spend a few words on the concept of complementarity.
-}
-
-Interior point methods arrive to a solution that satisfies the KKT
-conditions (\ref{eq:KKT}) by ``relaxing'' the complementarity constraints.
-%
-Path-following interior point methods \cite{ipm:Wright97} perturb 
-the above conditions by asking the complementarity pairs to align 
-to a specific barrier parameter $\mu > 0$,
-\[
-XSe = \mu e,
-\]
-while enforcing $(x,s)>0$.
-
-\fb{
-The above inequality cannot be strictly enforced, as it would not make
-the solution of the KKT conditions (\ref{eq:KKT}) any easier. Instead,
-the concept of neighbourhood is required, and is presented in
-Section~(\ref{sec:Neighbourhoods}).
-}
-
-As $\mu$ is monotonically decreased at each iteration, the solution of the 
-perturbed Karush-Kuhn-Tucker conditions approximates better and better
-the system of optimality conditions (\ref{eq:KKT}).
-
-If the perturbed KKT system has a solution for any $\mu > 0$, then
-it traces a unique continuous path $(x(\mu),s(\mu))$ toward the 
-optimal set as $\mu \to 0$. 
-In interior-point terminology, such a path is called
-the {\em central path}.
-
-%
-%
-\subsection{The central path}
-
-\fb{
-Find out who started the study of the notion of central path. Gonzaga 
-\cite{Gonzaga92} says it was Bayer and Lagarias as well as Megiddo.
-}
-
-The study of the primal--dual properties of the central path 
-was started by Megiddo's seminal paper \cite{Megiddo}, which is 
-still considered a basic reference in the interior-point literature.
-
-Many algorithms used in mathematical programming can be interpreted 
-as path-following. What is studied here is the path described by the 
-barrier functions in linear programming.
-The presentation follows the clear and systematic approach of Megiddo
-\cite{Megiddo}.
-
-Given a linear program in standard form $P$:
-\[
-\begin{array}{rl}
-  \max        & c^Tx \\
-  \mbox{s.t.} & Ax = b, \; x \ge 0,
-\end{array}
-\]
-it is possible to write the corresponding barrier problem $P_\mu$:
-\[
-\begin{array}{rl}
-  \max        & c^Tx + \mu \sum_j \ln x_j \\
-  \mbox{s.t.} & Ax = b, \; x > 0.
-\end{array}
-\]
-
-This second problem is parametrized by the quantity $\mu > 0$, 
-tipically small. The presence of the logarithmic barrier forces the iterates 
-to stay in the interior of the feasible region. Such approach is 
-viable only if it is actually possible to find a point that 
-satisfies the constraints.
-Note that the objective function is a strictly convex function. 
-Therefore, for a fixed $\mu$, the problem has at most one global minimum. 
-This global minimum, if it exists, is completely characterized 
-by the KKT conditions.
-
-The KKT conditions associated with problem $P_\mu$ are:
-\[
-\begin{array}{lcc}
-  \mu X^{-1}e -A^Ty & = & -c \\
-   Ax               & = &  b
-\end{array}
-\]
-
-If the feasible domain $\{ x: Ax=b,\: x\ge 0 \}$ is bounded, 
-then both $P$ and $P_\mu$ have optimal solution. Since the 
-objective function in $P_\mu$ is strictly concave, $P_\mu$ 
-has a unique solution for every $\mu>0$.
-
-Megiddo then proves the following proposition: problem $P_\mu$ 
-is either unbounded for every  $\mu>0$ or has a unique optimal 
-solution for every $\mu>0$.
-
-If the KKT system has a solution for any $\mu>0$, then it 
-determines a unique continuous path $x(\mu)$ as $\mu\to 0$. 
-Moreover, if $A$ has full rank, then the value of $y$ is 
-uniquely determined by the value of $x$. Therefore, the KKT 
-system has a unique solution $(x(\mu),y(\mu))$.
-
-Megiddo shows that $c^Tx(\mu)\to c^Tx^*$ as $\mu\to 0$. 
-Furthermore, he proves the stronger result that 
-$x(\mu)\to x^*$ as $\mu\to 0$.
-
-\fb{
-\begin{itemize}
-\item Properties of the curvature of the central path \cite{VavasisYe}, 
-and straight line towards the end \cite{Megiddo}.
-\item Explore the ``videos'' of the central path on Wright's webpage.
-\item Problems with central path defined as analytic center: Terlaky's
- Klee-Minty example, discussion with Coralia (she mentioned a 
-chapter in Ye's book).
-\end{itemize}
-}
-
-\fb{
-Gonzaga \cite{Gonzaga92} mentions various centers (center of gravity, 
-analytic center). See also Nick Gould's slides at cerfacs.
-}
-
-\fb{
-In \cite[Section 8]{Gonzaga92} there is a nice part on scaling,
-and also on primal--dual scaling.
-}
-
-\fb{
-Show the change of variables $s = \mu X^{-1}e$, otherwise $s$ seems
-to appear magically in the following section.
-}
-
-\fb{
-Mehrotra notices that ``it is not clear if the central path (with
-equal weights) is the best path to follow, particularly since it
-is affected by the presence of redundant constraints. Furthermore,
-the points on (or near) the central path are only intermediate to
-solving the linear programming problem. It is only the limit point 
-on this path that is of interest to us.''
-}
-
-%
-%
-\subsection{Neighbourhoods}
-\label{sec:Neighbourhoods}
-
-Two neighbourhoods are often used in theoretical developments.
-
-The first is based on the Euclidean norm, and it is often referred
-to as the {\em tight neighbourhood}:
-\[
-\mathcal{N}_2(\theta) = \{ (x,y,s) \in \mathcal{F}^0 :
-                         \| XSe - \mu e \|_2 \le \theta\mu \}.
-\]
-This neighbourhood follows very closely the central path:
-search directions generated from points in this neighbourhood can be 
-followed with full step, and the barrier parameter can be decreased
-by a small amount at each iteration (giving rise to the name
-of {\em short-step algorithms} to the algorithms that are based on
-this neighbourhood). 
-The closeness to the central path that the tight neighbourhood
-imposes and maintains allows to produce the best convergence result
-for linear programming. 
-However, since the reduction in the barrier parameter at each iteration 
-is very small, the practical value of short-step algorithms is small.
-
-The other commonly used neighbourhood is instead based on the infinity norm, 
-and it is often called {\em wide neighbourhood}:
-\[
-\mathcal{N}_{-\infty}(\gamma) = \{ (x,y,s) \in \mathcal{F}^0 :
-                         x_is_i \ge \gamma\mu, \; \forall i \}.
-\]
-Algorithms based on such a neighbourhood are allowed to generate
-iterates that follow more loosely the central path. The iterates 
-have more freedom of movement as they can approach the border.
-Also, algorithms based on the wide neighbourhood (usually denoted as
-{\em long-step algorithms}) are less conservative and can decrease 
-the barrier parameter more rapidly.
-However, the Newton direction computed from points in the wide 
-neighbourhood  has weaker properties, and a linesearch procedure is
-needed to ensure that the positivity of the $(x,s)$ iterates is
-preserved.
-
-In Section (\ref{sec:SymNeighbourhood}) we will study a variation
-of the $\mathcal{N}_{-\infty}$ neighbourhood which better describes
-the centrality requirements needed for a practical algorithm.
-
-\fb{
-Describe the analytic center and its properties.
-}
-
-
-%
-%
-\subsection{Solving the perturbed KKT conditions}
-
-Path-following interior point methods seek a solution 
-to the system of equations
-\[
-F(x,y,s) = \left[
-  \begin{array}{c}
-    Ax-b \\
-    A^Ty+s-c \\
-    XSe - \mu e \\
-  \end{array} \right] = 0,
-\]
-which is nonlinear in the perturbed complementarity constraints.
-We use Newton's method to linearise the system according to
-\[
-\nabla F(x,y,s) \Delta(x,y,s) = -F(x,y,s),
-\]
-and obtain the so-called step equations
-%
-\be \label{eq:NewtonSystem}
-\left[ \begin{array}{ccc}
-    A & 0 & 0 \\ 0 & A^T & I \\ S & 0 & X
-  \end{array} \right]
-\left[ \begin{array}{c}
-    \Delta x \\  \Delta y \\  \Delta s
-  \end{array} \right] =
-\left[ \begin{array}{c}
-    b - Ax \\ c - A^Ty - s \\ -XSe + \mu e
-   \end{array} \right] =
-\left[ \begin{array}{c}
-    \xi_b \\ \xi_c \\ \xi_\mu
-   \end{array} \right],
-\ee
-%
-which need to be solved with a specified $\mu$ for a search direction
-$(\Delta x, \Delta y, \Delta s)$. Throughout this thesis, we will 
-restrict our attention to using a direct approach in solving these
-equations.
-
-System (\ref{eq:NewtonSystem}) is usually reduced to two other
-formulations by exploiting the block structure of the constraint
-matrix.
-%
-The {\em augmented system} formulation is obtained by using 
-the last row of (\ref{eq:NewtonSystem}) to eliminate
-$\Delta s = X^{-1} (\xi_\mu - S\Delta x)$.
-This produces
-%
-\be \label{eq:AugmentedSystem}
-\left[ \begin{array}{cc}
-    -X^{-1}S & A^T \\ A & 0
-  \end{array} \right]
-\left[ \begin{array}{c}
-    \Delta x \\  \Delta y
-  \end{array} \right] =
-\left[ \begin{array}{c}
-    \xi_c - X^{-1}\xi_\mu \\ \xi_b
-   \end{array} \right],
-\ee
-which is a symmetric but indefinite system.
-%
-By further eliminating $\Delta x$, we reduce system 
-(\ref{eq:AugmentedSystem}) to the set of {\em normal equations}
-%
-\be \label{eq:NormalEquations}
-  A D^2 A^T \Delta y = A D^2 (\xi_c - X^{-1} \xi_\mu) + \xi_b,
-\ee
-%
-where we introduced the notation $D^2 = S^{-1} X$.
-Under the assumption of full row rank for $A$, matrix 
-$A D^2 A^T$ is positive definite, since $D^2_i = x_i/s_i > 0$ for
-all $i = 1, \ldots, n$.
-
-Besides the issue of definiteness, the two formulations differ in
-terms of sparsity, the normal equations usually being dense, and
-in terms of conditioning (much worse for normal equations).
-
-\fb{
-Compare the two approaches, and discuss what happens in software.\\
-Explain the dependence on linear algebra.
-}
-
-Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
-study of the properties of the augmented system formulation.
-
-
-%
-% Section
-%
-\section{Theoretical results}
-\label{sec:TheoreticalResults}
-
-Theoretical developments aim at lowering the upper bound on the number 
-of steps needed for convergence. The results provided by such worst-case 
-complexity analysis
-are informative but exceedingly pessimistic. A common complexity result 
-states that interior point methods (for linear and quadratic programming) 
-converge arbitrarily close to an optimal solution in a number of iterations 
-which is proportional to the problem dimension or to the square root of it.
-
-\fb{
-Find a citation for the above statement.
-}
-
-Monteiro and Adler \cite{MonteiroAdler89a} showed that the use of
-the small $N_2$ neighbourhood allows to reach the solution in
-$O(\sqrt{n}L)$ iterations.
-
-\fb{
-Not sure about that reference! Mehrotra actually cites another paper
-from Monteiro and Adler.
-}
-
-\fb{
-Much of the theoretical research concentrates on feasible 
-methods. In this case, a feasible starting point (one which 
-satisfies equality constraints and positivity of variables) 
-is assumed to be easily available. However, this is not the 
-case in practice. Finding a starting point is a separate 
-subproblem. For this reason, a need exists for practical 
-implementations to dispense from this requirement.
-
-The feasible algorithm needs to start from a strictly feasible 
-point. This involves solving an artificial subproblem by using 
-the big-$M$ method for example. Lustig (Feasibility issues in 
-PD IPM) notes that this causes numerical instability, worsened 
-by the presence of dense columns that compromises the 
-computational efficiency. A very different approach to deal 
-with the starting point issue is the self-dual formulation.
-}
-
-%
-%
-\subsection{Mizuno-Todd-Ye predictor--corrector algorithm}
-
-Mizuno, Todd and Ye \cite{MizunoToddYe} analysed the short-step 
-predictor--corrector method. Their strategy uses two nested neighbourhoods 
-$N_2(\theta^2)$ and $N_2(\theta)$, $\theta \in (0,1)$, and exploits the
-quadratic convergence property of Newton's method in this type of 
-neighbourhood.
-Their algorithm computes two search directions at each iterations.
-First, the predictor direction gains optimality, possibly at the expense of
-worsening the centrality, keeping the iterate in a larger neighbourhood
-$N_2(\theta)$ of the central path. Afterwards, a pure re-centering step 
-follows, which throws the iterate back into a 
-tighter $N_2(\theta^2)$ neighbourhood. Hence, every second step the 
-algorithm produces a point in $N_2(\theta^2)$. This is a clever 
-approach, but the use of the very restrictive $N_2$ neighbourhood 
-makes it unattractive for practical applications.
-
-An important contribution of this technique, however, is the idea 
-of targeting optimality and centrality independently. While this 
-algorithm is not effective in practical terms, it provides a scheme 
-upon which more computationally attractive methods can be constructed.
-
-
-%
-%
 %
 \section{A practical algorithm}
 
@@ -481,6 +53,15 @@ theoretical purposes, and usually they implement some variation
 of infeasible interior point algorithms. In particular they show
 differences in the search directions, the evaluation of the stepsize, 
 the neighbourhood. 
+
+The use of different stepsizes in the primal and dual spaces is
+almost the rule for linear programming (while for quadratic programs
+the stepsizes have to be identical). This has the advantage of
+speeding up the restoration of feasibility. According to
+\cite{GondzioTerlaky}, the use of different stepsizes contributes 
+to a reduction in number of iterations of 10\% on the Netlib
+set of tests.
+
 This is further complicated by issues of computational efficiency
 and numerical stability, which often suggest the use of amended
 techniques or heuristic approaches, which make their analysis
@@ -602,7 +183,7 @@ $\Delta_a w$ direction, we need to employ a linesearch procedure such that
 \]
 
 Hence, the maximum feasible stepsizes $\alpha_P$ and $\alpha_D$ achievable
-in the predictore direction, in the primal and dual space respectively, 
+in the predictor direction, in the primal and dual space respectively, 
 are computed as:
 \be
   \alpha_P =\min \left\{ -\frac{x_i}{\Delta_a x_i} : \Delta_a x_i < 0 \right\},
@@ -634,7 +215,8 @@ these points may not be feasible (in the feasible algorithm), or
 may produce a much bigger improvement in optimality than what 
 attained in feasibility (in the general infeasible algorithm).
 
-The above issues are usually worsened if the current iterate is badly centered, 
+The above issues are usually worsened if the current iterate is 
+badly centered, 
 and therefore only a very small step is acceptable in order to 
 maintain positivity or to keep the iterate in the neighbourhood 
 of the central path.
@@ -713,7 +295,7 @@ A further important contribution by Mehrotra consists in the
 use of a second order direction. As said above, the affine-scaling direction 
 corresponds to a linear approximation to the the trajectory from 
 the current point to the optimal set, where no information about 
-higher order terms is taken into account. This linearization, 
+higher order terms is taken into account. This linearisation, 
 however, produces an error which can be determined analytically.
 %
 If a full step in the affine-scaling direction is made, then 
@@ -739,12 +321,12 @@ which is equivalent to solving the nonlinear system
 \[
   S\Delta x + X\Delta s = -XSe +\mu e - \Delta X\Delta Se.
 \]
-The linearization error made by the affine-scaling direction is exactly 
+The linearisation error made by the affine-scaling direction is exactly 
 the $\Delta X\Delta Se$ term that is ignored in the right-hand side
 of (\ref{eq:NewtonSystem}).
 
 Mehrotra introduced a second-order correction in which the 
-linearization error is taken into account. Therefore, 
+linearisation error is taken into account. Therefore, 
 Mehrotra's corrector term is obtained by solving the Newton system 
 (\ref{eq:NewtonSystem}) with right-hand side
 \be \label{eq:MehrotraRhs}
@@ -786,7 +368,10 @@ is that it often produces longer stepsizes before violating the
 non-negativity constraints.
 %
 This usually translates in significant savings in the number of IPM 
-iterations and, for all non-trivial problems, lead into significant 
+iterations: Mehrotra \cite{Mehrotra92} reports on savings of the
+order of 35\%-50\% compared to other strategies.
+For problems for which the factorisation cost is relevant, this
+leads into significant 
 CPU time savings \cite{LustigMarstenShanno,Mehrotra92}. Indeed, 
 Mehrotra's predictor--corrector technique is advantageous in all 
 interior point implementations for linear programming 
@@ -1013,6 +598,13 @@ references.
 Detection of infeasibilities, linear algebra issues, use of iterative
 methods.
 
+\hrulefill
+
+The initialisation of an interior point method consists of two
+logically independent phases: the presolve (find duplicate rows or
+columns, fixed variables, redundant constraints, bound tightening),
+and the process of finding an initial iterate.
+
 %
 %
 \subsection{Mehrotra's starting point heuristic}
@@ -1054,14 +646,14 @@ Turning our attention to infeasible algorithms, the major hurdle
 of finding a feasible starting point is removed. 
 However, the practical performance is very sensitive to the initial
 iterate, so the use of arbitrary points is not recommended.
-In particular, two requiremengs become important: the centrality 
+In particular, two requirements become important: the centrality 
 of the point and the magnitude of the corresponding infeasibilities.
 \fb{
 Expand!
 }
 
 Mehrotra \cite{Mehrotra92} introduced a tool to find a starting point 
-that attemps to fulfill the above requirements. In this
+that attempts to fulfil the above requirements. In this
 heuristic, we solve two least squares problems which aim to
 satisfy the primal and dual constraints:
 \begin{eqnarray*}
@@ -1126,7 +718,7 @@ Dependence on scaling.
 
 %
 %
-\section{Spare parts}
+\subsection{Choice of the step length}
 
 Choice of step length: either use neighbourhoods or strict 
 positivity of iterates. The latter works very efficiently 
@@ -1134,7 +726,7 @@ in practice but does not ensure global convergence.
 
 %
 %
-\subsubsection{Choice of penalty parameter}
+\subsection{Choice of penalty parameter}
 
 In all predictor-corrector algorithms there is a crucial decision 
 to be made at every iteration, namely the choice of the penalty 
@@ -1155,63 +747,3 @@ factors, the actual cost of the backsolves is not negligible.
 In the results of this paper, the additional cost of the extra 
 backsolves is bigger than the savings obtained by the decrease 
 in number of iterations.
-
-%
-%
-\subsection{Infeasible methods}
-
-In primal--dual feasible algorithms for linear programming, 
-all primal and dual iterates always lie within the interior 
-of the feasible region. For this reason, these algorithms 
-need to start from a strictly feasible point. Unfortunately, 
-finding a strictly feasible starting point is, in general, 
-a nontrivial task. Also, a linear program may not have a 
-strictly feasible point.
-
-It is possible to develop an algorithm which only requires 
-the $x$ and $s$ components to be strictly positive. In such 
-an algorithm, all iterates are infeasible, but the limit points 
-are feasible and optimal. This is obtained by using a 
-neighbourhood that admits infeasible points:
-\[
-\mathcal{N}_{-\infty}(\gamma,\beta) =\{ (x,\lambda,s) | \; \|(r_b,r_c)\| \le \beta\mu \frac{\|(r_b^0,r_c^0)\|}{\mu_0}, (x,s)>0, x_is_i \ge \gamma\mu \},
-\]
-where $\gamma\in (0,1)$ and $\beta \ge 1$ are parameters, and 
-we denoted the primal and dual residuals, respectively, by 
-$r_b = Ax-b$ and $r_c = A^T\lambda+s-c$.
-
-Therefore, there is no strict feasibility requirement for 
-the iterates; however, the residuals at each iteration must be 
-bounded above by a multiple of the duality measure $\mu$. 
-By reducing $\mu$ we can force the primal and dual residuals 
-$r_b$ and $r_c$ to zero, thus approaching complementarity and 
-feasibility at the same speed.
-
-\ignore{
-I studied and implemented the use of different weights $\omega_b$ 
-and $\omega_c$ on the residuals, where 
-$\omega_b, \omega_c \in [ \omega_{\min}, 1]$, $\omega_{\min}>0$, 
-so that we absorb at least a fraction of infeasibilities at each 
-iteration. This idea aimed at focusing on the complementarity term, 
-as it is the one responsible for the progress of optimization.
-
-A variation investigated concerned solving the step equations 
-independently for three different right-hand sides
-\[
-\left[ \begin{array}{c}
-    -r_b \\ 0 \\ 0 
-  \end{array} \right], \quad
-\left[ \begin{array}{c}
-    0 \\ -r_c \\ 0 
-  \end{array} \right], \quad
-\left[ \begin{array}{c}
-    0 \\ 0  \\ -XSe + \sigma\mu e
-  \end{array} \right],
-\]
-and then combining the resulting directions with some independent 
-weights. This gives the freedom of postponing the choice of the 
-weights, but on the other hand each iteration involves three 
-backsolves. Apart from the increased computational cost, this 
-strategy was considered interesting in some particular situations, 
-such as in reoptimization.
-}

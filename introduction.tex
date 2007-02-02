@@ -1,7 +1,8 @@
 %Started on 30th August 2006
 %Aug: 31
 %Sep:  1,  8
-%Jan 2007: 15
+%Jan 2007: 15, 22, 26, 29, 31
+%Feb:  1,  2
 
 %
 % Chapter: Background and introduction.
@@ -9,136 +10,100 @@
 \label{ch:Introduction}
 
 In this chapter we present the background and motivations for
-this research.
+this research. In particular we introduce the field of linear programming,
+discuss its relevance, and compare some solution methods, in particular
+with regard to their computational complexity.
+
+Further, we motivate our research and provide an outline of the chapters
+of this thesis.
 
 %
 % Section
 %
 \section{Linear programming}
 
-\fb{
-An historical account of linear programming is given in \cite{Schrijver86}.
-}
+Historical accounts on the birth and development of linear programming 
+can be found in many sources, such as \cite[ch.~2]{Dantzig63} and 
+\cite{Schrijver86}. Dantzig's personal recollection are also
+in \cite{Dantzig02}.
 
-\fb{
-The simplex method as an active set method.
-}
+Linear programming was developed as models were being used for
+economic and military planning.
 
-\fb{
-Maybe something on the difficulty of LP? And something that motivates
-the fact that a solution has to be at a vertex.
-}
+A definition of Linear programming has been given by Dantzig \cite{Dantzig02}:
+\begin{quote}
+Linear programming can be viewed as part of the great revolutionary 
+development which has given mankind the ability to state general goals
+and to lay out a path of detailed decisions to take in order to ``best''
+achieve its goals when faced with practical situations of great complexity.
+\end{quote}
 
-The simplex method reaches a solution by visiting a sequence of 
-vertices of the polyhedron, moving from one vertex to an adjacent 
-one characterized by a better objective function value
-(in the non-degenerate case). The polyhedron 
-corresponding to a linear system of $m$ constraints in $n$ variables 
-($m < n$) has a number of vertices equal to
-\[
+In the same paper, Dantzig touches on the essential components of linear
+programming:
+\begin{quote}
+Our tools for doing this are ways to formulate real-world problems in
+detailed mathematical terms (models), techniques for solving the models
+(algorithms), and engines for executing the steps of algorithms
+(computers and software).
+\end{quote}
+
+An optimization problem can be described in terms of a set of variables, 
+some constraints, and an objective function. It is interesting to note
+that while the need of an objective function is obvious to us, it was
+not when the first problems were modelled: hence the set of feasible
+solution was investigated with some ad-hoc criteria, instead of being
+guided by the optimization of some quantity as objective \cite{Dantzig02}.
+The investigation of optimization problems arise from the natural
+desire to solve a problem in an ``optimal way''.
+
+A {\em linear programming problem} is an optimization problem for which
+the objective function and the constraints are linear. 
+Linear programming problems arise directly (for example in economics,
+networks, scheduling or other applications), or as approximations to
+more complicated formulations, as most real-life relationships are
+nonlinear. Another important source of linear programs is the 
+linear relaxation of integer programming problems.
+
+Among the class of convex optimization problems, linear programming
+has a peculiar feature which is described by the following Theorem.
+
+\begin{theorem}[Fundamental theorem of linear programming]
+\label{th:FundamentalLP}
+For a consistent linear programming problem with a
+feasible domain $\mathcal{P}$, the optimal objective value is either
+unbounded or is achievable at least at one extreme point of $\mathcal{P}$.
+\fb{
+This has been taken from \cite{FangPuthenpura93}.
+}
+\end{theorem}
+
+The set defined by the linear constraints is called {\em polyhedron}.
+According to Theorem~\ref{th:FundamentalLP}, in looking for a solution 
+we can restrict our 
+attention to the vertices of the feasible region.
+The polyhedron corresponding to a linear system of $m$ constraints 
+in $n$ variables ($m < n$) has a number of vertices equal to
+\be \label{eq:NumberVertices}
 \binom{n}{m} = \frac{n!}{m!(n-m)!}.
+\ee
+This number is an overestimate, as not all of these choices correspond
+to feasible points.
+
+The fact that the number of vertices is finite guarantees termination 
+of any algorithm that explores all vertices.
+However this number is exponential, as can be seen by further
+manipulating (\ref{eq:NumberVertices}) \cite[ch.~5.2]{FangPuthenpura93}:
+\[
+\frac{n!}{m!(n-m)!} \ge \left( \frac{n}{m} \right)^m \ge 2^m 
+\quad \mbox{for } n \ge 2m.
 \]
 
-\fb{
-Klee and Minty's example of bad behaviour of the simplex method
-(when Dantzig's pivoting rule is used).
-}
+This consideration gives rise to the need of defining an algorithm
+that discovers the optimal vertex among the multitude of nonoptimal ones.
 
-In real-life problems, this situation never arises, and not all of 
-these vertices will have to be visited. Besides, given the monotonic
-way of choosing the next vertex, in the non-degenerate case the set 
-of possible vertices decreases after each iteration. Degeneracy
-happens when a vertex in $\R^m$ is traversed by $p > m$ constraints.
-In this case, there are $\binom{p}{m}$ different bases for the same
-verted. Therefore, the simplex method
-may try different changes of basis without actually moving away
-from the vertex and thus not obtaining an improvement in the objective
-function value.
-
-\fb{
-Discussion on the complexity of linear programming. How the simplex
-method is exponential.
-}
-
-\fb{
-The search for a polynomial algorithm and the ellipsoid method.
-
-In Khachiyan's ellipsoid method, the polyhedron is inscribed in a sequence
-of ellipsoids of decreasing size. If the problem has a solution, the 
-centers of these ellipsoids converge to the optimal solution; otherwise,
-their size decreases to zero.
-
-The ellipsoid method finds a solution in $\bigO(n^2L)$ iterations,
-thus has polynomial complexity. Since this worst-case bound
-is generally attained, its practical performance is not competitive
-with other solution methods. Besides, other problems relate to round-off
-errors and dense matrix computation.
-
-However, the ellipsoid method is often used in the contex of
-combinatorial optimization as an analytic tool to prove complexity
-results for algorithms \cite{ip:NemhauserWolsey88}.
-}
-
-We know polynomial-time algorithms for linear programming, 
-namely the ellipsoid method (see \cite[ch.~13]{Schrijver86} 
-and \cite[ch.~I.6]{ip:NemhauserWolsey88}) and interior point 
-methods (\cite{ipm:Wright97}). Despite being an exponential 
-algorithm, the simplex method shows polynomial complexity in 
-the average time, and is therefore widely adopted in the 
-solution of linear programming problems.
-
-
-%
-% Section
-%
-\section{Interior point methods}
-
-Since their introduction following Karmarkar's groundbreaking paper
-\cite{Karmarkar}, interior point methods (IPMs for short) have attracted 
-the interest of a growing number of researchers.
-
-\fb{
-Karmarkar's algorithm is a primal algorithm based on a projection
-in some transformed space and steepest descent. It uses a potential
-function to measure the progress. It has $\bigO(nL)$ complexity.
-
-}
-
-Over the last 20 years, an impressive wealth of theoretical research
-has been published, and computational developments have brought life
-to a field, that of Linear Programming, that seemed not to attract much
-attention anymore.
-
-\fb{
-Cite the reports on how much the simplex method has improved as a 
-consequence of that.
-}
-
-Interior point methods are well-suited to solving very
-large scale optimization problems. Their theory is well understood
-\cite{ipm:Wright97} and the techniques used in their implementation 
-are documented in extensive literature (see, for example, 
-\cite{AndersenGondzioMeszarosXu,GondzioTerlaky} and the references therein).
-
-\fb{
-Cases where the simplex method cannot be beaten: hyper-sparsity.
-}
-
-\fb{
-Contrary to active set algorithms, interior point methods reach a
-solution only asymptotically. Mention crossover strategies and finite
-termination.
-Once a solution with a prescribed optimality tolerance has been found,
-such a point can be projected upon a face of the polyhedron.
-}
-
-%
-% Section
-%
-\section{Other stuff}
-
-A generic optimization algorithm can be summarised in the following
-scheme:
+Many algorithms have been proposed to solve a variety of optimization
+problems. However, despite their diversity, they are based on the same 
+general framework summarised in the following scheme:
 
 \bt{
 \begin{description}
@@ -158,6 +123,244 @@ scheme:
 
 Each of the point of this simplified algorithm has to be specialised
 to the specific algorithm we are talking about.
+
+%
+%
+\subsection{The simplex method}
+
+The simplex method was introduced by George Dantzig in 1947. Dantzig
+himself recounted the way he came to this discovery
+in many occurrences \cite{Dantzig02}. We should note that the
+introduction of the simplex method happened simultaneously with
+the realisation of linear programming as an efficient modelling tool
+for practical decision making. 
+
+The simplex method exploits the fundamental property of linear
+programming, in the sense that a solution must be a vertex of
+the feasible region.
+
+The simplex method reaches a solution by visiting a sequence of 
+vertices of the polyhedron, moving from one vertex to an adjacent 
+one characterised by a better objective function value
+(in the non-degenerate case). 
+
+Since the number of vertices is finite, then termination is guaranteed.
+While it is possible that all of them get visited, in real-life problems, 
+this situation never arises, and only a fraction of the vertices are
+actually traversed.
+Besides, given the monotonic
+way of choosing the next vertex, in the non-degenerate case the set 
+of possible vertices decreases after each iteration. Degeneracy
+happens when a vertex in $\R^m$ is traversed by $p > m$ constraints.
+In this case, there are $\binom{p}{m}$ different bases for the same
+vertex. 
+
+\fb{
+This is discussed in Chvatal \cite[ch.4]{lp:Chvatal}.
+}
+
+In such a case, the step length produced by the ratio test
+is zero. Therefore, the simplex method
+may try different changes of basis without actually moving away
+from the vertex and thus not obtaining an improvement in the objective
+function value.
+
+The simplex method can be seen as an active set method, as at each
+iteration only a set of constraints are active (those that define
+the vertex).
+
+For the practical efficiency, the simplex algorithm has been considered
+for a long time the undiscussed method for solving linear programming
+problems.
+
+
+%
+%
+\subsection{Complexity considerations}
+
+The concept of computational complexity has been introduced in the 70s,
+as the availability of computing machines required a deeper insight
+on the computational performance of different algorithms.
+For a good introduction, we refer to \cite[ch.~2]{Schrijver86}
+
+The computational complexity of an algorithm can be used as a measure
+of the growth in the computational effort required by the algorithm
+as a function of the size of the problem. Therefore, it provides 
+a worst-case measure.
+
+Complexity proofs rely on two assumptions that are necessary 
+simplifications:
+\begin{itemize}
+\item Computations are performed in exact arithmetic
+\item The numerical data $(A, b, c)$ of a problem instance is rational
+\end{itemize}
+
+Computational complexity is measured by the number of elementary operations
+required to perform the algorithmic steps until termination. It often depends 
+on the size of the binary representation of the input ($L$).
+
+\fb{
+Discussion on the complexity of linear programming.
+}
+
+The simplex method has exponential complexity: it is possible that all
+the vertices of the polyhedron (which, as can be seen in
+(\ref{eq:NumberVertices}), is an exponential number) have to be visited
+before reaching an optimal solution.
+
+Klee and Minty \cite{KleeMinty} were the first to provide an example 
+of bad behaviour of the simplex method (when Dantzig's pivoting rule 
+is used). In this example of $n$ variables and $2n$ inequalities,
+the simplex method visits each of the $2^n$ vertices.
+
+However, no cases of exponential number of iterations have been encountered 
+in real-life situations. Moreover, in most cases the simplex algorithm shows 
+to have a polynomial behaviour, being linear in $m$ and sublinear in $n$
+\cite[p.94]{FangPuthenpura93}.
+This gap between the observed and the theoretical worst-case performance
+of the simplex method is still unexplained.
+
+A survey on the efficiency of the simplex method is done by Shamir 
+\cite{Shamir87}, where also probabilistic analysis (as opposed to
+worst-case analysis) are presented.
+
+Given this theoretical drawback, there have been efforts to find an
+algorithm for linear programming characterised by a polynomial-time bound.
+
+In 1979 Khachiyan shows how to adapt the ellipsoid method for convex
+programming to the linear programming case.
+In Khachiyan's ellipsoid method, the feasible polyhedron is inscribed in 
+a sequence of ellipsoids of decreasing size. 
+The first ellipsoid has to be large enough to include a solution to the
+system of inequalities $Ax < b$; the volume of the successive ellipsoids 
+shrinks geometrically. Therefore it generates improving iterates
+in the sense that the region in which the solution lies is 
+reduced at each iteration in a monotonic fashion.
+The algorithm either finds a solution, as the centres of the ellipsoids
+converge to the optimal point, or states that no solution exists.
+More details on the ellipsoid method can be found for example in 
+\cite[ch.~13]{Schrijver86} and \cite[ch.~I.6]{ip:NemhauserWolsey88}.
+
+The exciting property of the ellipsoid method is that it finds a 
+solution in $\bigO(n^2L)$ iterations, thus has polynomial complexity. 
+Khachiyan's contribution settled the question on the computational 
+complexity of linear programming.
+However, since this worst-case bound
+is generally attained, its practical performance is not competitive
+with other solution methods. Besides, it displays other drawbacks
+related to large round-off errors and the need of dense matrix computation.
+Nevertheless, the ellipsoid method is often used in the context of
+combinatorial optimization as an analytic tool to prove complexity
+results for algorithms \cite{ip:NemhauserWolsey88}.
+
+The ellipsoid does not rely on the combinatorial features of the
+linear programming problem
+
+%
+%
+\subsection{Interior point methods}
+
+Since their introduction following Karmarkar's groundbreaking paper
+\cite{Karmarkar}, interior point methods (IPMs for short) have attracted 
+the interest of a growing number of researchers.
+
+Interior point methods were being developed in the 60s and the beginning
+of the 70s as methods to solve nonlinear programming problems with
+inequality constraints. 
+However, they fell from favour and attracted less and less attention
+because of their inefficiency and the presence of strong competitors
+(SQP).
+
+The main idea is fundamentally different to the one that inspires the
+simplex method: the optimal vertex is approached by moving through the
+interior of the feasible region.
+This is done by creating a family of parametrised approximate solutions
+that asymptotically converge to the exact solution.
+
+%Karmarkar's algorithm is a primal algorithm based on a projection
+%in some transformed space and steepest descent. It uses a potential
+%function to measure the progress. It has $\bigO(nL)$ complexity.
+
+Karmarkar's claim was that its method was extremely successful, but
+the implementation details were not very clear. A variant was then
+proposed and implemented by Adler-Karmarkar-Resende-Veiga (Math. Prog.
+44, 1989).
+
+Since then the theoretical understanding has considerably increased,
+and many algorithmic variants have been proposed, and several of
+them have shown to be a computationally viable alternative to the
+simplex method.
+
+Karmarkar's algorithm is presented in many details in 
+\cite[ch.6]{FangPuthenpura93}.
+
+Over the last 20 years, an impressive wealth of theoretical research
+has been published, and computational developments have brought life
+to a field, that of Linear Programming, that seemed not to attract much
+attention anymore.
+
+Among the positive consequences brought by the renewed interest in linear
+programming, let us remind the improvements in the implementations of 
+simplex-based solvers.
+
+\fb{
+Cite the reports on how much the simplex method has improved as a 
+consequence of that \cite{Bixby02}. Also \cite{Bixby94}, but that mainly
+concentrates on Cplex...
+}
+
+There are classes of problems that are best solved with the simplex
+method, and others for which an interior point method is preferred.
+Size, structure and sparsity play a major role as to which
+algorithm should be chosen for computations.
+As a rule of thumb, with the increase of the problem dimension, the 
+more effective interior point methods become.
+However, this does not hold in the hyper-sparse case, where the
+simplex method is virtually unbeatable, and for network problems,
+where the specialised network simplex method can exploit the
+structure in an extremely efficient manner.
+
+\fb{
+Add a citation for the hyper-sparse case.
+}
+
+Interior point methods are well-suited to solving very
+large scale optimization problems. Their theory is well understood
+\cite{ipm:Wright97} and the techniques used in their implementation 
+are documented in extensive literature (see, for example, 
+\cite{AndersenGondzioMeszarosXu,GondzioTerlaky} and the references therein).
+They can be applied to a wider range of situations with no need
+of major changes. In particular, they have been successfully used in
+quadratic programming, nonlinear programming, complementarity problems.
+
+\fb{
+In interior point methods the computation of the Cholesky factorization
+dominates the cost of each iteration; for the simplex, no single
+step dominates in the computations. 
+
+Karmarkar \cite{Karmarkar} notes:
+\begin{quote}
+In the simplex method, the current solution is modified by introducing
+a nonzero coefficient for one of the columns in the constraint
+matrix. Our method allows the current solution to be modified by
+introducing several columns at one.
+\end{quote}
+}
+
+\fb{
+Maybe cite Margaret Wright \cite{MWright92}.
+}
+
+\fb{
+Contrary to active set algorithms, interior point methods reach a
+solution only asymptotically. 
+Once a solution with a prescribed optimality tolerance has been found,
+such a point can be projected upon a face of the polyhedron.
+This can be done thanks to a strongly polynomial algorithm due
+to Megiddo \cite{Megiddo91}. This is called basis crossover, 
+as given a complementary primal--dual solution it generates a basis 
+that is both primal and dual feasible.
+}
 
 %
 % Section
@@ -209,7 +412,21 @@ following reasons:
 
 %
 %
-\section{Main references}
+\subsection{Scope of this thesis}
+
+We introduce and formalise the concept of symmetric neighbourhood as the
+driving tool for the analysis and understanding of the good behaviour
+of some practical algorithms. Also, the symmetric neighbourhood plays
+a central role in the development of the techniques that we propose here.
+%
+The use of the symmetric neighbourhood lets us simplify the presentation
+of the multiple centrality correctors technique \cite{Gondzio96}, and
+further motivate their use in a new and more adaptive way, thanks to the 
+introduction of a weighting mechanism.
+%
+The practical value of the symmetric neighbourhood is appreciated also
+in the context of generation of a warm-start iterate for stochastic
+linear programs.
 
 The original results presented in this thesis are mainly based on two
 papers that have been submitted for publication.
@@ -229,3 +446,34 @@ large-scale stochastic linear programs.
 It shows that it is possible to obtain a computationally viable
 warmstart point by solving a stochastic problem of much smaller
 dimension.
+
+
+%
+%
+\subsection{Outline of this thesis}
+
+In Chapter~\ref{ch:Ipm} we introduce and derive the primal--dual
+path-following algorithm for linear programming. This will be
+the moment of introducing the main theoretical results that are at
+the base of most interior-point methods, as well as concentrate
+on those that are more used in practical implementations.
+
+A strong shift towards practical implementations and the main techniques
+adopted will happen in Chapter~\ref{ch:PracticalIpm}. In this
+chapter we will discuss two important strategies used in generating
+effective search directions. Also we will turn our attention
+to other details for which there is a divergence between theoretical
+analysis and practical implementation.
+
+Chapter~\ref{ch:Correctors} is dedicated to studying the use of
+weighted correctors in the generation of search directions. This will
+be compared to the subspace searches approach, which tries something
+similar but considering a given set of directions. The advantages
+and drawbacks of both strategies will be discussed together with
+a rich computational study.
+
+Finally, in Chapter~\ref{ch:Warmstart} we present a warmstart technique
+that exploits the inherent structure of a stochastic linear programs.
+Alongside some theoretical results, we will show the computational
+experience on some standard test problems and larger instances coming
+from the telecommunication industry.

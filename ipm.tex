@@ -1,7 +1,8 @@
 %Started on 9th August 2006
 %Aug: 11, 22, 23, 24, 25, 28, 29, 30, 31
 %Sep:  1,  7,  8
-%Jan 2007: 15, 16, 17
+%Jan 2007: 15, 16, 17, 22, 26, 29, 30
+%Feb:  1,  2
 
 %
 % Chapter: Interior point methods
@@ -30,11 +31,10 @@ Consider the following primal--dual pair of linear programming problems
 in standard form
 %
 \begin{eqnarray} \label{eq:PrimalDualPair}
-  \begin{array}{rlp{2cm}rl}
-%   \mbox{\small Primal } & & & \mbox{\small Dual } \\[0.1cm]
-    \mbox{ min }  & c^T x  & & \mbox{ max }  & b^T y \\
-    \mbox{ s.t. } & Ax = b,& & \mbox{ s.t. } & A^T y + s = c, \\
-                  & x \geq 0; &  &   & y \mbox{ free,} \;\; s \geq 0,
+  \begin{array}{crlp{2cm}crl}
+     & \mbox{ min } & c^T x     &  &     & \mbox{ max }  & b^T y \\
+ (P) &\mbox{ s.t. } & Ax = b,   &  & (D) & \mbox{ s.t. } & A^T y + s = c, \\
+     &              & x \geq 0; &  &     &   & y \mbox{ free,} \;\; s \geq 0,
   \end{array}
 \end{eqnarray}
 %
@@ -45,40 +45,78 @@ removed without changing the solution set.
 This also implies that a feasible $s \ge 0$ determines in a unique
 way the value of $y$.
 
+We define the set of primal feasible points and the set of
+primal interior points 
+\[
+\mathcal{P} = \{ x : Ax = b, \; x \ge 0 \}, \quad
+\mathcal{P}^0 = \{ x \in \mathcal{P} : x > 0 \},
+\]
+and, similarly, the set of dual feasible points and the set of
+dual interior points
+\[
+\mathcal{D} = \{ (y,s) : A^T y + s = c, \; s \ge 0 \}, \quad
+\mathcal{D}^0 = \{ (y,s) \in \mathcal{D} : s > 0 \}.
+\]
+
+The set of feasible primal--dual point is therefore
+$\mathcal{F} = \mathcal{P} \times \mathcal{D}$, and the set of primal--dual
+interior points is
+\[
+\mathcal{F}^0 = \{ (x,y,s) \in \mathcal{F} : (x,s) > 0 \}.
+\]
+A point $(x,y,s) \in \mathcal{F}^0$ is said to be {\em strictly feasible}.
+
+
+Using this notation, the primal--dual pair (\ref{eq:PrimalDualPair}) can 
+be written as
+\be \label{eq:PrimalDualPair2}
+\min \; c^T x, \quad x \in \mathcal{P}; \qquad
+\max \; b^T y, \quad (y,s) \in \mathcal{D},
+\ee
+
 We recall here some well-known results on the relationship between
-problems $\mathcal{P}$ and $\mathcal{D}$ in linear programming. 
+problems $(P)$ and $(D)$ in linear programming. 
 These can be found in plenty of sources, for example \cite{lp:Chvatal} \ldots
 
 \fb{
 Find these sources!
 }
 
-We define the set of primal feasible points
-\be \label{eq:PrimalFeasibleSet}
-\mathcal{F} = \{ x : Ax = b, \; x \ge 0 \},
-\ee
-and equivalently the set of dual feasible points
-\be \label{eq:DualFeasibleSet}
-\mathcal{D} = \{ (y,s) : A^T y + s = c, \; s \ge 0 \}.
-\ee
+\begin{lemma}[Weak duality]
+Let $(x,y,s) \in \mathcal{F}$. Then $c^Tx \ge b^Ty$.
+\end{lemma}
 
-The primal--dual pair (\ref{eq:PrimalDualPair}) can therefore be written as
-\be \label{eq:PrimalDualPair2}
-\min \; c^T x \quad x \in \mathcal{F}, \qquad
-\min \; b^T y \quad (y,s) \in \mathcal{D},
-\ee
-
-Problem P has a solution iff $\mathcal{F} \ne \emptyset$;
+Problem (P) has a solution iff $\mathcal{P} \ne \emptyset$;
 if also $\mathcal{D} \ne \emptyset$, then both problems admit an
 optimal solution $(x^*, y^*, s^*)$, and the objective function 
-values of both problems at that point coincide (strong duality).
+values of both problems at that point coincide. This can be formalised
+in the following lemma.
+
+\begin{lemma}[Strong duality]
+A point $x \in \mathcal{P}$ is an optimal solution if and only if
+there exists a pair $(x,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
+\end{lemma}
 
 However, one of the sets might be empty: in such a case, an optimal
 solution for problem (\ref{eq:PrimalDualPair2}) does not exist,
 as the set is either unbounded or empty as well.
 
+In what follows, we make the standard assumption for the development
+of interior point methods that $\mathcal{P}^0 \ne \emptyset$ and 
+$\mathcal{D}^0 \ne \emptyset$. This is also referred to as the
+{\em interior point assumption}. 
+
+This corresponds to assuming that the primal--dual optimal face is 
+bounded (this is mentioned in \cite{GonzagaCardia04}).
+
+\fb{
+See Jansen \cite{phd:Jansen}, p.14.
+}
+
 \fb{
 Formalize these results.
+
+See \cite{GulerRoosTerlakyVial}.
 }
 
 \fb{
@@ -102,8 +140,17 @@ $x_i$ and $s_i$ respectively, and $e \in \R^n$ is a vector
 of ones. In other words, an optimal solution is characterised by 
 primal feasibility, dual feasibility and complementarity.
 
+Optimality conditions let us recognise that a solution has been
+found. They also suggest algorithms for finding a solution.
+
 \fb{
 Spend a few words on the concept of complementarity.
+Complementarity can be seen as a certificate for optimality \cite{phd:Jansen}
+and maybe even \cite{Schrijver86}.
+
+For non-optimal solutions, complementarity measures the distance of the
+solution to optimality. When this distance is driven to zero, then the
+solution found is also optimal.
 }
 
 Interior point methods arrive to a solution that satisfies the KKT
@@ -134,6 +181,46 @@ optimal set as $\mu \to 0$.
 In interior-point terminology, such a path is called
 the {\em central path}.
 
+Under the assumptions that for a particular $\mu > 0$ the point
+$(x(\mu),y(\mu),s(\mu))$ is primal and dual feasibility, we can show
+the following result:
+\begin{eqnarray*}
+  g(\mu) & = & c^Tx(\mu) - b^T y(\mu) \\
+         & = & c^Tx(\mu) - x(\mu)^T A^T y(\mu) \\
+         & = & ( c^T - y(\mu)^T A) x(\mu) \\
+	 & = & s(\mu)^T x(\mu),
+\end{eqnarray*}
+that is, the duality gap corresponds to the complementarity gap.
+Hence reducing either of them is identical.
+
+Also, as $XSe - \mu e = 0$ implies $x_is_i = \mu \; \forall i$, we have
+\[
+   s(\mu)^T x(\mu) = n\mu,
+\]
+and for $\mu \to 0$, also $g(\mu) \to 0$.
+
+\begin{lemma}
+Under the assumptions of primal feasibility, dual feasibility, and
+full row rank of matrix $A$, as $\mu \to 0$ then 
+\[
+   x(\mu) \to x^* \qquad (y(\mu),s(\mu)) \to (y^*, s^*).
+\]
+\end{lemma}
+
+\hrulefill
+
+Barrier methods can never produce the exact solution, but terminate
+when the current iterate satisfies some approximation to the desired
+optimality condition.
+
+However, we should discuss what we mean by ``exact'' solution. In most
+cases we do not need the additional precision of being on a vertex (in
+this case, integer programming is the notable exception).
+Also, in case of multiple solutions, interior point methods terminate
+at the analytic center of the optimal face rather than at a vertex; 
+but note the arbitrariness of the simplex in the choice of the solution
+vertex.
+
 %
 %
 \subsection{The central path}
@@ -153,29 +240,36 @@ barrier functions in linear programming.
 The presentation follows the clear and systematic approach of Megiddo
 \cite{Megiddo}.
 
-Given a linear program in standard form $P$:
+Given the linear program in standard form $(P)$,
+it is possible to write the corresponding barrier problem:
 \[
-\begin{array}{rl}
-  \max        & c^Tx \\
-  \mbox{s.t.} & Ax = b, \; x \ge 0,
-\end{array}
-\]
-it is possible to write the corresponding barrier problem $P_\mu$:
-\[
-\begin{array}{rl}
-  \max        & c^Tx + \mu \sum_j \ln x_j \\
-  \mbox{s.t.} & Ax = b, \; x > 0.
+\begin{array}{crl}
+         & \min        & c^Tx - \mu \sum_j \ln x_j \\
+ (P_\mu) & \mbox{s.t.} & Ax = b, \\
+         &             & x > 0.
 \end{array}
 \]
 
-This second problem is parametrized by the quantity $\mu > 0$, 
-tipically small. The presence of the logarithmic barrier forces the iterates 
-to stay in the interior of the feasible region. Such approach is 
+Problem $(P_\mu)$ is a family of problems parametrised by the quantity $\mu>0$,
+tipically small. 
+It's worth noting that such approach is 
 viable only if it is actually possible to find a point that 
 satisfies the constraints.
+
+The presence of the logarithmic barrier term forces the iterates 
+to stay in the interior of the feasible region, as this term penalises 
+iterates that get too close to zero. However, the influence exerted
+by the logarithmic barrier can be controlled through the penalty
+parameter $\mu$, frequently called {\em barrier parameter} in the interior
+point literature. As $\mu$ tends to zero, problem $(P_\mu)$ resembles
+more and more problem $(P)$.
+
+The weight on the barrier regulates the distance from the iterates to 
+the boundary.
+
 Note that the objective function is a strictly convex function. 
 Therefore, for a fixed $\mu$, the problem has at most one global minimum. 
-This global minimum, if it exists, is completely characterized 
+This global minimum, if it exists, is completely characterised 
 by the KKT conditions.
 
 The KKT conditions associated with problem $P_\mu$ are:
@@ -186,12 +280,12 @@ The KKT conditions associated with problem $P_\mu$ are:
 \end{array}
 \]
 
-If the feasible domain $\{ x: Ax=b,\: x\ge 0 \}$ is bounded, 
-then both $P$ and $P_\mu$ have optimal solution. Since the 
-objective function in $P_\mu$ is strictly concave, $P_\mu$ 
+If the feasible domain $\mathcal{P}$ is bounded, 
+then both $(P)$ and $(P_\mu)$ have optimal solution. Since the 
+objective function in $(P_\mu)$ is strictly concave, $(P_\mu)$ 
 has a unique solution for every $\mu>0$.
 
-Megiddo then proves the following proposition: problem $P_\mu$ 
+Megiddo then proves the following proposition: problem $(P_\mu)$ 
 is either unbounded for every  $\mu>0$ or has a unique optimal 
 solution for every $\mu>0$.
 
@@ -205,20 +299,47 @@ Megiddo shows that $c^Tx(\mu)\to c^Tx^*$ as $\mu\to 0$.
 Furthermore, he proves the stronger result that 
 $x(\mu)\to x^*$ as $\mu\to 0$.
 
+The properties of the curvature of the central path are discussed
+in \cite{VavasisYe}, where it is explained that the central path
+is characterised by curves of high order. However, close to the end
+the central path becomes a straight line \cite{Megiddo}.
+
 \fb{
-\begin{itemize}
-\item Properties of the curvature of the central path \cite{VavasisYe}, 
-and straight line towards the end \cite{Megiddo}.
-\item Explore the ``videos'' of the central path on Wright's webpage.
-\item Problems with central path defined as analytic center: Terlaky's
- Klee-Minty example, discussion with Coralia (she mentioned a 
-chapter in Ye's book).
-\end{itemize}
+Connect curves with changes in the optimal partition.
+}
+
+We have discussed what happens as $\mu \to 0$. We can also discuss in
+the opposite situation, and find the point from which the central path
+departs.
+This point, the {\em analytic center}, is defined as
+\[
+\theta = \arg \min_{x \in \mathcal{P}^0} -\sum_j \ln x_j,
+\]
+and this concept is well defined, given the strict convexity of the 
+barrier function. The concept of analytic center was first 
+introduced by Sonnevend.
+
+The analytic center is the point that minimizes the barrier, hence
+is the point farthest away from the boundary.
+However, there is a problem with defining the central path in terms
+of analytic center: the central path is affected by the presence of 
+redundant constraints. 
+This happens because it is an exclusively analytic concept, which does
+not exploit geometric considerations.
+
+\fb{
+The limit of $(P_\mu)$ for $\mu \to \infty$ determines the analytic 
+center of the feasible region. As $\mu \to 0$, the solution to
+$(P_\mu)$ converges to the analytic center of the set of optimal
+solutions of $(P)$.
 }
 
 \fb{
 Gonzaga \cite{Gonzaga92} mentions various centers (center of gravity, 
-analytic center). See also Nick Gould's slides at cerfacs.
+analytic center). See also Nick Gould's slides at cerfacs, and
+discussion with Coralia (she mentioned a chapter in Ye's book).
+
+Terlaky's  Klee-Minty example.
 }
 
 \fb{
@@ -231,19 +352,33 @@ Show the change of variables $s = \mu X^{-1}e$, otherwise $s$ seems
 to appear magically in the following section.
 }
 
-\fb{
-Mehrotra notices that ``it is not clear if the central path (with
+Upon discussing the choice for the centering term in his algorithm,
+Mehrotra \cite{Mehrotra92} makes this comment:
+\begin{quote}
+It is not clear if the central path (with
 equal weights) is the best path to follow, particularly since it
 is affected by the presence of redundant constraints. Furthermore,
 the points on (or near) the central path are only intermediate to
 solving the linear programming problem. It is only the limit point 
-on this path that is of interest to us.''
-}
+on this path that is of interest to us.
+\end{quote}
+
 
 %
 %
-\subsection{Neighbourhoods}
+\subsection{Neighbourhoods of the central path}
 \label{sec:Neighbourhoods}
+
+As we have seen, following the central path provides the recommended
+way of traversing the interior of the feasible region to reach
+the optimal solution. Nevertheless, it should be clear that keeping the
+iterates {\em exactly on} the central path is as difficult as
+solving the optimization problem itself.
+%
+Therefore, we never insist in this extremely restrictive requirement,
+but we rather allow the iterates to be somewhere around the central path.
+This leads to the introduction of the important concept of
+{\em neighbourhood} of the central path. 
 
 Two neighbourhoods are often used in theoretical developments.
 
@@ -287,7 +422,7 @@ of the $\mathcal{N}_{-\infty}$ neighbourhood which better describes
 the centrality requirements needed for a practical algorithm.
 
 \fb{
-Describe the analytic center and its properties.
+$N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
 }
 
 
@@ -373,11 +508,18 @@ in terms of conditioning (much worse for normal equations).
 \fb{
 Compare the two approaches, and discuss what happens in software.\\
 Explain the dependence on linear algebra.
+
+The choice between augmented system and normal equations is based on 
+the relative density of $AD^2A^T$ with respect to $A$.
+
+Normal equations are bad when there are dense columns in $A$, as they
+generate dense blocks in $AD^2A^T$.
+
+The augmented system uses the Bunch-Parlett factorization.
 }
 
 Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
 study of the properties of the augmented system formulation.
-
 
 %
 % Section
@@ -397,32 +539,57 @@ which is proportional to the problem dimension or to the square root of it.
 Find a citation for the above statement.
 }
 
-Monteiro and Adler \cite{MonteiroAdler89a} showed that the use of
-the small $N_2$ neighbourhood allows to reach the solution in
-$O(\sqrt{n}L)$ iterations.
+The theoretical analysis for the logarithmic barrier method was
+done by Megiddo \cite{Megiddo}, who also presented a primal--dual
+framework in 1986. 
+
+On the basis of this seminal paper, Kojima, Mizuno and Yoshise (1987) 
+presented a polynomial-time primal--dual algorithm for linear programming, 
+with the property of convergence in $\bigO(nL)$ iterations.
+
+Further improvements were then introduced by Monteiro and Adler 
+\cite{MonteiroAdler89a}, who refined the algorithm and showed that 
+the use of the small $N_2$ neighbourhood allows to reach the solution 
+in $\bigO(\sqrt{n}L)$ iterations.
 
 \fb{
 Not sure about that reference! Mehrotra actually cites another paper
 from Monteiro and Adler.
 }
 
-\fb{
-Much of the theoretical research concentrates on feasible 
-methods. In this case, a feasible starting point (one which 
-satisfies equality constraints and positivity of variables) 
-is assumed to be easily available. However, this is not the 
-case in practice. Finding a starting point is a separate 
-subproblem. For this reason, a need exists for practical 
-implementations to dispense from this requirement.
+Convergence of the algorithm (Kojima-Mizuno-Yoshise): 
+Let $(x', y', s') = (x^0, y^0, s^0) + \alpha(\Delta x, \Delta y, \Delta s)$, 
+then:
+\begin{itemize}
+\item $\xi'_P = (1-\alpha) \xi^0_P$
+\item $\xi'_D = (1-\alpha) \xi^0_D$
+\item $x'^Ts' = (1-\alpha (1 -\sigma))(x^0)^Ts^0 +\alpha^2 \Delta x^T \Delta s$
+\end{itemize}
+so the reduction in infeasibilities is linear, while complementarity reduces
+for a small $\alpha$ (but if the point is feasible, then the reduction is
+linear as well, since $\Delta x^T \Delta s = 0$.)
 
-The feasible algorithm needs to start from a strictly feasible 
-point. This involves solving an artificial subproblem by using 
-the big-$M$ method for example. Lustig (Feasibility issues in 
-PD IPM) notes that this causes numerical instability, worsened 
-by the presence of dense columns that compromises the 
-computational efficiency. A very different approach to deal 
-with the starting point issue is the self-dual formulation.
-}
+In complexity proof, the barrier parameter is reduced slightly at
+each iteration in order to guarantee that one iteration of Newton's
+method can keep the point in the small neighbourhood of the central path.
+However, this is a worst-case analysis, and in practice the same happens
+even for a bigger update of the barrier parameter. This brings to
+study ways of allowing a more substantial reduction of the barrier
+parameter, at least in some iterations. One important result is this
+direction is the Mizuno-Todd-Ye predictor--corrector algorithm.
+
+\hrulefill
+
+Theoretical proofs of complexity generally follow a common scheme.
+First they rely on a computable measure of the closeness to the central
+path: this is accomplished by the concept of neighbourhood. Second,
+they show that the direction computed by solving the Newton system
+(\ref{eq:NewtonSystem}) can be followed with a strictly positive step
+(and therefore guarantees some progress) and generates an iterate 
+that retains the property of being in some neighbourhood of the central 
+path (possibly larger than the one before). Finally, they require
+a decrease in the barrier parameter that allows a polynomial upper
+bound on the number of iterations.
 
 %
 %
@@ -436,8 +603,9 @@ neighbourhood.
 Their algorithm computes two search directions at each iterations.
 First, the predictor direction gains optimality, possibly at the expense of
 worsening the centrality, keeping the iterate in a larger neighbourhood
-$N_2(\theta)$ of the central path. Afterwards, a pure re-centering step 
-follows, which throws the iterate back into a 
+$N_2(\theta)$ of the central path. Then, a pure re-centering step 
+is performed, which leaves the duality gap unchanged but 
+moves the iterate back into a 
 tighter $N_2(\theta^2)$ neighbourhood. Hence, every second step the 
 algorithm produces a point in $N_2(\theta^2)$. This is a clever 
 approach, but the use of the very restrictive $N_2$ neighbourhood 
@@ -451,714 +619,25 @@ upon which more computationally attractive methods can be constructed.
 
 %
 %
-%
-\section{A practical algorithm}
+\subsection{Infeasible methods}
 
-Interior point methods require the computation of the Newton 
-direction for the associated barrier problem and make a step along 
-this direction, thus usually reducing primal and dual infeasibilities 
-and complementarity gap; eventually, after a number of iterations, 
-they reach optimality. 
-Since finding the Newton direction is usually a major computational task, 
-the efforts in the theory and practice of IPMs concentrate on reducing 
-the number of Newton systems (\ref{eq:NewtonSystem}) to be solved.
+Much of the theoretical research concentrates on feasible 
+methods. In this case, a feasible starting point (one which 
+satisfies equality constraints and positivity of variables) 
+is assumed to be easily available. However, this is not the 
+case in practice. Finding a starting point is a separate 
+subproblem. For this reason, a need exists for practical 
+implementations to dispense from this requirement.
 
-In practice, convergence is much faster than stated by the theoretical
-results presented in Section~\ref{sec:TheoreticalResults}: 
-optimality is usually reached in a number of iterations which is 
-proportional to the logarithm of the problem dimension. 
-
-\fb{
-Find a citation for that!
-}
-
-Practical developments aim to reduce this number even further. 
+The feasible algorithm needs to start from a strictly feasible 
+point. This involves solving an artificial subproblem by using 
+the big-$M$ method for example. Lustig \cite{Lustig91}
+notes that this causes numerical instability, worsened 
+by the presence of dense columns that compromises the 
+computational efficiency. A very different approach to deal 
+with the starting point issue is the self-dual formulation.
 
 \hrulefill
-
-Practical algorithms are very different from the ones used for
-theoretical purposes, and usually they implement some variation
-of infeasible interior point algorithms. In particular they show
-differences in the search directions, the evaluation of the stepsize, 
-the neighbourhood. 
-This is further complicated by issues of computational efficiency
-and numerical stability, which often suggest the use of amended
-techniques or heuristic approaches, which make their analysis
-extremely difficult.
-
-%
-%
-\subsection{Correcting techniques}
-
-Two techniques have proved particularly successful in reducing 
-the number of iterations within practical algorithms:
-Mehrotra's predictor--corrector algorithm \cite{Mehrotra92} 
-and multiple centrality correctors \cite{Gondzio96}. These 
-techniques have been implemented in most of commercial and academic 
-interior point solvers for linear and quadratic programming such 
-as BPMPD, Cplex, HOPDM, Mosek, OOPS, OOQP, PCx and Xpress. 
-They have also been used with success in semidefinite 
-programming with IPMs \cite{Haeberly99}.
-
-Both correcting techniques originate from the observation that 
-(when direct methods of linear algebra are used) the computation 
-of the Newton direction requires two computationally intensive
-operations: the factorization of a sparse symmetric matrix, and
-the backsolve which uses the factors just computed. 
-However, the cost of computing the factors is usually significantly 
-larger than that of backsolving: in some cases the ratio between 
-these two computational efforts may even exceed 1000. 
-
-\fb{
-Present a small table that shows the cost of factoring and of backsolving
-for HOPDM (and PC-x?).
-}
-
-Consequently, it is worth adding more (cheap) 
-backsolves if this reduces the number of (expensive) factorizations. 
-Mehrotra's predictor--corrector technique \cite{Mehrotra92} uses two 
-backsolves per factorization; the multiple centrality correctors technique
-\cite{Gondzio96} allows recursive corrections: a larger number 
-of backsolves per iteration is allowed, leading to a further reduction 
-in the number of factorizations. 
-
-\fb{
-Since these two methods were developed, there have been a number of 
-attempts to investigate their behaviour rigorously and thus provide
-further insight. Such objectives are difficult to achieve because 
-correctors use heuristics which are successful in practice but hard 
-to analyse theoretically. 
-Besides, both correcting techniques are applied to long-step and infeasible 
-algorithms which have very little in common with the short-step and 
-feasible algorithms that display the best known theoretical complexity.
-}
-
-These two strategies will be the focus of the next sections.
-
-
-%
-% Section
-%
-\section{Mehrotra's predictor--corrector algorithm}
-\label{sec:MehrotraPC}
-
-Practical implementations usually follow Mehrotra's predictor--corrector 
-algorithm \cite{Mehrotra92}. In such a framework, we first generate a 
-predictor direction to make progress toward optimality, and then we 
-compute a corrector to remedy for some of the error made by the predictor
-and move the point closer to the central path.
-
-A number of advantages can be obtained by splitting the computation 
-of the Newton direction into two steps, corresponding to solving the linear
-system (\ref{eq:NewtonSystem}) independently for the two right-hand 
-sides 
-\be \label{eq:PredictorRhs}
-r_1 =\left[ 
-  \begin{array}{c}
-    b-Ax \\ c-A^Ty-s \\ -XSe
-  \end{array} \right] \quad \mbox{and} \quad
-r_2 =\left[ 
-  \begin{array}{c}
-    0 \\ 0 \\ \mu e
-  \end{array} \right].
-\ee
-
-Mehrotra \cite{Mehrotra92} introduced two important innovations: 
-\begin{itemize}
-\item A dynamic evaluation of the centering parameter $\sigma$;
-\item A second order correction.
-\end{itemize}
-
-First, we can postpone the choice of $\mu$ and base it
-on the assessment of the quality of the affine-scaling direction;
-second, the error made by the affine-scaling direction may be 
-taken into account and
-corrected. Mehrotra's predictor--corrector technique \cite{Mehrotra92}
-translates these observations into a powerful computational method.
-
-Mehrotra's predictor--corrector algorithm \cite{Mehrotra92,LustigMarstenShanno}
-is extremely efficient in practice. Since its introduction, it has 
-been the considered the method of choice for practical implementations 
-because it is usually very fast and reliable. Moreover, it has a 
-convincing interpretation in terms of second order approximations.
-
-%
-%
-\subsection{Affine-scaling predictor direction}
-
-The predictor direction is obtained by solving the step equations 
-for the pure Newton direction (affine scaling direction). This 
-direction is strongly optimizing, as it aims to a point for which 
-all complementarity products go to zero. 
-
-The {\em affine-scaling predictor direction} 
-$\Delta_a w = (\Delta_a x, \Delta_a y, \Delta_a s)$ is obtained by solving 
-system (\ref{eq:NewtonSystem}) with right-hand side $r_1$ defined 
-in (\ref{eq:PredictorRhs}).
-In order to ensure that $(x,s)$ remain positive after moving along the
-$\Delta_a w$ direction, we need to employ a linesearch procedure such that
-\[
-  x + \alpha_P \Delta_a x > 0, \qquad  s + \alpha_D \Delta_a s > 0.
-\]
-
-Hence, the maximum feasible stepsizes $\alpha_P$ and $\alpha_D$ achievable
-in the predictore direction, in the primal and dual space respectively, 
-are computed as:
-\be
-  \alpha_P =\min \left\{ -\frac{x_i}{\Delta_a x_i} : \Delta_a x_i < 0 \right\},
-  \quad\;
-  \alpha_D =\min \left\{ -\frac{s_i}{\Delta_a s_i} : \Delta_a s_i < 0 \right\}.
-\ee
-
-The affine scaling direction may well point towards the boundary 
-of the positive orthant, causing the need for a very small stepsize. 
-This is the reason why affine scaling alone is not enough in a 
-practical implementation of interior point methods. It has to be 
-complemented by other techniques.
-
-The role of the centering term is to remedy this situation by 
-affecting the search direction to move closer to the central path, 
-therefore allowing a longer stepsize. 
-As noted in \cite{TapiaZhangSaltzmanWeiser}, the choice of the 
-centering parameter can be crucial both in theory and in practice. 
-It is suggested that it is a function of the Newton step. 
-This calls for two separate backsolves at each iteration.
-
-Another problem with affine scaling is that it is only a linear 
-approximation to the central path. However, the central path is a curve
-with many high-degree turns \cite{VavasisYe}, and only close to the 
-solution set becomes approximately a straight line \cite{Megiddo}. 
-Therefore, affine scaling may be easily distracted by points that 
-have small complementarity products but are not optimal. In particular, 
-these points may not be feasible (in the feasible algorithm), or 
-may produce a much bigger improvement in optimality than what 
-attained in feasibility (in the general infeasible algorithm).
-
-The above issues are usually worsened if the current iterate is badly centered, 
-and therefore only a very small step is acceptable in order to 
-maintain positivity or to keep the iterate in the neighbourhood 
-of the central path.
-
-%
-%
-\subsection{Mehrotra's corrector direction}
-
-Mehrotra's algorithm exploits a centrality corrector in order to 
-remedy to badly centered points. The purpose of this direction is 
-to move closer to the central path, and therefore reduce the spread 
-in complementarity products, without aiming for more optimality. 
-This is a somewhat conservative direction, which it is hoped will 
-provide more room for movement at the next iteration.
-
-One tool introduced by Mehrotra \cite{Mehrotra92} is a dynamic evaluation 
-of the centering parameter $\sigma$. It is based on a simple and cleverly 
-implemented heuristic that evaluates the quality of the predictor direction
-in order to judge the amount of centering term needed.
-%
-The length of the stepsizes $\alpha_P$ and $\alpha_D$ are used to 
-predict the complementarity gap after such a step:
-\be \label{eq:PredictedGap}
-  g_a = (x + \alpha_P \Delta_a x)^T(s + \alpha_D \Delta_a s).
-\ee
-
-The ratio $g_a / x^{T}s \in (0,1)$ measures the quality of the 
-predictor direction.
-A small ratio indicates a successful reduction of the complementarity 
-gap. On the other hand, if the ratio is close to one, then very little 
-progress is achievable in direction $\Delta_a$, and a strong recentering 
-is recommended.
-
-In \cite{Mehrotra92} the following choice of the new barrier parameter 
-is suggested
-%
-\be \label{eq:Mu}
-  \mu = \left( \frac{g_a}{x^{T}s} \right)^{\! 2} \, \frac{g_a}{n}
-           = \left( \frac{g_a}{x^{T}s} \right)^{\! 3} \, \frac{x^{T}s}{n},
-\ee
-%
-corresponding to the choice of $\sigma = (g_a / x^Ts)^3$ 
-for the centering parameter. 
-Other choices of the exponent are possible. Mehrotra \cite{Mehrotra92}
-studied the effect of different values $p=1,2,3,4$ for the exponent
-on a subset of Netlib problems, and concluded that for $p$ between
-2 and 4 there was not much difference.
-\fb{
-Mehrotra's heuristic was actually more elaborate.
-}
-Also Lustig et al. \cite{LustigMarstenShanno} commented on the
-weak dependence of the computational performance on the choice 
-of the exponent.
-
-\ignore{ %%%%%%%%%%%%%%%%%
-The centering parameter, more generally could be chosen as
-\[
-  \sigma = \left( \frac{g_a}{x^Ts} \right)^p\!\!.
-\]
-}        %%%%%%%%%%%%%%%%%
-
-If affine scaling provides a good improvement, a small $\sigma$ 
-is chosen, and therefore very little centering will be used. When, 
-on the other hand, affine scaling produces very small stepsizes 
-and so very little improvement can be achieved, $\sigma$ will be 
-close to one, and so a stronger recentering will occur.
-
-\fb{
-Another problem with affine scaling is that it is only a linear 
-approximation to the central path. However, the central path is 
-a highly nonlinear curve which only close to the solution set 
-becomes approximately a straight line \cite{Megiddo}.
-}
-
-A further important contribution by Mehrotra consists in the 
-use of a second order direction. As said above, the affine-scaling direction 
-corresponds to a linear approximation to the the trajectory from 
-the current point to the optimal set, where no information about 
-higher order terms is taken into account. This linearization, 
-however, produces an error which can be determined analytically.
-%
-If a full step in the affine-scaling direction is made, then 
-the new complementarity products are equal to
-%
-\begin{eqnarray*}
-  (X + \Delta_a X) (S + \Delta_a S) e 
-   \;=\; XSe + (S \Delta_a x + X \Delta_a s) + \Delta_a X \Delta_a S e
-   \;=\; \Delta_a X \Delta_a S e,
-\end{eqnarray*}
-%
-as the third equation in the Newton system satisfies 
-$S \Delta_a x + X \Delta_a s = -XSe.$
-%
-The term $\Delta_a X \Delta_a S e$ corresponds to the error introduced
-by Newton's method in linearising the perturbed complementarity condition.
-
-Ideally we would like the next iterate to be perfectly centered: 
-\[
-  (X+\Delta X)(S+\Delta S)e=\mu e,
-\]
-which is equivalent to solving the nonlinear system
-\[
-  S\Delta x + X\Delta s = -XSe +\mu e - \Delta X\Delta Se.
-\]
-The linearization error made by the affine-scaling direction is exactly 
-the $\Delta X\Delta Se$ term that is ignored in the right-hand side
-of (\ref{eq:NewtonSystem}).
-
-Mehrotra introduced a second-order correction in which the 
-linearization error is taken into account. Therefore, 
-Mehrotra's corrector term is obtained by solving the Newton system 
-(\ref{eq:NewtonSystem}) with right-hand side
-\be \label{eq:MehrotraRhs}
-r =\left[ \begin{array}{c}
-    0 \\ 0 \\ -\Delta_a X\Delta_a Se + \sigma \mu e
-  \end{array} \right],
-\ee
-for the direction $\Delta_c (x,y,s)$.
-Such corrector direction combines the centrality term $\sigma \mu e$
-and the second-order term $\Delta_a X\Delta_a Se$.
-
-Once the predictor and corrector terms are computed, they are 
-added to produce the composite predictor--corrector direction
-\be \label{eq:CompositeDirection}
-\Delta w = \Delta_a w+ \Delta_c w.
-\ee
-
-The next iterate is given by
-\[
-w^{k+1} = (x^k,y^k,s^k)
-        + (\alpha_P\Delta x^k,\alpha_D\Delta y^k,\alpha_D\Delta s^k)
-\]
-where $\alpha_P$ and $\alpha_D$ are again chosen to satisfy
-\[
-x^k+\alpha_P\Delta x^k \ge 0, \quad s^k+\alpha_D\Delta s^k \ge 0.
-\]
-
-For reasons of computational efficiency, in the computation of
-the corrector, Mehrotra's algorithm exploits 
-the same Jacobian matrix used to find the affine-scaling direction: 
-hence, the same Cholesky factors are reused.
-The cost of a single iteration in the predictor--corrector 
-method is only slightly larger than that of the standard 
-method because two backsolves per iteration have to be executed, 
-one for the predictor and one for the corrector. 
-
-The practical advantage of Mehrotra's predictor--corrector technique
-is that it often produces longer stepsizes before violating the 
-non-negativity constraints.
-%
-This usually translates in significant savings in the number of IPM 
-iterations and, for all non-trivial problems, lead into significant 
-CPU time savings \cite{LustigMarstenShanno,Mehrotra92}. Indeed, 
-Mehrotra's predictor--corrector technique is advantageous in all 
-interior point implementations for linear programming 
-which use direct methods to compute 
-the Newton direction.
-
-It should be noted that in the computation of the predicted gap, 
-it is assumed that a full step in the affine-scaling has been taken. 
-Also, the affine-scaling predictor and Mehrotra's corrector direction 
-contribute with equal weights to the final search direction. 
-This argument will be considered again in Chapter~\ref{ch:Correctors}, 
-where we study the use of a weighting strategy for the corrector
-directions.
-
-As mentioned above, Mehrotra's way of assessing the value of $\sigma$
-and the computation of the second order term is an heuristic procedure: 
-thus there are 
-no global convergence results or polynomial complexity results. 
-There is a local convergence result \cite{TapiaZhangSaltzmanWeiser}, 
-according to which Mehrotra's method can be interpreted as a 
-perturbed composite Newton method, but this result lies on strong 
-assumptions (non degeneracy, strict complementarity).
-
-Tapia et al. \cite{TapiaZhangSaltzmanWeiser} interpreted the Newton step 
-produced by Mehrotra's predictor--corrector algorithm as a perturbed
-composite Newton method and gave results on the order of convergence. 
-They proved that a level-1 composite Newton method, when applied 
-to the perturbed Karush-Kuhn-Tucker system, produces the same 
-sequence of iterates as Mehrotra's predictor--corrector algorithm. 
-While, in general, a level-$m$ composite Newton method has 
-a $Q$-convergence rate of $m+2$ \cite{OrtegaRheinboldt},
-the same result does not hold 
-if the stepsize has to be damped to keep non-negativity of the iterates, 
-as is necessary in an interior-point setting. However, under 
-the additional assumptions of strict complementarity and nondegeneracy 
-of the solution and feasibility of the starting point, Mehrotra's 
-predictor--corrector method can be shown to have $Q$-cubic convergence
-\cite{TapiaZhangSaltzmanWeiser}.
-
-
-%
-% Section
-%
-\section{Multiple centrality correctors}
-\label{sec:MultipleCC}
-
-Mehrotra's predictor--corrector, as it is implemented in optimization 
-solvers \cite{LustigMarstenShanno,Mehrotra92}, is a very aggressive 
-technique. It is based on the assumption, rarely satisfied, that a 
-{\it full} step in the corrected direction will be achievable.
-Moreover, an attempt to correct all complementarity products to the 
-same value $\mu$ is also very demanding and occasionally
-counterproductive. 
-\fb{
-Consider how Salahi et al. \cite{SalahiPengTerlaky} modify the centrality
-term in the corrector.
-}
-Besides, practitioners noticed that this technique may sometimes 
-behave erratically, especially when used for a predictor direction 
-applied from highly infeasible and not well centered points. 
-\fb{
-Is there a reference for that?
-}
-Finally, Mehrotra's corrector does not provide CPU time savings 
-when used recursively \cite{CarpenterLustigMulveyShanno}.
-
-Trying to provide a remedy to the above considerations, Gondzio 
-\cite{Gondzio96} introduced the multiple centrality corrector technique 
-as an additional tool to complement those presented by Mehrotra. 
-The idea behind this technique is to ``force'' an increase in the 
-length of the stepsizes by correcting the centrality of Mehrotra's 
-iterate.
-
-These correctors can be described as ``less ambitious'' than Mehrotra's
-corrector. Instead of attempting to correct for the whole second-order error,
-they concentrate on improving the complementarity pairs which really seem 
-to hinder the progress of the algorithm, ie. the complementarity products 
-that are far from the average.
-
-\fb{
-Introduce the symmetric neighbourhood.
-
-We assume that a long-step path-following algorithm is used, 
-and therefore we work with the symmetric neighbourhood 
-of the central path
-%
-\be \label{eq:N8hood}
-N_\infty(\gamma) = \{ (x,y,s) : Ax = b,\: A^T y + s = c,\: (x,s) \!>\! 0, \, 
-  \gamma \mu \leq x_j s_j \leq \mu / \gamma \;\; \forall j \}, 
-\ee
-%
-where $0 < \gamma < 1$. 
-In the authors' experience, such a neighbourhood best describes the desired 
-properties of a ``well-centered'' interior point iterate.
-
-This neighbourhood will be analysed in more detail in Chapter~\ref{ch:Correctors}.
-}
-
-%Like the previous one, this method also uses a composite direction 
-%of the following form 
-%\[
-%  \Delta = \Delta_p + \Delta_{\Red{m}},
-%\]
-%where $\Delta_{p}$ and $\Delta_{m}$ are the predictor
-%and corrector terms, respectively. The initial predictor is usually 
-%chosen to be the affine-scaling direction although different choices 
-%are also possible and, in certain special circumstances such as 
-%for example warm-starting, may be justified.
-
-In this context, Mehrotra's predictor--corrector direction 
-(\ref{eq:CompositeDirection}) is considered to be a new predictor direction
-$\Delta_p$ to which one or more centrality correctors can be applied. 
-In the framework of multiple centrality correctors, we look for a 
-centrality corrector $\Delta_m$ such that larger
-steps will be made in the composite direction $\Delta = \Delta_p + \Delta_m$.
-
-Assume that a predictor direction $\Delta_p$ is given and the corresponding
-feasible stepsizes $\alpha_{P}$ and $\alpha_{D}$ 
-in the primal and dual spaces are determined. 
-We want to enlarge the stepsizes to 
-%
-\begin{eqnarray*} 
-   \tilde{\alpha}_{P} = \min(\alpha_{P} \! + \! \delta, \,1) 
-   \quad \mbox{ and } \quad
-   \tilde{\alpha}_{D} = \min(\alpha_{D} \! + \! \delta, \,1), 
-\end{eqnarray*}
-%
-for some fixed aspiration level $\delta \in(0,1)$. We compute a trial point
-%
-\[
-  \tilde{x} = x + \tilde{\alpha}_{P} \Delta_{p} x, \quad 
-  \tilde{s} = s + \tilde{\alpha}_{D} \Delta_{p} s,
-\]
-%
-and the corresponding complementarity products 
-$\tilde v = \tilde X \tilde S e \in \R^{n}$.
-It is worth noting that this trial point is necessarily infeasible: 
-this is not a drawback, as the trial point is used exclusively in
-determining a target for the centrality corrector.
-
-The products $\tilde v$ are very unlikely to align to the same value $\mu$.
-Some of them are significantly smaller than $\mu$, 
-including cases of negative components in $\tilde v$, 
-and some exceed $\mu$. Instead of trying to correct 
-them all to the value of $\mu$, we correct only the {\it outliers}. 
-Namely, we try to move small products 
-$(\tilde x_j \tilde s_j \leq \gamma \mu)$ to $\gamma \mu$ and move 
-large products $(\tilde x_j \tilde s_j \geq \gamma^{-1} \mu)$ 
-to $\gamma^{-1} \mu$, where $\, \gamma \in (0,1)$;
-complementarity products 
-which satisfy $\gamma \mu \leq x_j s_j \leq \gamma^{-1} \mu$ are
-already reasonably close to their target values, and 
-do not need to be changed. 
-
-\fb{
-In other words, we attempt to move the iterate inside the symmetric
-neighbourhood.
-}
-
-Therefore, the corrector term $\Delta_m$ is computed by solving the usual 
-system of equations (\ref{eq:NewtonSystem}) for a special right-hand side
-$(0, \,0,\, t)^T$, where the target $t$ is defined as follows:
-%
-\begin{eqnarray} \label{eq:Target}
-  t_j = \left\{
-  \begin{array}{ll}
-    \gamma \mu - \tilde x_j \tilde s_j  
-    & \mbox{ if } \;\; \tilde x_j \tilde s_j \leq \gamma \mu  \\
-    \gamma^{-1} \mu - \tilde x_j \tilde s_j  
-    & \mbox{ if } \;\; \tilde x_j \tilde s_j \geq \gamma^{-1} \mu  \\
-    0    
-    & \mbox{ otherwise.}
-  \end{array}
-  \right.
-\end{eqnarray}
-
-\fb{
-The target point is not on the central path, but in the symmetric
-neighbourhood.
-}
-
-One important feature of multiple centrality correctors is that they
-can be successfully applied recursively. 
-The number of centrality correctors to be computed is determined 
-heuristically, trying to balance the cost of additional backsolves to 
-the savings in iteration count.
-
-\fb{
-Present the heuristic according to \cite{Gondzio96}.
-
-This technique is applied 
-recursively on the direction $\Delta_p := \Delta_p + \Delta_m$.
-Indeed, we use it as long as the stepsizes increase 
-at least by a fraction of the aspiration level $\delta$.
-}
-
-The computational experience presented in \cite{Gondzio96} showed 
-that this strategy is effective, as the stepsizes in the primal and 
-dual spaces computed for the composite direction are larger than 
-those corresponding to the predictor direction. 
-This leads to reductions in the number of iterations, which in turn 
-translate into bigger CPU time savings the higher the factorization
-cost.
-
-Virtually all existing interior point codes implement such technique 
-\cite[Appendix B]{ipm:Wright97}.
-
-%
-% Section
-%
-\section{Other issues}
-
-In this section we discuss some remaining topics that were not
-detailed above. These are relevant to any practical implementation
-of interior point methods.
-
-They concern the choice of the starting point, the termination
-criteria. This selection has been made according to the relevance
-of this thesis.
-Therefore, other topics of extreme importance in practical algorithms
-will not be discussed here. We refer the reader to the appropriate
-references.
-
-Detection of infeasibilities, linear algebra issues, use of iterative
-methods.
-
-%
-%
-\subsection{Mehrotra's starting point heuristic}
-\label{sec:StartingPoint}
-
-The choice of an initial iterate for interior point methods is a
-critical one. It challenges both the feasible and infeasible
-algorithms, and the solutions proposed in the two contexts are
-extremely different.
-
-For the feasible algorithm, a starting iterate needs necessarily 
-to be primal and dual feasible.
-\fb{
-What about centrality?
-}
-
-Solving the feasibility problem is an optimization problem in its
-own right, which is as difficult as solving the original problem.
-One important tool in this respect is the self-dual formulation.
-\fb{
-Add a citation!
-}
-The self-dual formulation wraps the optimization problem into one 
-of larger dimension, but for which a feasible solution is known 
-from the start.
-
-\fb{
-The use of a self-dual formulation is not attractive from a
-computational viewpoint, particularly because of the need of one 
-extra backsolve at each iteration.
-
-Stability issues?
-}
-
-However, the homogeneous self-dual formulation has the very
-appealing property of being able to detect infeasibility.
-
-Turning our attention to infeasible algorithms, the major hurdle
-of finding a feasible starting point is removed. 
-However, the practical performance is very sensitive to the initial
-iterate, so the use of arbitrary points is not recommended.
-In particular, two requiremengs become important: the centrality 
-of the point and the magnitude of the corresponding infeasibilities.
-\fb{
-Expand!
-}
-
-Mehrotra \cite{Mehrotra92} introduced a tool to find a starting point 
-that attemps to fulfill the above requirements. In this
-heuristic, we solve two least squares problems which aim to
-satisfy the primal and dual constraints:
-\begin{eqnarray*}
-  \min_x    \!\! & x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
-  \min_{y,s}\!\! & s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c.
-\end{eqnarray*}
-The corresponding solution $(\tilde x, \tilde y, \tilde s)$ is further 
-shifted inside the positive orthant, and the starting point is
-\[
-(x_0,y_0,s_0) = (\tilde x + \delta_x e,\, \tilde y,\, \tilde s + \delta_s e),
-\]
-where $\delta_x$ and $\delta_s$ are positive quantities. 
-Their values depends on the distance of $\tilde x$ and $\tilde s$
-to non-negativity, and an additional correction term to ensure
-strict positivity.
-
-The following variation is described in \cite{GondzioTerlaky}:
-\begin{eqnarray*} 
-  \min_x    \!\! & c^Tx + \rho x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
-  \min_{y,s}\!\! & b^Ty + \rho s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c,
-\end{eqnarray*}
-where the parameter $\rho$ is fixed to a predetermined value, in order
-to compensate for the contribution of the primal and dual objectives.
-
-A problem with Mehrotra's strategy is that it is scale dependent,
-it is affected by the presence of redundant constraints,
-and it does not guarantee to produce a well-centered iterate.
-
-The procedure of finding an appropriate starting point will be discussed
-again in Chapter~\ref{ch:Warmstart}, where a specialised technique for
-the case of stochastic linear programming problems will be analysed.
-
-%
-%
-\subsection{Termination criteria}
-
-Present common termination criteria used in practice.
-
-From \cite{GondzioTerlaky}:
-Primal feasibility:
-\[
-\frac{\| Ax - b \|}{1 + \|x\|_\infty} \le10 ^{-p}
-\]
-Dual feasibility:
-\[
-\frac{\| A^Ty + s - c \|}{1 + \|s\|_\infty} \le10 ^{-p}
-\]
-Duality gap:
-\[
-\frac{| c^Tx - b^Ty |}{1 + | b^Ty |} \le10 ^{-p}
-\]
-
-The value of $p$ required depends on the specific application.
-In the literature, it is common to use the value $p = 8$.
-
-The third condition is usually the most important, as once that
-is attained, also the 2 before are attained as well.
-
-\fb{
-Dependence on scaling.
-}
-
-%
-%
-\section{Spare parts}
-
-Choice of step length: either use neighbourhoods or strict 
-positivity of iterates. The latter works very efficiently 
-in practice but does not ensure global convergence.
-
-%
-%
-\subsubsection{Choice of penalty parameter}
-
-In all predictor-corrector algorithms there is a crucial decision 
-to be made at every iteration, namely the choice of the penalty 
-parameter $\mu$ to be used in the correction.
-
-The paper \cite{VillasBoasPerin} tries to answer this question. 
-They build a polynomial function of $\mu$ and $\alpha$, and they 
-use to determine what the optimal choices of these parameters are, 
-under a suitably chosen measure.
-
-By using this strategy they achieve a better iteration count on 
-most of the problems in their experiment. This, however, is not 
-supported by a corresponding reduction in computational time. 
-The reason for this is that the postponing of the choice of $\mu$ 
-requires the solution of additional systems. While it's true that 
-the most expensive operation is the computation of the Cholesky 
-factors, the actual cost of the backsolves is not negligible. 
-In the results of this paper, the additional cost of the extra 
-backsolves is bigger than the savings obtained by the decrease 
-in number of iterations.
-
-%
-%
-\subsection{Infeasible methods}
 
 In primal--dual feasible algorithms for linear programming, 
 all primal and dual iterates always lie within the interior 
@@ -1187,31 +666,192 @@ By reducing $\mu$ we can force the primal and dual residuals
 $r_b$ and $r_c$ to zero, thus approaching complementarity and 
 feasibility at the same speed.
 
-\ignore{
-I studied and implemented the use of different weights $\omega_b$ 
-and $\omega_c$ on the residuals, where 
-$\omega_b, \omega_c \in [ \omega_{\min}, 1]$, $\omega_{\min}>0$, 
-so that we absorb at least a fraction of infeasibilities at each 
-iteration. This idea aimed at focusing on the complementarity term, 
-as it is the one responsible for the progress of optimization.
+\hrulefill
 
-A variation investigated concerned solving the step equations 
-independently for three different right-hand sides
-\[
-\left[ \begin{array}{c}
-    -r_b \\ 0 \\ 0 
-  \end{array} \right], \quad
-\left[ \begin{array}{c}
-    0 \\ -r_c \\ 0 
-  \end{array} \right], \quad
-\left[ \begin{array}{c}
-    0 \\ 0  \\ -XSe + \sigma\mu e
-  \end{array} \right],
-\]
-and then combining the resulting directions with some independent 
-weights. This gives the freedom of postponing the choice of the 
-weights, but on the other hand each iteration involves three 
-backsolves. Apart from the increased computational cost, this 
-strategy was considered interesting in some particular situations, 
-such as in reoptimization.
+Kojima, Megiddo and Mizuno \cite{KojimaMegiddoMizuno} proposed 
+a stepsize rule that guarantees global convergence of an 
+infeasible interior-point algorithm.
+
+An algorithm is globally convergent if it is possible to choose
+a strictly positive stepsize such that the complementarity gap
+is reduced at each iteration. This property is very important, at it
+guarantees the good behaviour of the algorithm for any given starting
+point. However, in order to prove it, it is required that some
+safeguards are implemented:
+\begin{itemize}
+\item reduction in infeasibility should be faster than in complementarity
+\item $x_i s_i \ge \beta x^Ts$ for a chosen $\beta$, and all iterates must
+stay in this neighbourhood.
+\end{itemize}
+
+%
+% Section
+%
+\section{Symmetric neighbourhood}
+\label{sec:SymNeighbourhood}
+
+The quality of centrality (understood in a simplified way as complementarity)
+is {\it not} well characterised by either of two neighbourhoods 
+$N_2$ or $N_{-\infty}$ commonly used in theoretical developments of IPMs.
+Instead, we propose to use a symmetric neighbourhood $N_s(\gamma)$,
+in which complementarity pairs have to satisfy 
+$\gamma \mu \leq x_i s_i \leq \gamma^{-1} \mu$, where $\gamma \in (0,1)$, 
+for a strictly feasible iterate $(x,y,s)$.
+
+\fb{
+Jansen \cite{JansenRoosTerlaky96} (or actually \cite{phd:Jansen}?)
+proposed to use the ratio 
+between the smallest and the largest complementarity pair as an 
+indication of the quality of a point.
+
+It mentions that was Atkinson and Vaidya \cite{AtkinsonVaidya} 
+that noticed that as the ratio increases, the region in which 
+Newton converges becomes smaller.
 }
+
+Practical experience with the primal--dual algorithm in HOPDM \cite{HOPDM}
+suggests that one of the features responsible 
+for its efficiency is the way in which the quality of centrality 
+is assessed. By ``centrality'' we understand here the spread 
+of complementarity products $x_i s_i$, $i = 1,\dots,n$.
+Large discrepancies within the complementarity 
+pairs, and therefore bad centering, create problems for the search 
+directions: an unsuccessful iteration is caused not only by small
+complementarity products, but also by very large ones.
+%
+ This can be explained by the fact that
+Newton's direction tries to compensate for very 
+large products, as they provide the largest gain in complementarity 
+gap when a full step is taken. However, the direction thus generated 
+may not properly consider the presence of very small products, 
+which then become blocking components when the stepsizes are computed.
+
+The notion of spread in complementarity products
+is not well characterised by either 
+of the two neighbourhoods $N_2$ or $N_{-\infty}$ commonly used 
+in theoretical developments of IPMs.
+To overcome this disadvantage, here we formalise a variation 
+on the usual $\mathcal{N}_{-\infty}(\gamma)$ neighbourhood, 
+in which we introduce an upper bound on the complementary pairs. 
+This neighbourhood was implicitly used in Section~\ref{sec:MultipleCC}
+to define an achievable target for multiple centrality correctors.
+We define the symmetric neighbourhood to be the set
+\[
+  \mathcal{N}_s(\gamma)=\{(x,y,s)\in \mathcal{F}^0: 
+  \gamma\mu\le x_is_i \le \frac{1}{\gamma}\mu, \; i=1,\ldots,n\},
+\]
+where $\mathcal{F}^0=\{(x,y,s) : Ax=b,A^Ty+s=c,(x,s)>0\}$ 
+is the set of strictly feasible primal--dual points,
+$\mu = x^Ts/n$, and $\gamma \in (0,1)$.
+
+While the $\mathcal{N}_{-\infty}$ neighbourhood ensures that some 
+products do not approach zero too early, it does not prevent products
+from becoming too large with respect to the average.
+In other words, it does not provide a complete 
+picture of the centrality of the iterate. The symmetric 
+neighbourhood $\mathcal{N}_s$, on the other hand, promotes 
+the decrease of complementarity pairs which are too large, thus taking 
+better care of centrality.
+
+\fb{
+Actually also the $\mathcal{N}_{-\infty}$ neighbourhood expresses an upper
+bound, but it's much higher.
+}
+
+The analysis is done for the long-step feasible path-following 
+algorithm, where the search direction $(\Delta x, \Delta y, \Delta s)$ 
+is found by solving system (\ref{eq:NewtonSystem}) with 
+$r=(0,\; 0,-XSe+\sigma\mu e)^T$, $\sigma\in(0,1)$, $\mu=x^Ts/n$.
+%
+The exposition follows closely the presentation of 
+\cite[Chapter~5]{ipm:Wright97}. 
+
+First we need a technical result, the proof of which can be found 
+in \cite[Lemma~5.10]{ipm:Wright97} and is unchanged by the use 
+of $\mathcal{N}_s$ rather than $\mathcal{N}_{-\infty}$.
+%
+\begin{lemma} \label{Wright:5.10}
+If $(x,y,s)\in \mathcal{N}_s(\gamma)$, then\,
+\(
+  \|\Delta X\Delta Se\| \le 2^{-3/2}\left( 1+ \displaystyle{\frac{1}{\gamma}} \right)n\mu.
+\)
+\end{lemma}
+
+Our main result is presented in Theorem~\ref{th:SymNeighbourhood}. 
+We prove that it is possible to find a strictly positive stepsize 
+$\alpha$ such that the new iterate 
+$(x(\alpha),y(\alpha),s(\alpha))=(x,y,s)+\alpha(\Delta x,\Delta y,\Delta s)$
+will not leave the symmetric neighbourhood, and thus this 
+neighbourhood is well defined. This result extends 
+Theorem~5.11 in \cite{ipm:Wright97}.
+
+\begin{theorem} \label{th:SymNeighbourhood}
+  If $(x,y,s)\in\mathcal{N}_s(\gamma)$, then 
+  $\left(x(\alpha),y(\alpha),s(\alpha)\right)\in\mathcal{N}_s(\gamma)$ for all
+  \[
+  \alpha\in \left[0,2^{3/2}\gamma\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} \right].
+  \]
+\end{theorem}
+\begin{proof}
+Let us express the complementarity product in terms of the stepsize 
+$\alpha$ along the direction $(\Delta x, \Delta y, \Delta s)$:
+%
+\begin{eqnarray} \label{eq:CompProdAlpha}
+x_i(\alpha)s_i(\alpha)&=&(x_i+\alpha\Delta x_i)(s_i+\alpha\Delta s_i)\nonumber\\ 
+&=& x_is_i+\alpha(x_i\Delta s_i +s_i\Delta x_i) +\alpha^2\Delta x_i\Delta s_i\\
+&=& (1-\alpha)x_is_i + \alpha\sigma\mu + \alpha^2\Delta x_i\Delta s_i.\nonumber
+\end{eqnarray}
+%
+We need to study what happens to this complementarity product 
+with respect to both bounds of the symmetric neighbourhood.
+%
+Let us first consider the bound $x_is_i\le \frac{1}{\gamma}\mu$.
+By Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
+\[
+x_i(\alpha)s_i(\alpha) \le (1-\alpha)\frac{1}{\gamma}\mu +\alpha\sigma\mu 
++ \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
+\]
+At the new point $(x(\alpha),y(\alpha),s(\alpha))$, the new duality gap
+is $x(\alpha)^Ts(\alpha) = n\mu(\alpha)$.
+The relation $x_i(\alpha)s_i(\alpha)\le \frac{1}{\gamma}\mu(\alpha)$ 
+holds provided that
+\[
+(1-\alpha)\frac{1}{\gamma}\mu +\alpha\sigma\mu + \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu 
+\le\frac{1}{\gamma}(1-\alpha+\alpha\sigma)\mu,
+\]
+from which we derive a first bound on the stepsize:
+\[
+\alpha \le 2^{3/2}\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} = \bar\alpha_1.
+\]
+%
+Considering now the bound $x_is_i\ge \gamma\mu$ and proceeding as before,
+%By Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
+%\[
+%x_i(\alpha)s_i(\alpha) \ge (1-\alpha)\gamma\mu + \alpha\sigma\mu 
+%- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
+%\]
+%Hence, $x_i(\alpha)s_i(\alpha)\ge \gamma\mu(\alpha)$ provided that
+%\[
+%(1-\alpha)\gamma\mu + \alpha\sigma\mu- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu 
+%\ge\gamma(1-\alpha+\alpha\sigma)\mu,
+%\]
+we derive a second bound on the stepsize:
+\[
+\alpha\le 2^{3/2}\gamma\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} =\bar\alpha_2.
+\]
+
+Therefore, we satisfy both bounds and guarantee that 
+$(x(\alpha),y(\alpha),s(\alpha))\in \mathcal{N}_s(\gamma)$ if
+\[
+\alpha \in [0,\min(\bar\alpha_1,\bar\alpha_2)],
+\]
+which proves the claim, as $\gamma \in (0,1)$.
+\end{proof}
+
+It is interesting to note that the introduction of the upper bound 
+on the complementarity pairs does not change the polynomial complexity 
+result proved for the $\mathcal{N}_{-\infty}(\gamma)$ neighbourhood 
+\cite[Theorem~5.12]{ipm:Wright97}. Therefore, the symmetric 
+neighbourhood provides a better practical environment without any 
+theoretical loss. This understanding provides some additional 
+insight into the desired characteristics of a well-behaved iterate.

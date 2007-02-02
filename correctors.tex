@@ -1,7 +1,7 @@
 %Started on Friday, 11 August 2006
 %Aug: 23, 29, 30, 31
 %Sep:  1
-%Jan 2007: 16, 17
+%Jan 2007: 16, 17, 22
 
 %
 % Chapter: 
@@ -589,13 +589,21 @@ neighbourhood and define aspiration levels for the stepsizes using the rule
   \quad \mbox{ and } \quad
   \tilde{\alpha}_{D} = \min(1.5 \alpha_{D} \! + \! 0.3, \, 1). 
 \]
-These values are larger than the ones suggested in \cite{Gondzio96}, 
-$\tilde{\alpha} = \min (\alpha + 0.1, \, 1),$
-because the weighting mechanism allows us to control 
-the contribution of the corrector in an adaptive way. 
+The values suggested in \cite{Gondzio96} were more conservative:
+$\tilde{\alpha} = \min (\alpha + 0.1, \, 1)$.
+Thanks to the weighting mechanism we can control 
+the contribution of the corrector in an adaptive way,
+and thus be more demanding in the definition of the aspired stepsizes.
+
 Centrality correctors are accepted in the primal and/or dual space
 if ${\alpha}_{P}^{new} \geq 1.01 \alpha_{P}$ 
 and/or ${\alpha}_{D}^{new} \geq 1.01 \alpha_{D}$, respectively.
+
+\fb{
+Note that this is different from what described in \cite{Gondzio96}: there, 
+a corrector is accepted if ${\alpha}^{new} \geq \alpha + \gamma\delta_\alpha$, 
+where $\gamma = \delta_\alpha = 0.1$. What did HOPDM use to do?
+}
 
 We present our results in terms of number of iterations and number 
 of backsolve operations. The rationale behind this decision is that 
@@ -772,178 +780,6 @@ a few iterations.
 In particular, it suggests that if we had a cheap way of generating
 search directions, then it would be beneficial to have as many as possible.
 
-
-%
-% Section
-%
-\section{Symmetric neighbourhood}
-\label{sec:SymNeighbourhood}
-
-The quality of centrality (understood in a simplified way as complementarity)
-is {\it not} well characterised by either of two neighbourhoods 
-$N_2$ or $N_{-\infty}$ commonly used in theoretical developments of IPMs.
-Instead, we propose to use a symmetric neighbourhood $N_s(\gamma)$,
-in which complementarity pairs have to satisfy 
-$\gamma \mu \leq x_i s_i \leq \gamma^{-1} \mu$, where $\gamma \in (0,1)$, 
-for a strictly feasible iterate $(x,y,s)$.
-
-\fb{
-Jansen \cite{JansenRoosTerlaky96} (or actually \cite{phd:Jansen}?)
-proposed to use the ratio 
-between the smallest and the largest complementarity pair as an 
-indication of the quality of a point.
-
-It mentions that was Atkinson and Vaidya \cite{AtkinsonVaidya} 
-that noticed that as the ratio increases, the region in which 
-Newton converges becomes smaller.
-}
-
-Practical experience with the primal--dual algorithm in HOPDM \cite{HOPDM}
-suggests that one of the features responsible 
-for its efficiency is the way in which the quality of centrality 
-is assessed. By ``centrality'' we understand here the spread 
-of complementarity products $x_i s_i$, $i = 1,\dots,n$.
-Large discrepancies within the complementarity 
-pairs, and therefore bad centering, create problems for the search 
-directions: an unsuccessful iteration is caused not only by small
-complementarity products, but also by very large ones.
-%
- This can be explained by the fact that
-Newton's direction tries to compensate for very 
-large products, as they provide the largest gain in complementarity 
-gap when a full step is taken. However, the direction thus generated 
-may not properly consider the presence of very small products, 
-which then become blocking components when the stepsizes are computed.
-
-The notion of spread in complementarity products
-is not well characterised by either 
-of the two neighbourhoods $N_2$ or $N_{-\infty}$ commonly used 
-in theoretical developments of IPMs.
-To overcome this disadvantage, here we formalise a variation 
-on the usual $\mathcal{N}_{-\infty}(\gamma)$ neighbourhood, 
-in which we introduce an upper bound on the complementary pairs. 
-This neighbourhood was implicitly used in Section~\ref{sec:MultipleCC}
-to define an achievable target for multiple centrality correctors.
-We define the symmetric neighbourhood to be the set
-\[
-  \mathcal{N}_s(\gamma)=\{(x,y,s)\in \mathcal{F}^0: 
-  \gamma\mu\le x_is_i \le \frac{1}{\gamma}\mu, \; i=1,\ldots,n\},
-\]
-where $\mathcal{F}^0=\{(x,y,s) : Ax=b,A^Ty+s=c,(x,s)>0\}$ 
-is the set of strictly feasible primal--dual points,
-$\mu = x^Ts/n$, and $\gamma \in (0,1)$.
-
-While the $\mathcal{N}_{-\infty}$ neighbourhood ensures that some 
-products do not approach zero too early, it does not prevent products
-from becoming too large with respect to the average.
-In other words, it does not provide a complete 
-picture of the centrality of the iterate. The symmetric 
-neighbourhood $\mathcal{N}_s$, on the other hand, promotes 
-the decrease of complementarity pairs which are too large, thus taking 
-better care of centrality.
-
-\fb{
-Actually also the $\mathcal{N}_{-\infty}$ neighbourhood expresses an upper
-bound, but it's much higher.
-}
-
-The analysis is done for the long-step feasible path-following 
-algorithm, where the search direction $(\Delta x, \Delta y, \Delta s)$ 
-is found by solving system (\ref{eq:NewtonSystem}) with 
-$r=(0,\; 0,-XSe+\sigma\mu e)^T$, $\sigma\in(0,1)$, $\mu=x^Ts/n$.
-%
-The exposition follows closely the presentation of 
-\cite[Chapter~5]{ipm:Wright97}. 
-
-First we need a technical result, the proof of which can be found 
-in \cite[Lemma~5.10]{ipm:Wright97} and is unchanged by the use 
-of $\mathcal{N}_s$ rather than $\mathcal{N}_{-\infty}$.
-%
-\begin{lemma} \label{Wright:5.10}
-If $(x,y,s)\in \mathcal{N}_s(\gamma)$, then\,
-\(
-  \|\Delta X\Delta Se\| \le 2^{-3/2}\left( 1+ \displaystyle{\frac{1}{\gamma}} \right)n\mu.
-\)
-\end{lemma}
-
-Our main result is presented in Theorem~\ref{th:SymNeighbourhood}. 
-We prove that it is possible to find a strictly positive stepsize 
-$\alpha$ such that the new iterate 
-$(x(\alpha),y(\alpha),s(\alpha))=(x,y,s)+\alpha(\Delta x,\Delta y,\Delta s)$
-will not leave the symmetric neighbourhood, and thus this 
-neighbourhood is well defined. This result extends 
-Theorem~5.11 in \cite{ipm:Wright97}.
-
-\begin{theorem} \label{th:SymNeighbourhood}
-  If $(x,y,s)\in\mathcal{N}_s(\gamma)$, then 
-  $\left(x(\alpha),y(\alpha),s(\alpha)\right)\in\mathcal{N}_s(\gamma)$ for all
-  \[
-  \alpha\in \left[0,2^{3/2}\gamma\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} \right].
-  \]
-\end{theorem}
-\begin{proof}
-Let us express the complementarity product in terms of the stepsize 
-$\alpha$ along the direction $(\Delta x, \Delta y, \Delta s)$:
-%
-\begin{eqnarray} \label{eq:CompProdAlpha}
-x_i(\alpha)s_i(\alpha)&=&(x_i+\alpha\Delta x_i)(s_i+\alpha\Delta s_i)\nonumber\\ 
-&=& x_is_i+\alpha(x_i\Delta s_i +s_i\Delta x_i) +\alpha^2\Delta x_i\Delta s_i\\
-&=& (1-\alpha)x_is_i + \alpha\sigma\mu + \alpha^2\Delta x_i\Delta s_i.\nonumber
-\end{eqnarray}
-%
-We need to study what happens to this complementarity product 
-with respect to both bounds of the symmetric neighbourhood.
-%
-Let us first consider the bound $x_is_i\le \frac{1}{\gamma}\mu$.
-By Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
-\[
-x_i(\alpha)s_i(\alpha) \le (1-\alpha)\frac{1}{\gamma}\mu +\alpha\sigma\mu 
-+ \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
-\]
-At the new point $(x(\alpha),y(\alpha),s(\alpha))$, the new duality gap
-is $x(\alpha)^Ts(\alpha) = n\mu(\alpha)$.
-The relation $x_i(\alpha)s_i(\alpha)\le \frac{1}{\gamma}\mu(\alpha)$ 
-holds provided that
-\[
-(1-\alpha)\frac{1}{\gamma}\mu +\alpha\sigma\mu + \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu 
-\le\frac{1}{\gamma}(1-\alpha+\alpha\sigma)\mu,
-\]
-from which we derive a first bound on the stepsize:
-\[
-\alpha \le 2^{3/2}\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} = \bar\alpha_1.
-\]
-%
-Considering now the bound $x_is_i\ge \gamma\mu$ and proceeding as before,
-%By Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
-%\[
-%x_i(\alpha)s_i(\alpha) \ge (1-\alpha)\gamma\mu + \alpha\sigma\mu 
-%- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
-%\]
-%Hence, $x_i(\alpha)s_i(\alpha)\ge \gamma\mu(\alpha)$ provided that
-%\[
-%(1-\alpha)\gamma\mu + \alpha\sigma\mu- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu 
-%\ge\gamma(1-\alpha+\alpha\sigma)\mu,
-%\]
-we derive a second bound on the stepsize:
-\[
-\alpha\le 2^{3/2}\gamma\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} =\bar\alpha_2.
-\]
-
-Therefore, we satisfy both bounds and guarantee that 
-$(x(\alpha),y(\alpha),s(\alpha))\in \mathcal{N}_s(\gamma)$ if
-\[
-\alpha \in [0,\min(\bar\alpha_1,\bar\alpha_2)],
-\]
-which proves the claim, as $\gamma \in (0,1)$.
-\end{proof}
-
-It is interesting to note that the introduction of the upper bound 
-on the complementarity pairs does not change the polynomial complexity 
-result proved for the $\mathcal{N}_{-\infty}(\gamma)$ neighbourhood 
-\cite[Theorem~5.12]{ipm:Wright97}. Therefore, the symmetric 
-neighbourhood provides a better practical environment without any 
-theoretical loss. This understanding provides some additional 
-insight into the desired characteristics of a well-behaved iterate.
 
 %
 % Section

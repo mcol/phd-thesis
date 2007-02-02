@@ -3,6 +3,9 @@ CRUFT = *.aux *.bbl *.blg *.log *.toc
 
 all: dvi
 
+bib:
+	bibtex $(INPUT)
+
 dvi:
 	latex $(INPUT).tex
 
