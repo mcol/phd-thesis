@@ -1,8 +1,9 @@
 %Started on 9th August 2006
 %Aug: 11, 22, 23, 24, 25, 28, 29, 30, 31
 %Sep:  1,  7,  8
-%Jan 2007: 15, 16, 17, 22, 26, 29, 30
-%Feb:  1,  2
+% 2007
+%Jan: 15, 16, 17, 22, 26, 29, 30
+%Feb:  1,  2,  4
 
 %
 % Chapter: Interior point methods
@@ -11,9 +12,7 @@
 
 Interior point methods are well-suited to solving very
 large scale optimization problems. Their theory is well understood
-\cite{ipm:Wright97} and the techniques used in their implementation are
-documented in extensive literature (see, for example, 
-\cite{AndersenGondzioMeszarosXu,GondzioTerlaky} and the references therein).
+\cite{ipm:Wright97}.
 
 This chapter is devoted to the derivation and analysis of interior 
 point methods. 
@@ -39,10 +38,10 @@ in standard form
 \end{eqnarray}
 %
 where $A \in \R^{m \times n}$, $x, s, c \in \R^{n}$ 
-and $y, b \in \R^{m}$. We assume, without loss of generality,
+and $y, b \in \R^{m}$, $m<n$. We assume, without loss of generality,
 that $A$ has full row rank, as linearly dependent rows can be
 removed without changing the solution set.
-This also implies that a feasible $s \ge 0$ determines in a unique
+This implies that a feasible $s \ge 0$ determines in a unique
 way the value of $y$.
 
 We define the set of primal feasible points and the set of
@@ -66,7 +65,6 @@ interior points is
 \]
 A point $(x,y,s) \in \mathcal{F}^0$ is said to be {\em strictly feasible}.
 
-
 Using this notation, the primal--dual pair (\ref{eq:PrimalDualPair}) can 
 be written as
 \be \label{eq:PrimalDualPair2}
@@ -75,18 +73,14 @@ be written as
 \ee
 
 We recall here some well-known results on the relationship between
-problems $(P)$ and $(D)$ in linear programming. 
+problems $(P)$ and $(D)$.
 These can be found in plenty of sources, for example \cite{lp:Chvatal} \ldots
-
-\fb{
-Find these sources!
-}
 
 \begin{lemma}[Weak duality]
 Let $(x,y,s) \in \mathcal{F}$. Then $c^Tx \ge b^Ty$.
 \end{lemma}
 
-Problem (P) has a solution iff $\mathcal{P} \ne \emptyset$;
+Problem $(P)$ has a solution if and only if $\mathcal{P} \ne \emptyset$;
 if also $\mathcal{D} \ne \emptyset$, then both problems admit an
 optimal solution $(x^*, y^*, s^*)$, and the objective function 
 values of both problems at that point coincide. This can be formalised
@@ -100,12 +94,10 @@ there exists a pair $(x,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
 However, one of the sets might be empty: in such a case, an optimal
 solution for problem (\ref{eq:PrimalDualPair2}) does not exist,
 as the set is either unbounded or empty as well.
-
 In what follows, we make the standard assumption for the development
 of interior point methods that $\mathcal{P}^0 \ne \emptyset$ and 
 $\mathcal{D}^0 \ne \emptyset$. This is also referred to as the
 {\em interior point assumption}. 
-
 This corresponds to assuming that the primal--dual optimal face is 
 bounded (this is mentioned in \cite{GonzagaCardia04}).
 
@@ -115,14 +107,14 @@ See Jansen \cite{phd:Jansen}, p.14.
 
 \fb{
 Formalize these results.
+See Guler Roos Terlaky Vial \cite{GulerRoosTerlakyVial}.
 
-See \cite{GulerRoosTerlakyVial}.
-}
-
-\fb{
 Introduce barrier problems and show similar theorems for them,
 as done in Megiddo \cite{Megiddo}.
 }
+
+Optimality conditions let us recognise that a solution has been
+found. They also suggest algorithms for finding a solution.
 
 The Karush-Kuhn-Tucker (KKT) conditions express first-order optimality 
 conditions for the primal--dual pair (\ref{eq:PrimalDualPair}).
@@ -135,13 +127,10 @@ They can be expressed as
   (x,s)   &\ge& 0,
 \end{array}
 \ee
-where $X, S \in \R^n$ are diagonal matrices with elements 
+where $X, S \in \R^{n\times n}$ are diagonal matrices with elements 
 $x_i$ and $s_i$ respectively, and $e \in \R^n$ is a vector 
 of ones. In other words, an optimal solution is characterised by 
 primal feasibility, dual feasibility and complementarity.
-
-Optimality conditions let us recognise that a solution has been
-found. They also suggest algorithms for finding a solution.
 
 \fb{
 Spend a few words on the concept of complementarity.
@@ -180,6 +169,7 @@ it traces a unique continuous path $(x(\mu),s(\mu))$ toward the
 optimal set as $\mu \to 0$. 
 In interior-point terminology, such a path is called
 the {\em central path}.
+We postpone its presentation to Section~\ref{sec:CentralPath}.
 
 Under the assumptions that for a particular $\mu > 0$ the point
 $(x(\mu),y(\mu),s(\mu))$ is primal and dual feasibility, we can show
@@ -203,7 +193,7 @@ and for $\mu \to 0$, also $g(\mu) \to 0$.
 Under the assumptions of primal feasibility, dual feasibility, and
 full row rank of matrix $A$, as $\mu \to 0$ then 
 \[
-   x(\mu) \to x^* \qquad (y(\mu),s(\mu)) \to (y^*, s^*).
+   x(\mu) \to x^*, \qquad (y(\mu),s(\mu)) \to (y^*, s^*).
 \]
 \end{lemma}
 
@@ -212,6 +202,15 @@ full row rank of matrix $A$, as $\mu \to 0$ then
 Barrier methods can never produce the exact solution, but terminate
 when the current iterate satisfies some approximation to the desired
 optimality condition.
+
+Contrary to active set algorithms, interior point methods reach a
+solution only asymptotically. 
+Once a solution with a prescribed optimality tolerance has been found,
+such a point can be projected upon a face of the polyhedron.
+This can be done thanks to a strongly polynomial algorithm due
+to Megiddo \cite{Megiddo91}. This is called basis crossover, 
+as given a complementary primal--dual solution it generates a basis 
+that is both primal and dual feasible.
 
 However, we should discuss what we mean by ``exact'' solution. In most
 cases we do not need the additional precision of being on a vertex (in
@@ -224,19 +223,20 @@ vertex.
 %
 %
 \subsection{The central path}
+\label{sec:CentralPath}
 
 \fb{
 Find out who started the study of the notion of central path. Gonzaga 
 \cite{Gonzaga92} says it was Bayer and Lagarias as well as Megiddo.
 }
 
+Many algorithms used in mathematical programming can be interpreted 
+as path-following. Here we restrict our attention to the path described by the 
+barrier functions in linear programming.
+
 The study of the primal--dual properties of the central path 
 was started by Megiddo's seminal paper \cite{Megiddo}, which is 
-still considered a basic reference in the interior-point literature.
-
-Many algorithms used in mathematical programming can be interpreted 
-as path-following. What is studied here is the path described by the 
-barrier functions in linear programming.
+still considered a fundamental reference in the interior-point literature
 The presentation follows the clear and systematic approach of Megiddo
 \cite{Megiddo}.
 
@@ -251,7 +251,7 @@ it is possible to write the corresponding barrier problem:
 \]
 
 Problem $(P_\mu)$ is a family of problems parametrised by the quantity $\mu>0$,
-tipically small. 
+typically small. 
 It's worth noting that such approach is 
 viable only if it is actually possible to find a point that 
 satisfies the constraints.
@@ -261,13 +261,13 @@ to stay in the interior of the feasible region, as this term penalises
 iterates that get too close to zero. However, the influence exerted
 by the logarithmic barrier can be controlled through the penalty
 parameter $\mu$, frequently called {\em barrier parameter} in the interior
-point literature. As $\mu$ tends to zero, problem $(P_\mu)$ resembles
+point literature. 
+The weight on the barrier regulates the distance from the iterates to 
+the boundary: as $\mu$ tends to zero, problem $(P_\mu)$ resembles
 more and more problem $(P)$.
 
-The weight on the barrier regulates the distance from the iterates to 
-the boundary.
-
-Note that the objective function is a strictly convex function. 
+Note that the objective function of problem $(P_\mu)$
+is a strictly convex function. 
 Therefore, for a fixed $\mu$, the problem has at most one global minimum. 
 This global minimum, if it exists, is completely characterised 
 by the KKT conditions.
@@ -301,12 +301,11 @@ $x(\mu)\to x^*$ as $\mu\to 0$.
 
 The properties of the curvature of the central path are discussed
 in \cite{VavasisYe}, where it is explained that the central path
-is characterised by curves of high order. However, close to the end
-the central path becomes a straight line \cite{Megiddo}.
-
-\fb{
-Connect curves with changes in the optimal partition.
-}
+is characterised by curves of high order. 
+Such curves appear in correspondence with changes in the optimal
+partition.
+Close to the end, when the optimal partition has been identified,
+ the central path becomes a straight line \cite{Megiddo}.
 
 We have discussed what happens as $\mu \to 0$. We can also discuss in
 the opposite situation, and find the point from which the central path
@@ -370,7 +369,7 @@ on this path that is of interest to us.
 \label{sec:Neighbourhoods}
 
 As we have seen, following the central path provides the recommended
-way of traversing the interior of the feasible region to reach
+way of traversing the interior of the feasible region towards
 the optimal solution. Nevertheless, it should be clear that keeping the
 iterates {\em exactly on} the central path is as difficult as
 solving the optimization problem itself.
@@ -379,7 +378,8 @@ Therefore, we never insist in this extremely restrictive requirement,
 but we rather allow the iterates to be somewhere around the central path.
 This leads to the introduction of the important concept of
 {\em neighbourhood} of the central path. 
-
+We can define different neighbourhoods, characterised
+by different properties.
 Two neighbourhoods are often used in theoretical developments.
 
 The first is based on the Euclidean norm, and it is often referred
@@ -396,7 +396,8 @@ of {\em short-step algorithms} to the algorithms that are based on
 this neighbourhood). 
 The closeness to the central path that the tight neighbourhood
 imposes and maintains allows to produce the best convergence result
-for linear programming. 
+for linear programming: short-step algorithms converge in 
+$\bigO(\sqrt{n}L)$ iterations.
 However, since the reduction in the barrier parameter at each iteration 
 is very small, the practical value of short-step algorithms is small.
 

@@ -19,7 +19,7 @@ pdf: ps
 	ps2pdf $(INPUT).ps $(INPUT).pdf
 
 clean:
-	-rm $(CRUFT)
+	-rm -rf $(CRUFT)
 
 cleanall: clean
-	-rm *.dvi *.ps
+	-rm -rf *.dvi *.ps *~

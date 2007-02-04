@@ -1,8 +1,9 @@
 %Started on 30th August 2006
 %Aug: 31
 %Sep:  1,  8
-%Jan 2007: 15, 22, 26, 29, 31
-%Feb:  1,  2
+% 2007
+%Jan: 15, 22, 26, 29, 31
+%Feb:  1,  2,  4
 
 %
 % Chapter: Background and introduction.
@@ -22,13 +23,20 @@ of this thesis.
 %
 \section{Linear programming}
 
+{\em Linear programming} is a relatively new discipline in the mathematical
+spectrum.
+Linear programming was developed as models were being used for
+economic and military planning in the years immediately following
+the end of World War II.
+The realisation of its usefulness came together with the development
+of a solution method, the simplex method;
+the introduction of the first computer calculators was crucial to
+the blossoming and increase of this newly born area of study. 
+
 Historical accounts on the birth and development of linear programming 
 can be found in many sources, such as \cite[ch.~2]{Dantzig63} and 
 \cite{Schrijver86}. Dantzig's personal recollection are also
 in \cite{Dantzig02}.
-
-Linear programming was developed as models were being used for
-economic and military planning.
 
 A definition of Linear programming has been given by Dantzig \cite{Dantzig02}:
 \begin{quote}
@@ -38,8 +46,8 @@ and to lay out a path of detailed decisions to take in order to ``best''
 achieve its goals when faced with practical situations of great complexity.
 \end{quote}
 
-In the same paper, Dantzig touches on the essential components of linear
-programming:
+Further, Dantzig \cite{Dantzig02} mentions the essential 
+components of linear programming:
 \begin{quote}
 Our tools for doing this are ways to formulate real-world problems in
 detailed mathematical terms (models), techniques for solving the models
@@ -47,14 +55,15 @@ detailed mathematical terms (models), techniques for solving the models
 (computers and software).
 \end{quote}
 
-An optimization problem can be described in terms of a set of variables, 
-some constraints, and an objective function. It is interesting to note
-that while the need of an objective function is obvious to us, it was
-not when the first problems were modelled: hence the set of feasible
-solution was investigated with some ad-hoc criteria, instead of being
-guided by the optimization of some quantity as objective \cite{Dantzig02}.
-The investigation of optimization problems arise from the natural
-desire to solve a problem in an ``optimal way''.
+An {\em optimization problem} can be described in terms of a set of variables, 
+some constraints, and an objective function. 
+The investigation of optimization problems stems from the natural
+desire to solve a problem in the ``best possible way''.
+It is interesting to note that while the need of an objective function 
+is obvious to us, it was not when the first problems were modelled: the 
+set of feasible solution used to be investigated with some ad-hoc criteria, 
+instead of being guided by the optimization of some quantity as 
+objective \cite{Dantzig02}.
 
 A {\em linear programming problem} is an optimization problem for which
 the objective function and the constraints are linear. 
@@ -62,25 +71,23 @@ Linear programming problems arise directly (for example in economics,
 networks, scheduling or other applications), or as approximations to
 more complicated formulations, as most real-life relationships are
 nonlinear. Another important source of linear programs is the 
-linear relaxation of integer programming problems.
+continuous relaxation of integer programming problems.
 
 Among the class of convex optimization problems, linear programming
-has a peculiar feature which is described by the following Theorem.
+has a peculiar feature which is described by the following Theorem
+(see, for example, \cite{FangPuthenpura93}).
 
 \begin{theorem}[Fundamental theorem of linear programming]
 \label{th:FundamentalLP}
 For a consistent linear programming problem with a
 feasible domain $\mathcal{P}$, the optimal objective value is either
 unbounded or is achievable at least at one extreme point of $\mathcal{P}$.
-\fb{
-This has been taken from \cite{FangPuthenpura93}.
-}
 \end{theorem}
 
-The set defined by the linear constraints is called {\em polyhedron}.
+The set of linear constraints defines a {\em polyhedron} that constitutes
+the feasible region.
 According to Theorem~\ref{th:FundamentalLP}, in looking for a solution 
-we can restrict our 
-attention to the vertices of the feasible region.
+we can restrict our attention to the vertices of this polyhedron.
 The polyhedron corresponding to a linear system of $m$ constraints 
 in $n$ variables ($m < n$) has a number of vertices equal to
 \be \label{eq:NumberVertices}
@@ -99,7 +106,7 @@ manipulating (\ref{eq:NumberVertices}) \cite[ch.~5.2]{FangPuthenpura93}:
 \]
 
 This consideration gives rise to the need of defining an algorithm
-that discovers the optimal vertex among the multitude of nonoptimal ones.
+that discovers an optimal vertex among the multitude of nonoptimal ones.
 
 Many algorithms have been proposed to solve a variety of optimization
 problems. However, despite their diversity, they are based on the same 
@@ -128,17 +135,14 @@ to the specific algorithm we are talking about.
 %
 \subsection{The simplex method}
 
-The simplex method was introduced by George Dantzig in 1947. Dantzig
-himself recounted the way he came to this discovery
-in many occurrences \cite{Dantzig02}. We should note that the
+The simplex method was introduced by George Dantzig in 1947.
+We should note that the
 introduction of the simplex method happened simultaneously with
 the realisation of linear programming as an efficient modelling tool
 for practical decision making. 
 
-The simplex method exploits the fundamental property of linear
-programming, in the sense that a solution must be a vertex of
-the feasible region.
-
+The simplex method exploits the insight provided by the fundamental 
+theorem of linear programming (\ref{th:FundamentalLP}).
 The simplex method reaches a solution by visiting a sequence of 
 vertices of the polyhedron, moving from one vertex to an adjacent 
 one characterised by a better objective function value
@@ -147,27 +151,25 @@ one characterised by a better objective function value
 Since the number of vertices is finite, then termination is guaranteed.
 While it is possible that all of them get visited, in real-life problems, 
 this situation never arises, and only a fraction of the vertices are
-actually traversed.
-Besides, given the monotonic
+actually traversed (this discussion will be continued in 
+Section~\ref{sec:ComplexityConsiderations}).
+
+Moreover, given the monotonic
 way of choosing the next vertex, in the non-degenerate case the set 
 of possible vertices decreases after each iteration. Degeneracy
 happens when a vertex in $\R^m$ is traversed by $p > m$ constraints.
 In this case, there are $\binom{p}{m}$ different bases for the same
 vertex. 
 
-\fb{
-This is discussed in Chvatal \cite[ch.4]{lp:Chvatal}.
-}
-
 In such a case, the step length produced by the ratio test
 is zero. Therefore, the simplex method
 may try different changes of basis without actually moving away
-from the vertex and thus not obtaining an improvement in the objective
+from the vertex and thus not obtaining any improvement in the objective
 function value.
 
-The simplex method can be seen as an active set method, as at each
-iteration only a set of constraints are active (those that define
-the vertex).
+%The simplex method can be seen as an active set method, as at each
+%iteration only a set of constraints are active (those that define
+%the vertex).
 
 For the practical efficiency, the simplex algorithm has been considered
 for a long time the undiscussed method for solving linear programming
@@ -177,57 +179,54 @@ problems.
 %
 %
 \subsection{Complexity considerations}
+\label{sec:ComplexityConsiderations}
 
-The concept of computational complexity has been introduced in the 70s,
-as the availability of computing machines required a deeper insight
-on the computational performance of different algorithms.
-For a good introduction, we refer to \cite[ch.~2]{Schrijver86}
-
-The computational complexity of an algorithm can be used as a measure
+The {\em computational complexity} of an algorithm can be used as a measure
 of the growth in the computational effort required by the algorithm
 as a function of the size of the problem. Therefore, it provides 
 a worst-case measure.
+The concept of computational complexity has been introduced in the 70s,
+as the availability of computing machines required a deeper insight
+on the computational performance of different algorithms.
+An exhaustive presentation of this topic exceeds the aims of this thesis:
+we refer the reader to available introductions on the area, 
+\cite[ch.~2]{Schrijver86} among others.
 
 Complexity proofs rely on two assumptions that are necessary 
 simplifications:
-\begin{itemize}
+\begin{enumerate}
 \item Computations are performed in exact arithmetic
 \item The numerical data $(A, b, c)$ of a problem instance is rational
-\end{itemize}
+\end{enumerate}
 
 Computational complexity is measured by the number of elementary operations
 required to perform the algorithmic steps until termination. It often depends 
 on the size of the binary representation of the input ($L$).
 
-\fb{
-Discussion on the complexity of linear programming.
-}
-
 The simplex method has exponential complexity: it is possible that all
-the vertices of the polyhedron (which, as can be seen in
-(\ref{eq:NumberVertices}), is an exponential number) have to be visited
+the vertices of the feasible polyhedron have to be visited
 before reaching an optimal solution.
-
 Klee and Minty \cite{KleeMinty} were the first to provide an example 
 of bad behaviour of the simplex method (when Dantzig's pivoting rule 
 is used). In this example of $n$ variables and $2n$ inequalities,
 the simplex method visits each of the $2^n$ vertices.
+The same example does not cause this pathological behaviour if different
+pivoting rules are implemented (see \cite[ch.~4]{lp:Chvatal}).
 
 However, no cases of exponential number of iterations have been encountered 
 in real-life situations. Moreover, in most cases the simplex algorithm shows 
 to have a polynomial behaviour, being linear in $m$ and sublinear in $n$
 \cite[p.94]{FangPuthenpura93}.
-This gap between the observed and the theoretical worst-case performance
-of the simplex method is still unexplained.
-
 A survey on the efficiency of the simplex method is done by Shamir 
 \cite{Shamir87}, where also probabilistic analysis (as opposed to
 worst-case analysis) are presented.
 
+The gap between the observed and the theoretical worst-case performance
+of the simplex method is still unexplained.
 Given this theoretical drawback, there have been efforts to find an
 algorithm for linear programming characterised by a polynomial-time bound.
 
-In 1979 Khachiyan shows how to adapt the ellipsoid method for convex
+In 1979 Khachiyan showed how to adapt the ellipsoid method for convex
 programming to the linear programming case.
 In Khachiyan's ellipsoid method, the feasible polyhedron is inscribed in 
 a sequence of ellipsoids of decreasing size. 
@@ -245,6 +244,9 @@ The exciting property of the ellipsoid method is that it finds a
 solution in $\bigO(n^2L)$ iterations, thus has polynomial complexity. 
 Khachiyan's contribution settled the question on the computational 
 complexity of linear programming.
+The polynomiality of the ellipsoid method can be explained by the
+fact that it does not rely on the combinatorial features of the
+linear programming problem.
 However, since this worst-case bound
 is generally attained, its practical performance is not competitive
 with other solution methods. Besides, it displays other drawbacks
@@ -253,45 +255,59 @@ Nevertheless, the ellipsoid method is often used in the context of
 combinatorial optimization as an analytic tool to prove complexity
 results for algorithms \cite{ip:NemhauserWolsey88}.
 
-The ellipsoid does not rely on the combinatorial features of the
-linear programming problem
-
 %
 %
 \subsection{Interior point methods}
 
-Since their introduction following Karmarkar's groundbreaking paper
-\cite{Karmarkar}, interior point methods (IPMs for short) have attracted 
-the interest of a growing number of researchers.
-
-Interior point methods were being developed in the 60s and the beginning
-of the 70s as methods to solve nonlinear programming problems with
-inequality constraints. 
+{\em Interior point methods} were being developed in the 60s and the 
+beginning of the 70s as methods to solve nonlinear programming problems 
+with inequality constraints. 
 However, they fell from favour and attracted less and less attention
 because of their inefficiency and the presence of strong competitors
 (SQP).
 
-The main idea is fundamentally different to the one that inspires the
-simplex method: the optimal vertex is approached by moving through the
-interior of the feasible region.
+Since their reintroduction, this time to solve linear programs, 
+following Karmarkar's groundbreaking paper
+\cite{Karmarkar}, interior point methods (IPMs for short) have attracted 
+the interest of a growing number of researchers.
+
+Also this algorithm was proved to have polynomial complexity: 
+indeed, it converges in $\bigO(nL)$ iterations. As opposed to
+Kachiyan's ellipsoid method, Karmarkar's algorithm would actually
+perform much better than what the bound states.
+
+The main idea behind interior point methods is fundamentally different 
+to the one that inspires the simplex algorithm: the optimal vertex 
+is approached by moving through the interior of the feasible region.
 This is done by creating a family of parametrised approximate solutions
 that asymptotically converge to the exact solution.
 
+Karmarkar \cite{Karmarkar} explained like this the advantage of an
+interior point approach:
+\begin{quote}
+In the simplex method, the current solution is modified by introducing
+a nonzero coefficient for one of the columns in the constraint
+matrix. Our method allows the current solution to be modified by
+introducing several columns at one.
+\end{quote}
+
 %Karmarkar's algorithm is a primal algorithm based on a projection
 %in some transformed space and steepest descent. It uses a potential
-%function to measure the progress. It has $\bigO(nL)$ complexity.
+%function to measure the progress.
 
-Karmarkar's claim was that its method was extremely successful, but
-the implementation details were not very clear. A variant was then
-proposed and implemented by Adler-Karmarkar-Resende-Veiga (Math. Prog.
-44, 1989).
+Karmarkar announced that his method was extremely successful in practice, 
+claiming to beat the simplex method by a large margin (50 times,
+as reported in \cite{MWright92}).
+A variant of Karmarkar's original algorithm was then proposed and 
+implemented by Adler-Karmarkar-Resende-Veiga 
+(Math. Prog. 44, 1989).
 
 Since then the theoretical understanding has considerably increased,
 and many algorithmic variants have been proposed, and several of
 them have shown to be a computationally viable alternative to the
 simplex method.
 
-Karmarkar's algorithm is presented in many details in 
+For details on Karmarkar's algorithm, we refer to
 \cite[ch.6]{FangPuthenpura93}.
 
 Over the last 20 years, an impressive wealth of theoretical research
@@ -301,13 +317,7 @@ attention anymore.
 
 Among the positive consequences brought by the renewed interest in linear
 programming, let us remind the improvements in the implementations of 
-simplex-based solvers.
-
-\fb{
-Cite the reports on how much the simplex method has improved as a 
-consequence of that \cite{Bixby02}. Also \cite{Bixby94}, but that mainly
-concentrates on Cplex...
-}
+simplex-based solvers \cite{Bixby02,Bixby94}.
 
 There are classes of problems that are best solved with the simplex
 method, and others for which an interior point method is preferred.
@@ -337,29 +347,6 @@ quadratic programming, nonlinear programming, complementarity problems.
 In interior point methods the computation of the Cholesky factorization
 dominates the cost of each iteration; for the simplex, no single
 step dominates in the computations. 
-
-Karmarkar \cite{Karmarkar} notes:
-\begin{quote}
-In the simplex method, the current solution is modified by introducing
-a nonzero coefficient for one of the columns in the constraint
-matrix. Our method allows the current solution to be modified by
-introducing several columns at one.
-\end{quote}
-}
-
-\fb{
-Maybe cite Margaret Wright \cite{MWright92}.
-}
-
-\fb{
-Contrary to active set algorithms, interior point methods reach a
-solution only asymptotically. 
-Once a solution with a prescribed optimality tolerance has been found,
-such a point can be projected upon a face of the polyhedron.
-This can be done thanks to a strongly polynomial algorithm due
-to Megiddo \cite{Megiddo91}. This is called basis crossover, 
-as given a complementary primal--dual solution it generates a basis 
-that is both primal and dual feasible.
 }
 
 %
@@ -375,7 +362,7 @@ of research.
 However, theory per se has rarely a direct impact on the lives 
 of those who use optimization as a tool to solve their problems.
 It is therefore necessary that the understanding gathered from
-theoretical studies is then transformed into actual practical
+theoretical studies is then transformed into effective practical
 tools. This usually requires the implementation of computer programs
 with the aims of accuracy, speed and reliability.
 
@@ -383,7 +370,6 @@ The process of creating computationally efficient methods from
 theoretical studies is not as direct as it might sound, but is somewhat
 of an art in itself. It often involves relaxing many of the theoretical 
 assumptions, while ensuring other properties and conditions.
-
 Therefore we will put great effort in accompanying theoretical
 results with the corresponding computational considerations. While
 in a few cases these can be treated simultaneously, generally that
@@ -401,12 +387,13 @@ happens when the satisfaction of a certain condition is not
 computationally viable, in which case workarounds are usually employed.
 \end{itemize}
 
-Besides this, the practical implementation of an algorithm happens
-in a context that is not amenable to theoretical analysis for the
-following reasons:
+On the other hand, the practical implementation of an optimization
+algorithm happens in a context that is not amenable to theoretical 
+analysis for the following reasons:
 \begin{itemize}
 \item Finite precision of floating-point arithmetic;
 \item Heuristic choices;
+\item Dependence on the numerical inputs;
 \item 
 \end{itemize}
 
