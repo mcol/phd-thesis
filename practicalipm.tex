@@ -3,7 +3,7 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22
-%Feb:  1,  2, 4
+%Feb:  1,  2,  4,  5
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -24,6 +24,10 @@ These are documented in extensive literature (see, for example,
 %
 \section{A practical algorithm}
 
+In interior point methods the computation of the Cholesky factorization
+dominates the cost of each iteration; for the simplex, no single
+step dominates in the computations. 
+
 Interior point methods require the computation of the Newton 
 direction for the associated barrier problem and make a step along 
 this direction, thus usually reducing primal and dual infeasibilities 
@@ -42,15 +46,11 @@ proportional to the logarithm of the problem dimension.
 Find a citation for that!
 }
 
-Practical developments aim to reduce this number even further. 
-
-\hrulefill
-
 Practical algorithms are very different from the ones used for
 theoretical purposes, and usually they implement some variation
 of infeasible interior point algorithms. In particular they show
 differences in the search directions, the evaluation of the stepsize, 
-the neighbourhood. 
+the use of the neighbourhood concept. 
 
 The use of different stepsizes in the primal and dual spaces is
 almost the rule for linear programming (while for quadratic programs
@@ -101,7 +101,6 @@ backsolves per factorization; the multiple centrality correctors technique
 of backsolves per iteration is allowed, leading to a further reduction 
 in the number of factorizations. 
 
-\fb{
 Since these two methods were developed, there have been a number of 
 attempts to investigate their behaviour rigorously and thus provide
 further insight. Such objectives are difficult to achieve because 
@@ -110,7 +109,6 @@ to analyse theoretically.
 Besides, both correcting techniques are applied to long-step and infeasible 
 algorithms which have very little in common with the short-step and 
 feasible algorithms that display the best known theoretical complexity.
-}
 
 These two strategies will be the focus of the next sections.
 
@@ -449,23 +447,13 @@ they concentrate on improving the complementarity pairs which really seem
 to hinder the progress of the algorithm, ie. the complementarity products 
 that are far from the average.
 
-\fb{
-Introduce the symmetric neighbourhood.
-
 We assume that a long-step path-following algorithm is used, 
-and therefore we work with the symmetric neighbourhood 
-of the central path
-%
-\be \label{eq:N8hood}
-N_\infty(\gamma) = \{ (x,y,s) : Ax = b,\: A^T y + s = c,\: (x,s) \!>\! 0, \, 
-  \gamma \mu \leq x_j s_j \leq \mu / \gamma \;\; \forall j \}, 
-\ee
-%
-where $0 < \gamma < 1$. 
+and we work with the symmetric neighbourhood $\mathcal{N}_s(\gamma)$
+of the central path as defined in Section~\ref{sec:SymNeighbourhood}.
+
+\fb{
 In the authors' experience, such a neighbourhood best describes the desired 
 properties of a ``well-centered'' interior point iterate.
-
-This neighbourhood will be analysed in more detail in Chapter~\ref{ch:Correctors}.
 }
 
 %Like the previous one, this method also uses a composite direction 
@@ -546,10 +534,8 @@ $(0, \,0,\, t)^T$, where the target $t$ is defined as follows:
   \right.
 \end{eqnarray}
 
-\fb{
 The target point is not on the central path, but in the symmetric
 neighbourhood.
-}
 
 One important feature of multiple centrality correctors is that they
 can be successfully applied recursively. 
@@ -576,6 +562,7 @@ cost.
 
 Virtually all existing interior point codes implement such technique 
 \cite[Appendix B]{ipm:Wright97}.
+Their use depends on the quality of the linear algebra codes.
 
 %
 % Section
@@ -687,6 +674,11 @@ the case of stochastic linear programming problems will be analysed.
 %
 %
 \subsection{Termination criteria}
+
+When working in the context of limited precision of the
+floating point representation of computers, feasibility and
+complementarity can be attained only within a certain level
+of accuracy.
 
 Present common termination criteria used in practice.
 

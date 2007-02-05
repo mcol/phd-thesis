@@ -3,7 +3,7 @@
 %Sep:  1,  8
 % 2007
 %Jan: 15, 22, 26, 29, 31
-%Feb:  1,  2,  4
+%Feb:  1,  2,  4,  5
 
 %
 % Chapter: Background and introduction.
@@ -14,7 +14,6 @@ In this chapter we present the background and motivations for
 this research. In particular we introduce the field of linear programming,
 discuss its relevance, and compare some solution methods, in particular
 with regard to their computational complexity.
-
 Further, we motivate our research and provide an outline of the chapters
 of this thesis.
 
@@ -128,7 +127,9 @@ general framework summarised in the following scheme:
 \end{description}
 }
 
-Each of the point of this simplified algorithm has to be specialised
+Each element of this simplified algorithm 
+(starting point, search direction, stepsize, termination criteria)
+has to be specialised
 to the specific algorithm we are talking about.
 
 %
@@ -273,7 +274,7 @@ the interest of a growing number of researchers.
 
 Also this algorithm was proved to have polynomial complexity: 
 indeed, it converges in $\bigO(nL)$ iterations. As opposed to
-Kachiyan's ellipsoid method, Karmarkar's algorithm would actually
+Khachiyan's ellipsoid method, Karmarkar's algorithm would actually
 perform much better than what the bound states.
 
 The main idea behind interior point methods is fundamentally different 
@@ -317,7 +318,7 @@ attention anymore.
 
 Among the positive consequences brought by the renewed interest in linear
 programming, let us remind the improvements in the implementations of 
-simplex-based solvers \cite{Bixby02,Bixby94}.
+simplex-based solvers \cite{Bixby94,Bixby02}.
 
 There are classes of problems that are best solved with the simplex
 method, and others for which an interior point method is preferred.
@@ -326,13 +327,10 @@ algorithm should be chosen for computations.
 As a rule of thumb, with the increase of the problem dimension, the 
 more effective interior point methods become.
 However, this does not hold in the hyper-sparse case, where the
-simplex method is virtually unbeatable, and for network problems,
+simplex method is virtually unbeatable \cite{Bixby02,HallMcKinnon05}, 
+and for network problems,
 where the specialised network simplex method can exploit the
 structure in an extremely efficient manner.
-
-\fb{
-Add a citation for the hyper-sparse case.
-}
 
 Interior point methods are well-suited to solving very
 large scale optimization problems. Their theory is well understood
@@ -343,11 +341,6 @@ They can be applied to a wider range of situations with no need
 of major changes. In particular, they have been successfully used in
 quadratic programming, nonlinear programming, complementarity problems.
 
-\fb{
-In interior point methods the computation of the Cholesky factorization
-dominates the cost of each iteration; for the simplex, no single
-step dominates in the computations. 
-}
 
 %
 % Section
@@ -459,8 +452,11 @@ similar but considering a given set of directions. The advantages
 and drawbacks of both strategies will be discussed together with
 a rich computational study.
 
-Finally, in Chapter~\ref{ch:Warmstart} we present a warmstart technique
+In Chapter~\ref{ch:Warmstart} we present a warmstart technique
 that exploits the inherent structure of a stochastic linear programs.
 Alongside some theoretical results, we will show the computational
 experience on some standard test problems and larger instances coming
 from the telecommunication industry.
+
+Finally, in Chapter~\ref{ch:Conclusions} we present our conclusions
+and directions for future work.
