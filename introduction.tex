@@ -3,7 +3,7 @@
 %Sep:  1,  8
 % 2007
 %Jan: 15, 22, 26, 29, 31
-%Feb:  1,  2,  4,  5
+%Feb:  1,  2,  4,  5,  6
 
 %
 % Chapter: Background and introduction.
@@ -245,9 +245,6 @@ The exciting property of the ellipsoid method is that it finds a
 solution in $\bigO(n^2L)$ iterations, thus has polynomial complexity. 
 Khachiyan's contribution settled the question on the computational 
 complexity of linear programming.
-The polynomiality of the ellipsoid method can be explained by the
-fact that it does not rely on the combinatorial features of the
-linear programming problem.
 However, since this worst-case bound
 is generally attained, its practical performance is not competitive
 with other solution methods. Besides, it displays other drawbacks
@@ -282,6 +279,11 @@ to the one that inspires the simplex algorithm: the optimal vertex
 is approached by moving through the interior of the feasible region.
 This is done by creating a family of parametrised approximate solutions
 that asymptotically converge to the exact solution.
+
+Therefore, by embedding the linear problem in a nonlinear context,
+an interior point method escapes the ``curse of dimensionality''
+characteristic of the dealing with the combinatorial features of the 
+linear programming problem.
 
 Karmarkar \cite{Karmarkar} explained like this the advantage of an
 interior point approach:
@@ -338,8 +340,9 @@ large scale optimization problems. Their theory is well understood
 are documented in extensive literature (see, for example, 
 \cite{AndersenGondzioMeszarosXu,GondzioTerlaky} and the references therein).
 They can be applied to a wider range of situations with no need
-of major changes. In particular, they have been successfully used in
-quadratic programming, nonlinear programming, complementarity problems.
+of major changes. In particular, they have been successfully applied to
+complementarity problems, quadratic programming and convex 
+nonlinear programming.
 
 
 %

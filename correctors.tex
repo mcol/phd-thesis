@@ -1,7 +1,9 @@
 %Started on Friday, 11 August 2006
 %Aug: 23, 29, 30, 31
 %Sep:  1
-%Jan 2007: 16, 17, 22
+% 2007
+%Jan: 16, 17, 22
+%Feb:  6
 
 %
 % Chapter: 
@@ -780,35 +782,6 @@ a few iterations.
 In particular, it suggests that if we had a cheap way of generating
 search directions, then it would be beneficial to have as many as possible.
 
-
-%
-% Section
-%
-\section{Other stuff}
-
-\fb{
-It would be good to try and implement using the search direction from
-the previous iteration as another (free) direction to span the subspace.
-}
-
-\begin{remark}
-From the study of subspace searches it is clear that the more 
-directions we consider, the better the final search direction 
-we get. Therefore, if we had a cheap way of generating search
-directions (rather than from solving a system of linear equations),
-then these should be employed.
-\end{remark}
-
-\begin{remark}
-Mehrotra and Li \cite{MehrotraLi} mention employing previous search
-directions alongside the usual ones. The use of these incurs an
-increased memory usage, but no additional computational cost.
-However, it does not seem that they were actually employed in
-the runs. This opens some questions on what constitutes a valid
-previous direction (only affine scaling, the final composite direction
-or something else).
-\end{remark}
-
 %
 %
 \subsection{Beyond Netlib}
@@ -981,3 +954,27 @@ collection and medium scale quadratic programs.
 Monteiro, Adler and Resende (citation 188 in Jansen \cite{phd:Jansen}) talk about
 corrector steps.
 }
+
+
+\fb{
+It would be good to try and implement using the search direction from
+the previous iteration as another (free) direction to span the subspace.
+}
+
+\begin{remark}
+From the study of subspace searches it is clear that the more 
+directions we consider, the better the final search direction 
+we get. Therefore, if we had a cheap way of generating search
+directions (rather than from solving a system of linear equations),
+then these should be employed.
+\end{remark}
+
+\begin{remark}
+Mehrotra and Li \cite{MehrotraLi} mention employing previous search
+directions alongside the usual ones. The use of these incurs an
+increased memory usage, but no additional computational cost.
+However, it does not seem that they were actually employed in
+the runs. This opens some questions on what constitutes a valid
+previous direction (only affine scaling, the final composite direction
+or something else).
+\end{remark}

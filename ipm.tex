@@ -3,7 +3,7 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
-%Feb:  1,  2,  4,  5
+%Feb:  1,  2,  4,  5,  6,  7
 
 %
 % Chapter: Interior point methods
@@ -12,12 +12,14 @@
 
 Interior point methods are well-suited to solving very
 large scale optimization problems. Their theory is well understood
-\cite{ipm:Wright97}.
+and a number of survey papers and academic books are available
+\cite{Gonzaga92,MWright92,ipm:Wright97}.
 
-This chapter is devoted to the derivation and analysis of interior 
-point methods. 
-The theoretical developments presented will be accompanied by computational 
-arguments.
+This chapter is devoted to the derivation and analysis of primal--dual
+path-following interior point methods. 
+We present the elements that are at the base of this successful class
+of algorithms, concentrating on their theoretical properties and
+attractive features.
 
 
 %
@@ -43,43 +45,48 @@ that $A$ has full row rank, as linearly dependent rows can be
 removed without changing the solution set.
 This implies that a feasible $s \ge 0$ determines in a unique
 way the value of $y$.
+In fact, the $y$ variables can be eliminated thus producing the
+symmetric combined primal--dual form studied by Todd and Ye \cite{ToddYe90}.
 
-We define the set of primal feasible points and the set of
+We define the sets of primal feasible points and of
 primal interior points 
 \[
 \mathcal{P} = \{ x : Ax = b, \; x \ge 0 \}, \quad
 \mathcal{P}^0 = \{ x \in \mathcal{P} : x > 0 \},
 \]
-and, similarly, the set of dual feasible points and the set of
+and, similarly, the sets of dual feasible points and of
 dual interior points
 \[
 \mathcal{D} = \{ (y,s) : A^T y + s = c, \; s \ge 0 \}, \quad
 \mathcal{D}^0 = \{ (y,s) \in \mathcal{D} : s > 0 \}.
 \]
-
 The set of feasible primal--dual point is therefore
 $\mathcal{F} = \mathcal{P} \times \mathcal{D}$, and the set of primal--dual
 interior points is
 \[
 \mathcal{F}^0 = \{ (x,y,s) \in \mathcal{F} : (x,s) > 0 \}.
 \]
-A point $(x,y,s) \in \mathcal{F}^0$ is said to be {\em strictly feasible}.
+A point $(x,y,s) \in \mathcal{F}^0$ is said to be {\em strictly feasible}
+for the primal--dual pair (\ref{eq:PrimalDualPair}).
 
 Using this notation, the primal--dual pair (\ref{eq:PrimalDualPair}) can 
 be written as
 \be \label{eq:PrimalDualPair2}
-\min \; c^T x, \quad x \in \mathcal{P}; \qquad
-\max \; b^T y, \quad (y,s) \in \mathcal{D},
+\min \; c^T x, \;\;  x    \in \mathcal{P}; \qquad
+\max \; b^T y, \;\; (y,s) \in \mathcal{D},
 \ee
 
 We recall here some well-known results on the relationship between
 problems $(P)$ and $(D)$.
-These can be found in plenty of sources, for example \cite{lp:Chvatal} \ldots
+These can be found in plenty of sources, for example 
+\cite{lp:Chvatal,Schrijver86}.
 
 \begin{lemma}[Weak duality]
 Let $(x,y,s) \in \mathcal{F}$. Then $c^Tx \ge b^Ty$.
 \end{lemma}
 
+The weak duality property states that the primal and dual objective
+values bound each other.
 The difference $c^Tx - b^Ty$ is called {\em duality gap}.
 
 Problem $(P)$ has a solution if and only if $\mathcal{P} \ne \emptyset$;
@@ -93,31 +100,26 @@ A point $x \in \mathcal{P}$ is an optimal solution if and only if
 there exists a pair $(x,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
 \end{lemma}
 
-However, one of the sets might be empty: in such a case, an optimal
+If one of the sets $\mathcal{P}$ or $\mathcal{D}$ is empty, 
+then the other is either unbounded or empty as well. 
+In such a case, an optimal
 solution for problem (\ref{eq:PrimalDualPair2}) does not exist,
-as the set is either unbounded or empty as well.
+
 In what follows, we make the standard assumption for the development
 of interior point methods that $\mathcal{P}^0 \ne \emptyset$ and 
 $\mathcal{D}^0 \ne \emptyset$. This is also referred to as the
 {\em interior point assumption}. 
-Cases when this assumption does not hold can be considered by allowing
-the algorithm to accept infeasible iterates 
-(see Section~\ref{sec:InfeasibleMethods}).
 The interior point assumption corresponds to assuming that 
 the primal--dual optimal face is 
 bounded (this is mentioned in \cite{GonzagaCardia04} and also
 in \cite[Lemma~2.2]{GulerRoosTerlakyVial}).
+Cases when this assumption does not hold can be considered by allowing
+the algorithm to accept infeasible iterates 
+(see Section~\ref{sec:InfeasibleMethods}).
 
 \fb{
-See Jansen \cite{phd:Jansen}, p.14.
-}
-
-\fb{
-Formalize these results.
-See Guler Roos Terlaky Vial \cite{GulerRoosTerlakyVial}.
-
-Introduce barrier problems and show similar theorems for them,
-as done in Megiddo \cite{Megiddo}.
+Introduce barrier problems and theorems as done in Megiddo \cite{Megiddo}
+and Guler Roos Terlaky Vial \cite{GulerRoosTerlakyVial}.
 }
 
 Optimality conditions let us recognise that a solution has been
@@ -126,7 +128,7 @@ for finding a solution.
 
 The Karush-Kuhn-Tucker (KKT) conditions express first-order optimality 
 conditions for the primal--dual pair (\ref{eq:PrimalDualPair}).
-They can be expressed as
+They can be written as
 \be  \label{eq:KKT}
 \begin{array}{rcl}
   Ax      &=& b \\
@@ -145,57 +147,62 @@ in linear programming \cite{phd:Jansen,Schrijver86}.
 For non-optimal solutions, complementarity measures the distance of the
 solution to optimality:
 \be  \label{eq:DualityComplementarityGap}
-  c^Tx - b^T y = c^Tx - x^T A^T y = (c - A^T y)^T x = s^T x.
+  c^Tx - b^T y = c^Tx - x^T A^T y = x^T(c - A^T y) = x^T s.
 \ee
-The quantity $x^T s$ is called {\em complementarity gap}.
-When this distance is driven to zero, then the
-solution found is also optimal.
+The quantity $x^T s$ is called {\em complementarity gap}:
+when it is driven to zero, then a feasible solution is also optimal. 
 It should be noted that the equality between duality gap and
 complementarity gap of equation (\ref{eq:DualityComplementarityGap})
 holds only for a feasible point.
+
+%
+%
+\subsection{The barrier problem}
 
 Many algorithms used in mathematical programming can be interpreted 
 as path-following. Here we restrict our attention to the path described 
 by the logarithmic barrier function in linear programming.
 Given the linear program in standard form $(P)$,
-it is possible to write the corresponding barrier problem:
+it is possible to write the corresponding {\em barrier problem}:
 \[
 \begin{array}{crl}
-         & \min        & c^Tx - \mu \sum_j \ln x_j \\
+         & \min        & c^Tx - \mu \sum_i \ln x_i \\
  (P_\mu) & \mbox{s.t.} & Ax = b, \\
          &             & x > 0.
 \end{array}
 \]
 
-Problem $(P_\mu)$ is a family of problems parametrised by the 
+Problem $(P_\mu)$ denotes a family of problems parametrised by the 
 quantity $\mu>0$ (typically small), called {\em barrier parameter} 
 in the interior point literature. 
 It is worth noting that such approach is 
 viable only if it is actually possible to find a point that 
-satisfies the constraints, that is, $\mathcal{P}^0 \ne \emptyset$.
+strictly satisfies the constraints, that is, if $\mathcal{P}^0 \ne \emptyset$.
 
-The presence of the logarithmic barrier term forces the iterates 
-to stay in the interior of the feasible region, as this term penalises 
-iterates that get too close to zero. However, the influence exerted
+The presence of the logarithmic barrier forces the iterates 
+to stay in the interior of the feasible region, as this term heavily penalises 
+the points that are too close to the boundary. However, the influence exerted
 by the logarithmic barrier can be controlled through the penalty
 parameter $\mu$.
 The weight on the barrier regulates the distance from the iterates to 
 the boundary: as $\mu$ tends to zero, problem $(P_\mu)$ resembles
 more and more problem $(P)$.
 
-Note that the objective function of problem $(P_\mu)$
+The objective function of problem $(P_\mu)$
 is a strictly convex function. 
 Therefore, for a fixed $\mu$, the problem has at most one global minimum. 
-This global minimum, if it exists, is completely characterised 
+The minimizer, if it exists, is completely characterised 
 by the associated KKT conditions:
 \[
 \begin{array}{rcc}
    Ax               & = &  b \\
-  \mu X^{-1}e -A^Ty & = & -c. 
+  \mu X^{-1}e +A^Ty & = &  c \\
+   x                & > &  0.
 \end{array}
 \]
-By introducing the notation $s = \mu X^{-1}e$, we obtain the
-standard formulation of the so called {\em perturbed KKT conditions}:
+By substituting $s = \mu X^{-1}e$, we obtain the
+standard (primal--dual) formulation of the so called 
+{\em perturbed KKT conditions}:
 \be \label{eq:PerturbedKKT}
 \begin{array}{rcc}
    Ax       & = & b \\
@@ -205,9 +212,10 @@ standard formulation of the so called {\em perturbed KKT conditions}:
 \end{array}
 \ee
 
+\fb{
 If the feasible domain $\mathcal{P}$ is bounded, 
 then both $(P)$ and $(P_\mu)$ have optimal solution. 
-
+}
 The following lemma has been proved by Megiddo \cite{Megiddo}.
 \begin{lemma}
 Problem $(P_\mu)$ 
@@ -216,56 +224,23 @@ solution for every $\mu>0$.
 \end{lemma}
 
 If the perturbed KKT system (\ref{eq:PerturbedKKT}) has a solution for 
-any $\mu>0$, then it determines a unique continuous path $(x(\mu),s(\mu))$ 
-toward the optimal set as $\mu\to 0$. In interior-point terminology, 
-such a path is called the {\em central path}.
+any $\mu>0$, then it determines a unique continuous smooth curve 
+$(x(\mu),y(\mu),s(\mu))$ toward the optimal set as $\mu\to 0$. 
+In interior-point 
+terminology, this curve is called the {\em central path}.
 We postpone its presentation to Section~\ref{sec:CentralPath}.
 
-Moreover, if $A$ has full rank, then the value of $y$ is 
-uniquely determined by the value of $x$. Therefore, 
-system (\ref{eq:PerturbedKKT}) has a unique solution $(x(\mu),y(\mu))$.
-
-Megiddo shows that $c^Tx(\mu)\to c^Tx^*$ as $\mu\to 0$. 
-Furthermore, he proves the stronger result that 
-$x(\mu)\to x^*$ as $\mu\to 0$.
-
-\hrulefill
-
-Interior point methods arrive to a solution that satisfies the KKT
-conditions (\ref{eq:KKT}) by ``relaxing'' the complementarity constraints.
-%
-Path-following interior point methods \cite{ipm:Wright97} perturb 
-the above conditions by asking the complementarity pairs to align 
-to a specific barrier parameter $\mu > 0$,
-\[
-XSe = \mu e,
-\]
-while enforcing $(x,s)>0$.
-
-\fb{
-The above inequality cannot be strictly enforced, as it would not make
-the solution of the KKT conditions (\ref{eq:KKT}) any easier. Instead,
-the concept of neighbourhood is required, and is presented in
-Section~(\ref{sec:Neighbourhoods}).
-}
-
-As $\mu$ is monotonically decreased at each iteration, the solution of the 
-perturbed KKT conditions (\ref{eq:PerturbedKKT}) approximates better and better
-the system (\ref{eq:KKT}) of optimality conditions for the original
-problem.
-The way in which the barrier parameter $\mu$ is updated at each iteration
-is algorithm-dependent. We provide some theoretical insights on some
-possible choices in Section~\ref{sec:TheoreticalResults}.
+%Moreover, if $A$ has full rank, then the value of $y$ is 
+%uniquely determined by the value of $x$. Therefore, 
+%system (\ref{eq:PerturbedKKT}) has a unique solution $(x(\mu),y(\mu))$.
 
 Under the assumptions that for a particular $\mu > 0$ the point
 $(x(\mu),y(\mu),s(\mu))$ is primal and dual feasible, we can show
-the following result:
-\begin{eqnarray*}
-  g(\mu) & = & c^Tx(\mu) - b^T y(\mu) \\
-         & = & c^Tx(\mu) - x(\mu)^T A^T y(\mu) \\
-         & = & ( c^T - y(\mu)^T A) x(\mu) \\
-	 & = & s(\mu)^T x(\mu),
-\end{eqnarray*}
+verify a similar result to what expressed by 
+(\ref{eq:DualityComplementarityGap}):
+\[
+  g(\mu) = c^Tx(\mu) - b^T y(\mu) = x(\mu)^T s(\mu),
+\]
 that is, the duality gap corresponds to the complementarity gap.
 Hence reducing either of them is identical.
 
@@ -276,13 +251,43 @@ we have
 \]
 and for $\mu \to 0$, also $g(\mu) \to 0$.
 
+Megiddo \cite{Megiddo} shows that $c^Tx(\mu)\to c^Tx^*$ as $\mu\to 0$. 
+Furthermore, he proves the following, stronger result.
+%
 \begin{lemma}
 Under the assumptions of primal feasibility, dual feasibility, and
-full row rank of matrix $A$, as $\mu \to 0$ then 
+full row rank of matrix $A$, then
 \[
-   x(\mu) \to x^*, \qquad (y(\mu),s(\mu)) \to (y^*, s^*).
+   x(\mu) \to x^*, \quad (y(\mu),s(\mu)) \to (y^*, s^*)
 \]
+as $\mu \to 0$.
 \end{lemma}
+
+Interior point methods arrive to an optimal solution by  ``relaxing'' 
+the complementarity constraints.
+In the path-following class of methods, we perturb the KKT
+conditions (\ref{eq:KKT}) by asking the complementarity pairs to align 
+to a specific barrier parameter $\mu > 0$,
+\be  \label{eq:PerturbedComplementarity}
+XSe = \mu e,
+\ee
+while enforcing $(x,s)>0$.
+
+The perturbed complementarity conditions 
+(\ref{eq:PerturbedComplementarity}) cannot be strictly enforced: 
+finding an exactly central point for a specific $\mu$ is not any easier
+than finding the solution of the KKT conditions (\ref{eq:KKT}). Therefore,
+we relax this requirement and allow the iterates to be near the central
+path by introducing the concept of neighbourhood, which we will present in
+Section~\ref{sec:Neighbourhoods}.
+
+As $\mu$ is monotonically decreased at each iteration, the solution of the 
+perturbed KKT conditions (\ref{eq:PerturbedKKT}) approximates better and better
+the system (\ref{eq:KKT}) of optimality conditions for the original
+problem.
+The way in which the barrier parameter $\mu$ is updated at each iteration
+is algorithm-dependent. We provide some theoretical insights on some
+possible choices in Section~\ref{sec:TheoreticalResults}.
 
 \begin{theorem}[Strict complementarity]
 If $(P)$ and $(D)$ are feasible, then there exist a point $x^* \in\mathcal{P}$
@@ -293,19 +298,34 @@ and a pair $(y^*,s^*) \in \mathcal{D}$ such that
 \end{theorem}
 
 A solution $(x^*,s^*)$ that satisfies the above theorem is called 
-{\em strictly complementary}. On the grounds of a strictly complementary
-solution we can define the concept of {\em optimal partition}.
+{\em strictly complementary}. 
+It is important to note that the central path leads to a strictly 
+complementary solution.
 
-\fb{
-The central path leads to a strictly complementary solution.
-}
+On the grounds of a strictly complementary
+solution we can define the concept of {\em optimal partition}.
+Following Jansen \cite{phd:Jansen}, we define the support set
+of a vector $v \in \R^n$ as
+\[
+   \sigma(v) = \{ i : v_i > 0, \; i=1,\ldots,n \},
+\]
+and partition the set of indices $\{1,\ldots,n \}$ as
+\[
+   B = \sigma(x^*), \quad N = \sigma(s^*).
+\]
+This partition is well-defined in the sense that for a 
+strictly complementary solution satisfies both 
+$B \cap N = \emptyset$ and $B \cup N = \{1,\ldots,n \}$. 
+A proof of the latter result, also known as Goldman-Tucker theorem, 
+can be found in \cite{ipm:Wright97}.
+The concepts of strict complementarity and optimal partition are
+recurrent motifs in the analysis of interior point methods.
 
 Contrary to active set algorithms, interior point methods reach a
 solution only asymptotically. 
 Because of the presence of the barrier term, they can never produce
-an exact solution, but terminate when an iterate satisfies, 
-according to the desired accuracy, some approximation of the
-optimality conditions.
+an exact solution, but terminate when an iterate satisfies
+some approximation of the optimality conditions to the desired accuracy
 
 However, once a solution has been found within a prescribed 
 optimality tolerance, such a point can be projected onto a face 
@@ -340,39 +360,44 @@ Megiddo \cite{Megiddo} and Bayer and Lagarias \cite{BayerLagarias}.
 
 The properties of the curvature of the central path are discussed
 in \cite{VavasisYe}, where it is explained that the central path
-is characterised by curves of high order. 
+is characterised by tracts where it is relatively straight
+followed by curves of high degree. 
 Such curves appear in correspondence with changes in the optimal
 partition.
 Close to the end, when the optimal partition has been identified,
 the central path becomes a straight line \cite{Megiddo}.
-In this region, the quadratic convergence property of Newton's
-method kicks in.
+In this region, the algorithm displays the quadratic convergence 
+property typical of Newton's method.
 
 We have seen that as $\mu \to 0$ the solution to $(P_\mu)$ 
 converges to the analytic center of the set of optimal solutions of $(P)$.
 We now discuss the opposite situation, that is we consider
 the limit of $(P_\mu)$ for $\mu \to \infty$, and therefore
 find the point from which the central path departs.
-This point, the {\em analytic center}, is defined as
+This corresponds to finding the point that minimizes the barrier function:
 \[
-\theta = \arg \min_{x \in \mathcal{P}^0} -\sum_j \ln x_j,
+\theta = \arg \min_{x \in \mathcal{P}^0} -\sum_i \ln x_i.
 \]
-and this concept is well defined, given the strict convexity of the 
-barrier function. The concept of analytic center was first 
-introduced by Sonnevend.
-
-The analytic center is the point that minimizes the barrier, hence
+The point $\theta$ is the {\em analytic center} of the feasible polytope, 
+and was first studied by Sonnevend.
+Given the strict convexity of the barrier function, the concept 
+of analytic center is well defined.
+As the analytic center minimizes the barrier, it
 is the point farthest away from the boundary.
+
 However, there is a problem with defining the central path in terms
 of analytic center: the central path is affected by the presence of 
 redundant constraints. 
 This happens because it is an exclusively analytic concept, which does
 not exploit geometric considerations.
+Other type of centers (center of gravity, center of the ellipsoid of 
+maximum volume that can be inscribed in $\mathcal{P}$, volumetric center) 
+can be defined, but they usually are too demanding to compute 
+\cite{Gonzaga92}. 
 
 \fb{
-Gonzaga \cite{Gonzaga92} mentions various centers (center of gravity, 
-analytic center). See also Nick Gould's slides at cerfacs, and
-discussion with Coralia (she mentioned a chapter in Ye's book).
+See also Nick Gould's slides at cerfacs, and
+a chapter in Ye's book.
 
 Terlaky's  Klee-Minty example.
 }
@@ -393,13 +418,12 @@ solving the linear programming problem. It is only the limit point
 on this path that is of interest to us.
 \end{quote}
 
-
 %
 %
 \subsection{Neighbourhoods of the central path}
 \label{sec:Neighbourhoods}
 
-As we have seen, following the central path provides the recommended
+As we have seen, following the central path is the recommended
 way of traversing the interior of the feasible region towards
 the optimal solution. Nevertheless, it should be clear that keeping the
 iterates {\em exactly on} the central path is as difficult as
@@ -441,7 +465,7 @@ and it is often called {\em wide neighbourhood}:
 Algorithms based on such a neighbourhood are allowed to generate
 iterates that follow more loosely the central path. The iterates 
 have more freedom of movement as they can approach the border.
-Also, algorithms based on the wide neighbourhood (usually denoted as
+Hence, algorithms based on the wide neighbourhood (usually denoted as
 {\em long-step algorithms}) are less conservative and can decrease 
 the barrier parameter more rapidly.
 However, the Newton direction computed from points in the wide 
@@ -457,13 +481,12 @@ the centrality requirements needed for a practical algorithm.
 $N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
 }
 
-
 %
 %
 \subsection{Solving the perturbed KKT conditions}
 
 Path-following interior point methods seek a solution 
-to the system of equations
+to the system of equations (\ref{eq:PerturbedKKT})
 \[
 F(x,y,s) = \left[
   \begin{array}{c}
@@ -495,9 +518,14 @@ and obtain the so-called step equations
 \ee
 %
 which need to be solved with a specified $\mu$ for a search direction
-$(\Delta x, \Delta y, \Delta s)$. Throughout this thesis, we will 
+$\Delta w = (\Delta x, \Delta y, \Delta s)$. Throughout this thesis, we will 
 restrict our attention to using a direct approach in solving these
 equations.
+We should note, however, that a wealth of research explored the use
+of iterative methods in the computation of the search direction.
+\fb{
+Add a citation.
+}
 
 System (\ref{eq:NewtonSystem}) is usually reduced to two other
 formulations by exploiting the block structure of the constraint
@@ -536,14 +564,6 @@ all $i = 1, \ldots, n$.
 Besides the issue of definiteness, the two formulations differ in
 terms of sparsity and conditioning, the normal equations usually 
 being dense and worse conditioned.
-
-\fb{
-Compare the two approaches, and discuss what happens in software.\\
-Explain the dependence on linear algebra.
-
-The augmented system uses the Bunch-Parlett factorization.
-}
-
 The choice between augmented system and normal equations depends also on 
 the relative density of $AD^2A^T$ with respect to $A$.
 Normal equations are to be avoided when there are dense columns in $A$, 
@@ -562,24 +582,6 @@ Theoretical developments aim at lowering the upper bound on the number
 of steps needed for convergence. The results provided by such worst-case 
 complexity analysis are informative but exceedingly pessimistic. 
 
-The theoretical analysis for the logarithmic barrier method was
-done by Megiddo \cite{Megiddo}, who also presented a primal--dual
-framework in 1986. 
-
-On the basis of this seminal paper, Kojima, Mizuno and Yoshise (1987) 
-presented a polynomial-time primal--dual algorithm for linear programming, 
-with the property of convergence in $\bigO(nL)$ iterations.
-
-Further improvements were then introduced by Monteiro and Adler 
-\cite{MonteiroAdler89a}, who refined the algorithm and showed that 
-the use of the small $N_2$ neighbourhood allows to reach the solution 
-in $\bigO(\sqrt{n}L)$ iterations.
-
-\fb{
-Not sure about that reference! Mehrotra actually cites another paper
-from Monteiro and Adler.
-}
-
 Theoretical proofs of complexity generally follow a common scheme.
 First they rely on a computable measure of the closeness to the central
 path: this is accomplished by the concept of neighbourhood. Second,
@@ -591,11 +593,22 @@ path (possibly larger than the one before). Finally, they require
 a decrease in the barrier parameter that allows a polynomial upper
 bound on the number of iterations.
 
+The theoretical analysis for the logarithmic barrier method was
+initiated by Megiddo \cite{Megiddo}.
+On this basis, Kojima, Mizuno and Yoshise (1989) proposed a
+polynomial-time algorithm with the property of convergence 
+in $\bigO(nL)$ iterations.
+This was later refined by the same group \cite{KojimaMizunoYoshise} 
+and by Monteiro and Adler \cite{MonteiroAdler89a}.
+Both papers presented a primal--dual algorithm for linear programming 
+based on the tight $\mathcal{N}_2$ neighbourhood
+with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
+
 %
 %
 \subsection{Feasible methods}
 
-In primal--dual feasible algorithms for linear programming, 
+A feasible algorithm is characterised by the requirement that
 all primal and dual iterates always lie within the interior 
 of the feasible region. For this reason, these algorithms 
 need to start from a strictly feasible point. 
@@ -630,21 +643,24 @@ predictor--corrector method. Their strategy uses two nested neighbourhoods
 $N_2(\theta^2)$ and $N_2(\theta)$, $\theta \in (0,1)$, and exploits the
 quadratic convergence property of Newton's method in this type of 
 neighbourhood.
-Their algorithm computes two search directions at each iterations.
+Their algorithm alternates two search directions characterised by
+different properties.
 First, the predictor direction gains optimality, possibly at the expense of
 worsening the centrality, keeping the iterate in a larger neighbourhood
 $N_2(\theta)$ of the central path. Then, a pure re-centering step 
 is performed, which leaves the duality gap unchanged but 
 moves the iterate back into a 
 tighter $N_2(\theta^2)$ neighbourhood. Hence, every second step the 
-algorithm produces a point in $N_2(\theta^2)$. This is a clever 
-approach, but the use of the very restrictive $N_2$ neighbourhood 
-makes it unattractive for practical applications.
+algorithm produces a point in $N_2(\theta^2)$.
 
-An important contribution of this technique, however, is the idea 
-of targeting optimality and centrality independently. While this 
+An important contribution of this technique, is the idea 
+of targeting optimality and centrality independently. 
+However, the use of the very restrictive $N_2$ neighbourhood 
+makes it unattractive for practical applications.
+While this 
 algorithm is not effective in practical terms, it provides a scheme 
-upon which more computationally attractive methods can be constructed.
+upon which more computationally attractive methods can be constructed,
+as we will discuss in Chapter~\ref{ch:PracticalIpm}.
 
 Thanks to the optimizing predictor direction which is identical
 to a short-step feasible method, also the predictor--corrector
@@ -672,12 +688,13 @@ A way to recover a strictly feasible starting point involves
 solving an artificial Phase~I subproblem by using 
 the big-$M$ method. However, the performance is dependent on 
 the choice of the values given to the weights, and the use
-of very large values, while theoretically satifying,
+of very large values, while theoretically satisfying,
 causes numerical instabilities \cite{Lustig91}.
 This is worsened 
 by the presence of dense columns that compromises the 
 computational efficiency. A very different approach to deal 
-with the starting point issue is the self-dual formulation.
+with the starting point issue is based on the homogeneous 
+self-dual formulation.
 
 \fb{
 Find a reference for that (Terlaky-Ye?).
@@ -685,9 +702,13 @@ Find a reference for that (Terlaky-Ye?).
 
 It is possible to develop an algorithm which only requires 
 the $x$ and $s$ components to be strictly positive. 
+This was initiated by Lustig \cite{Lustig91}, who proposed some
+new feasibility restoration directions.
 
 \fb{
-This was achieved by Kojima, Megiddo and Mizuno \cite{KojimaMegiddoMizuno}.
+However, was the work of Kojima, Megiddo and Mizuno \cite{KojimaMegiddoMizuno}
+that introduced a complete infeasible algorithm, with full
+theoretical analysis of convergence.
 
 Sure? Wright (page 109) says it was Lustig Marsten and Shanno.
 }
@@ -697,11 +718,11 @@ an algorithm, all iterates are infeasible, but the limit points
 are feasible and optimal. This is obtained by using a 
 neighbourhood that admits infeasible points:
 \[
-\mathcal{N}_{-\infty}(\gamma,\beta) =\{ (x,\lambda,s) | \; \|(r_b,r_c)\| \le \beta\mu \frac{\|(r_b^0,r_c^0)\|}{\mu_0}, (x,s)>0, x_is_i \ge \gamma\mu \},
+\mathcal{N}_{-\infty}(\gamma,\beta) =\{ (x,y,s) | \; \|(r_b,r_c)\| \le \beta\mu \frac{\|(r_b^0,r_c^0)\|}{\mu_0}, (x,s)>0, x_is_i \ge \gamma\mu \},
 \]
 where $\gamma\in (0,1)$ and $\beta \ge 1$ are parameters, and 
 we denoted the primal and dual residuals, respectively, by 
-$r_b = Ax-b$ and $r_c = A^T\lambda+s-c$.
+$r_b = Ax-b$ and $r_c = A^T y + s - c$.
 
 Therefore, there is no strict feasibility requirement for 
 the iterates; however, the residuals at each iteration must be 

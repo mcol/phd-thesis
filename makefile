@@ -18,6 +18,9 @@ ps2: ps
 pdf: ps
 	ps2pdf $(INPUT).ps $(INPUT).pdf
 
+tar:
+	tar cvzhf $(INPUT).tar.gz .
+
 clean:
 	-rm -rf $(CRUFT)
 
