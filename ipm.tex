@@ -3,7 +3,7 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
-%Feb:  1,  2,  4,  5,  6,  7
+%Feb:  1,  2,  4,  5,  6,  7,  8
 
 %
 % Chapter: Interior point methods
@@ -246,9 +246,9 @@ Hence reducing either of them is identical.
 
 Also, as $XSe - \mu e = 0$ implies $x_is_i = \mu$, $i = 1, \ldots, n$, 
 we have
-\[
+\be  \label{eq:AverageComplementarity}
    s(\mu)^T x(\mu) = n\mu,
-\]
+\ee
 and for $\mu \to 0$, also $g(\mu) \to 0$.
 
 Megiddo \cite{Megiddo} shows that $c^Tx(\mu)\to c^Tx^*$ as $\mu\to 0$. 
@@ -263,92 +263,146 @@ full row rank of matrix $A$, then
 as $\mu \to 0$.
 \end{lemma}
 
-Interior point methods arrive to an optimal solution by  ``relaxing'' 
-the complementarity constraints.
-In the path-following class of methods, we perturb the KKT
+%
+%
+\subsection{Solving the perturbed KKT conditions}
+
+Primal--dual path-following methods solve the perturbed KKT
 conditions (\ref{eq:KKT}) by asking the complementarity pairs to align 
 to a specific barrier parameter $\mu > 0$,
 \be  \label{eq:PerturbedComplementarity}
 XSe = \mu e,
 \ee
 while enforcing $(x,s)>0$.
+However, up to now, we have not defined how to choose the
+barrier parameter $\mu$ and how to update it at each iteration.
 
-The perturbed complementarity conditions 
-(\ref{eq:PerturbedComplementarity}) cannot be strictly enforced: 
-finding an exactly central point for a specific $\mu$ is not any easier
-than finding the solution of the KKT conditions (\ref{eq:KKT}). Therefore,
-we relax this requirement and allow the iterates to be near the central
-path by introducing the concept of neighbourhood, which we will present in
-Section~\ref{sec:Neighbourhoods}.
+\fb{
+Explain how we choose it at the beginning.
+}
 
-As $\mu$ is monotonically decreased at each iteration, the solution of the 
-perturbed KKT conditions (\ref{eq:PerturbedKKT}) approximates better and better
+At each iteration $\mu$ is monotonically decreased by a quantity
+$\sigma \in (0,1)$, called {\em centering parameter} for reasons that
+will become clear later on.
+Hence, the perturbed KKT conditions (\ref{eq:PerturbedKKT}) 
+approximate better and better
 the system (\ref{eq:KKT}) of optimality conditions for the original
 problem.
-The way in which the barrier parameter $\mu$ is updated at each iteration
+The choice of the centering parameter $\sigma$ 
 is algorithm-dependent. We provide some theoretical insights on some
 possible choices in Section~\ref{sec:TheoreticalResults}.
 
-\begin{theorem}[Strict complementarity]
-If $(P)$ and $(D)$ are feasible, then there exist a point $x^* \in\mathcal{P}$
-and a pair $(y^*,s^*) \in \mathcal{D}$ such that
-\[
-(x^*)^T s^* = 0 \quad\mbox{ and }\quad x^*_i + s_i^* >0, \;\; i = 1, \ldots, n.
-\]
-\end{theorem}
+\ignore{
+In all predictor-corrector algorithms there is a crucial decision 
+to be made at every iteration, namely the choice of the penalty 
+parameter $\mu$ to be used in the correction.
 
-A solution $(x^*,s^*)$ that satisfies the above theorem is called 
-{\em strictly complementary}. 
-It is important to note that the central path leads to a strictly 
-complementary solution.
+The paper \cite{VillasBoasPerin} tries to answer this question. 
+They build a polynomial function of $\mu$ and $\alpha$, and they 
+use to determine what the optimal choices of these parameters are, 
+under a suitably chosen measure.
 
-On the grounds of a strictly complementary
-solution we can define the concept of {\em optimal partition}.
-Following Jansen \cite{phd:Jansen}, we define the support set
-of a vector $v \in \R^n$ as
-\[
-   \sigma(v) = \{ i : v_i > 0, \; i=1,\ldots,n \},
-\]
-and partition the set of indices $\{1,\ldots,n \}$ as
-\[
-   B = \sigma(x^*), \quad N = \sigma(s^*).
-\]
-This partition is well-defined in the sense that for a 
-strictly complementary solution satisfies both 
-$B \cap N = \emptyset$ and $B \cup N = \{1,\ldots,n \}$. 
-A proof of the latter result, also known as Goldman-Tucker theorem, 
-can be found in \cite{ipm:Wright97}.
-The concepts of strict complementarity and optimal partition are
-recurrent motifs in the analysis of interior point methods.
-
-Contrary to active set algorithms, interior point methods reach a
-solution only asymptotically. 
-Because of the presence of the barrier term, they can never produce
-an exact solution, but terminate when an iterate satisfies
-some approximation of the optimality conditions to the desired accuracy
-
-However, once a solution has been found within a prescribed 
-optimality tolerance, such a point can be projected onto a face 
-of the polyhedron in an efficient way.
-This can be done thanks to a strongly polynomial algorithm due
-to Megiddo \cite{Megiddo91}. This procedure goes under the name
-of {\em basis crossover}, 
-as given a complementary primal--dual solution it generates a basis 
-that is both primal and dual feasible.
-
-However, we should discuss what we mean by ``exact'' solution. In most
-cases we do not need the additional precision of being on a vertex (in
-this case, integer programming is the notable exception).
-Also, in case of multiple solutions, interior point methods terminate
-at the analytic center of the optimal face rather than at a vertex; 
-but note the arbitrariness of the simplex in the choice of the solution
-vertex.
-This difference has important consequences on the use of the solution
-for sensitivity analysis. 
-
-\fb{
-Find the correct citations! Have a look at Jansen's and Yildirim's phds.
+By using this strategy they achieve a better iteration count on 
+most of the problems in their experiment. This, however, is not 
+supported by a corresponding reduction in computational time. 
+The reason for this is that the postponing of the choice of $\mu$ 
+requires the solution of additional systems. While it's true that 
+the most expensive operation is the computation of the Cholesky 
+factors, the actual cost of the backsolves is not negligible. 
+In the results of this paper, the additional cost of the extra 
+backsolves is bigger than the savings obtained by the decrease 
+in number of iterations.
 }
+
+Path-following interior point methods seek a solution 
+to the system of equations (\ref{eq:PerturbedKKT})
+\[
+F(x,y,s) = \left[
+  \begin{array}{c}
+    Ax-b \\
+    A^Ty+s-c \\
+    XSe - \sigma\mu e \\
+  \end{array} \right] = 0,
+\]
+which is nonlinear in the perturbed complementarity constraints.
+We use Newton's method to linearise the system according to
+\[
+\nabla F(x,y,s) \Delta(x,y,s) = -F(x,y,s),
+\]
+and obtain the so-called step equations
+%
+\be \label{eq:NewtonSystem}
+\left[ \begin{array}{ccc}
+    A & 0 & 0 \\ 0 & A^T & I \\ S & 0 & X
+  \end{array} \right]
+\left[ \begin{array}{c}
+    \Delta x \\  \Delta y \\  \Delta s
+  \end{array} \right] =
+\left[ \begin{array}{c}
+    b - Ax \\ c - A^Ty - s \\ -XSe + \sigma\mu e
+   \end{array} \right] =
+\left[ \begin{array}{c}
+    \xi_b \\ \xi_c \\ \xi_\mu
+   \end{array} \right],
+\ee
+%
+which need to be solved for a search direction
+$\Delta w = (\Delta x, \Delta y, \Delta s)$,
+with $\mu = x^Ts/n$, $\sigma \in (0,1)$.
+
+Throughout this thesis, we will 
+restrict our attention to using a direct approach in solving these
+equations.
+We should note, however, that a wealth of research explored the use
+of iterative methods in the computation of the search direction.
+\fb{
+Add a citation.
+}
+
+System (\ref{eq:NewtonSystem}) is usually reduced to two other
+formulations by exploiting the block structure of the constraint
+matrix.
+%
+The {\em augmented system} formulation is obtained by using 
+the last row of (\ref{eq:NewtonSystem}) to eliminate
+$\Delta s = X^{-1} (\xi_\mu - S\Delta x)$.
+This produces
+%
+\be \label{eq:AugmentedSystem}
+\left[ \begin{array}{cc}
+    -X^{-1}S & A^T \\ A & 0
+  \end{array} \right]
+\left[ \begin{array}{c}
+    \Delta x \\  \Delta y
+  \end{array} \right] =
+\left[ \begin{array}{c}
+    \xi_c - X^{-1}\xi_\mu \\ \xi_b
+   \end{array} \right],
+\ee
+which is a symmetric but indefinite system.
+%
+By further eliminating $\Delta x$, we reduce system 
+(\ref{eq:AugmentedSystem}) to the set of {\em normal equations}
+%
+\be \label{eq:NormalEquations}
+  A D^2 A^T \Delta y = A D^2 (\xi_c - X^{-1} \xi_\mu) + \xi_b,
+\ee
+%
+where we introduced the notation $D^2 = S^{-1} X$.
+Under the assumption of full row rank for $A$, matrix 
+$A D^2 A^T$ is positive definite, since $D^2_i = x_i/s_i > 0$ for
+all $i = 1, \ldots, n$.
+
+Besides the issue of definiteness, the two formulations differ in
+terms of sparsity and conditioning, the normal equations usually 
+being dense and worse conditioned.
+The choice between augmented system and normal equations depends also on 
+the relative density of $AD^2A^T$ with respect to $A$.
+Normal equations are to be avoided when there are dense columns in $A$, 
+as they generate dense blocks in $AD^2A^T$.
+
+Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
+study of the properties of the augmented system formulation.
 
 %
 %
@@ -418,6 +472,67 @@ solving the linear programming problem. It is only the limit point
 on this path that is of interest to us.
 \end{quote}
 
+\begin{theorem}[Strict complementarity]
+If $(P)$ and $(D)$ are feasible, then there exist a point $x^* \in\mathcal{P}$
+and a pair $(y^*,s^*) \in \mathcal{D}$ such that
+\[
+(x^*)^T s^* = 0 \quad\mbox{ and }\quad x^*_i + s_i^* >0, \;\; i = 1, \ldots, n.
+\]
+\end{theorem}
+
+A solution $(x^*,s^*)$ that satisfies the above theorem is called 
+{\em strictly complementary}. 
+It is important to note that the central path leads to a strictly 
+complementary solution.
+
+On the grounds of a strictly complementary
+solution we can define the concept of {\em optimal partition}.
+Following Jansen \cite{phd:Jansen}, we define the support set
+of a vector $v \in \R^n$ as
+\[
+   \sigma(v) = \{ i : v_i > 0, \; i=1,\ldots,n \},
+\]
+and partition the set of indices $\{1,\ldots,n \}$ as
+\[
+   B = \sigma(x^*), \quad N = \sigma(s^*).
+\]
+This partition is well-defined in the sense that for a 
+strictly complementary solution satisfies both 
+$B \cap N = \emptyset$ and $B \cup N = \{1,\ldots,n \}$. 
+A proof of the latter result, also known as Goldman-Tucker theorem, 
+can be found in \cite{ipm:Wright97}.
+The concepts of strict complementarity and optimal partition are
+recurrent motifs in the analysis of interior point methods.
+
+Contrary to active set algorithms, interior point methods reach a
+solution only asymptotically. 
+Because of the presence of the barrier term, they can never produce
+an exact solution, but terminate when an iterate satisfies
+some approximation of the optimality conditions to the desired accuracy
+
+However, once a solution has been found within a prescribed 
+optimality tolerance, such a point can be projected onto a face 
+of the polyhedron in an efficient way.
+This can be done thanks to a strongly polynomial algorithm due
+to Megiddo \cite{Megiddo91}. This procedure goes under the name
+of {\em basis crossover}, 
+as given a complementary primal--dual solution it generates a basis 
+that is both primal and dual feasible.
+
+However, we should discuss what we mean by ``exact'' solution. In most
+cases we do not need the additional precision of being on a vertex (in
+this case, integer programming is the notable exception).
+Also, in case of multiple solutions, interior point methods terminate
+at the analytic center of the optimal face rather than at a vertex; 
+but note the arbitrariness of the simplex in the choice of the solution
+vertex.
+This difference has important consequences on the use of the solution
+for sensitivity analysis. 
+
+\fb{
+Find the correct citations! Have a look at Jansen's and Yildirim's phds.
+}
+
 %
 %
 \subsection{Neighbourhoods of the central path}
@@ -426,14 +541,16 @@ on this path that is of interest to us.
 As we have seen, following the central path is the recommended
 way of traversing the interior of the feasible region towards
 the optimal solution. Nevertheless, it should be clear that keeping the
-iterates {\em exactly on} the central path is as difficult as
-solving the optimization problem itself.
+iterates {\em exactly on} the central path is an unachievable aim.
+Finding a point that solves the perturbed complementarity conditions 
+(\ref{eq:PerturbedComplementarity}) for a specific $\mu$ 
+is as difficult as solving the optimization problem itself.
 %
 Therefore, we never insist in this extremely restrictive requirement,
 but we rather allow the iterates to be somewhere around the central path.
 This leads to the introduction of the important concept of
 {\em neighbourhood} of the central path. 
-We can define different neighbourhoods, characterised
+We can define several neighbourhoods, characterised
 by different properties.
 Two neighbourhoods are often used in theoretical developments.
 
@@ -480,97 +597,6 @@ the centrality requirements needed for a practical algorithm.
 \fb{
 $N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
 }
-
-%
-%
-\subsection{Solving the perturbed KKT conditions}
-
-Path-following interior point methods seek a solution 
-to the system of equations (\ref{eq:PerturbedKKT})
-\[
-F(x,y,s) = \left[
-  \begin{array}{c}
-    Ax-b \\
-    A^Ty+s-c \\
-    XSe - \mu e \\
-  \end{array} \right] = 0,
-\]
-which is nonlinear in the perturbed complementarity constraints.
-We use Newton's method to linearise the system according to
-\[
-\nabla F(x,y,s) \Delta(x,y,s) = -F(x,y,s),
-\]
-and obtain the so-called step equations
-%
-\be \label{eq:NewtonSystem}
-\left[ \begin{array}{ccc}
-    A & 0 & 0 \\ 0 & A^T & I \\ S & 0 & X
-  \end{array} \right]
-\left[ \begin{array}{c}
-    \Delta x \\  \Delta y \\  \Delta s
-  \end{array} \right] =
-\left[ \begin{array}{c}
-    b - Ax \\ c - A^Ty - s \\ -XSe + \mu e
-   \end{array} \right] =
-\left[ \begin{array}{c}
-    \xi_b \\ \xi_c \\ \xi_\mu
-   \end{array} \right],
-\ee
-%
-which need to be solved with a specified $\mu$ for a search direction
-$\Delta w = (\Delta x, \Delta y, \Delta s)$. Throughout this thesis, we will 
-restrict our attention to using a direct approach in solving these
-equations.
-We should note, however, that a wealth of research explored the use
-of iterative methods in the computation of the search direction.
-\fb{
-Add a citation.
-}
-
-System (\ref{eq:NewtonSystem}) is usually reduced to two other
-formulations by exploiting the block structure of the constraint
-matrix.
-%
-The {\em augmented system} formulation is obtained by using 
-the last row of (\ref{eq:NewtonSystem}) to eliminate
-$\Delta s = X^{-1} (\xi_\mu - S\Delta x)$.
-This produces
-%
-\be \label{eq:AugmentedSystem}
-\left[ \begin{array}{cc}
-    -X^{-1}S & A^T \\ A & 0
-  \end{array} \right]
-\left[ \begin{array}{c}
-    \Delta x \\  \Delta y
-  \end{array} \right] =
-\left[ \begin{array}{c}
-    \xi_c - X^{-1}\xi_\mu \\ \xi_b
-   \end{array} \right],
-\ee
-which is a symmetric but indefinite system.
-%
-By further eliminating $\Delta x$, we reduce system 
-(\ref{eq:AugmentedSystem}) to the set of {\em normal equations}
-%
-\be \label{eq:NormalEquations}
-  A D^2 A^T \Delta y = A D^2 (\xi_c - X^{-1} \xi_\mu) + \xi_b,
-\ee
-%
-where we introduced the notation $D^2 = S^{-1} X$.
-Under the assumption of full row rank for $A$, matrix 
-$A D^2 A^T$ is positive definite, since $D^2_i = x_i/s_i > 0$ for
-all $i = 1, \ldots, n$.
-
-Besides the issue of definiteness, the two formulations differ in
-terms of sparsity and conditioning, the normal equations usually 
-being dense and worse conditioned.
-The choice between augmented system and normal equations depends also on 
-the relative density of $AD^2A^T$ with respect to $A$.
-Normal equations are to be avoided when there are dense columns in $A$, 
-as they generate dense blocks in $AD^2A^T$.
-
-Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
-study of the properties of the augmented system formulation.
 
 %
 % Section

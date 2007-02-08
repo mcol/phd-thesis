@@ -3,7 +3,7 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22
-%Feb:  1,  2,  4,  5,  6
+%Feb:  1,  2,  4,  5,  6,  8
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -29,16 +29,17 @@ dominates the cost of each iteration; for the simplex, no single
 step dominates in the computations. 
 
 Interior point methods require the computation of the Newton 
-direction for the associated barrier problem and make a step along 
+direction (\ref{eq:NewtonSystem})
+for the associated barrier problem and make a step along 
 this direction, thus usually reducing primal and dual infeasibilities 
-and complementarity gap; eventually, after a number of iterations, 
-they reach optimality. 
+and complementarity gap.
 Since finding the Newton direction is usually a major computational task, 
 the efforts in the theory and practice of IPMs concentrate on reducing 
-the number of Newton systems (\ref{eq:NewtonSystem}) to be solved.
+the number of times the Newton system (\ref{eq:NewtonSystem}) has to be solved.
 
-In practice, convergence is much faster than stated by the theoretical
-results presented in Section~\ref{sec:TheoreticalResults}: 
+In Section~\ref{sec:TheoreticalResults} we presented the theoretical
+results on the order of convergence of some interior point algorithms.
+In practice, convergence is much faster than stated by those results:
 optimality is usually reached in a number of iterations which is 
 proportional to the logarithm of the problem dimension. 
 
@@ -46,13 +47,22 @@ proportional to the logarithm of the problem dimension.
 Find a citation for that!
 }
 
+As it happens with the analysis of the simplex method, we see quite
+a gap between the predicted and the observed performance which is still to
+be fully understood.
+
 Practical algorithms are very different from the ones used for
 theoretical purposes, and usually they implement some variation
 of infeasible interior point algorithms. In particular they show
 differences in the search directions, the evaluation of the stepsize, 
 the use of the neighbourhood concept. 
 
-The use of different stepsizes in the primal and dual spaces is
+This is further complicated by issues of computational efficiency
+and numerical stability, which often suggest the use of amended
+techniques or heuristic approaches, which make their analysis
+extremely difficult.
+
+The computation of different stepsizes in the primal and dual spaces is
 almost the rule for linear programming (while for quadratic programs
 the stepsizes have to be identical). This has the advantage of
 speeding up the restoration of feasibility. According to
@@ -60,10 +70,27 @@ speeding up the restoration of feasibility. According to
 to a reduction in number of iterations of 10\% on the Netlib
 set of tests.
 
-This is further complicated by issues of computational efficiency
-and numerical stability, which often suggest the use of amended
-techniques or heuristic approaches, which make their analysis
-extremely difficult.
+In order to ensure that $(x,s)$ remain positive after moving along the
+$\Delta w$ direction, we need to employ a linesearch procedure 
+and find the maximum feasible stepsizes $\alpha_P$ and $\alpha_D$ 
+such that
+\[
+  x + \alpha_P \Delta_a x > 0, \qquad  s + \alpha_D \Delta_a s > 0.
+\]
+The achievable stepsizes for a given search direction $\Delta w$, 
+in the primal and dual space respectively, are computed as:
+\be  \label{eq:Alphas}
+  \alpha_P =\min \left\{ -\frac{x_i}{\Delta x_i} : \Delta x_i < 0 \right\},
+  \quad\;
+  \alpha_D =\min \left\{ -\frac{s_i}{\Delta s_i} : \Delta s_i < 0 \right\}.
+\ee
+
+We remark that in the computation of the stepsizes, we 
+maintain the strict positivity of the iterates, without restricting
+the point inside a neighbourhood.
+While this is done on the grounds of computational efficiency, we may
+lose the property of global convergence ensured by keeping the
+iterates in a neighbourhood of the central path.
 
 %
 %
@@ -82,8 +109,12 @@ programming with IPMs \cite{Haeberly99}.
 Both correcting techniques originate from the observation that 
 (when direct methods of linear algebra are used) the computation 
 of the Newton direction requires two computationally intensive
-operations: the factorization of a sparse symmetric matrix, and
-the backsolve which uses the factors just computed. 
+operations: 
+\begin{enumerate}
+\item Factorization: computation of the Cholesky factors of a sparse 
+symmetric matrix; 
+\item Backsolve: use of the factors just computed to solve the system. 
+\end{enumerate}
 However, the cost of computing the factors is usually significantly 
 larger than that of backsolving: in some cases the ratio between 
 these two computational efforts may even exceed 1000. 
@@ -103,7 +134,8 @@ in the number of factorizations.
 
 Since these two methods were developed, there have been a number of 
 attempts to investigate their behaviour rigorously and thus provide
-further insight. Such objectives are difficult to achieve because 
+further insight on their successfulness. 
+Such objectives are difficult to achieve because 
 correctors use heuristics which are successful in practice but hard 
 to analyse theoretically. 
 Besides, both correcting techniques are applied to long-step and infeasible 
@@ -140,12 +172,6 @@ r_2 =\left[
   \end{array} \right].
 \ee
 
-Mehrotra \cite{Mehrotra92} introduced two important innovations: 
-\begin{itemize}
-\item A dynamic evaluation of the centering parameter $\sigma$;
-\item A second order correction.
-\end{itemize}
-
 First, we can postpone the choice of $\mu$ and base it
 on the assessment of the quality of the affine-scaling direction;
 second, the error made by the affine-scaling direction may be 
@@ -164,35 +190,32 @@ convincing interpretation in terms of second order approximations.
 \subsection{Affine-scaling predictor direction}
 
 The predictor direction is obtained by solving the step equations 
-for the pure Newton direction (affine scaling direction). This 
-direction is strongly optimizing, as it aims to a point for which 
+for the pure Newton direction (affine-scaling direction). This 
+direction is strongly optimizing, as it targets a point for which 
 all complementarity products go to zero. 
 
 The {\em affine-scaling predictor direction} 
 $\Delta_a w = (\Delta_a x, \Delta_a y, \Delta_a s)$ is obtained by solving 
 system (\ref{eq:NewtonSystem}) with right-hand side $r_1$ defined 
 in (\ref{eq:PredictorRhs}).
-In order to ensure that $(x,s)$ remain positive after moving along the
-$\Delta_a w$ direction, we need to employ a linesearch procedure such that
-\[
-  x + \alpha_P \Delta_a x > 0, \qquad  s + \alpha_D \Delta_a s > 0.
-\]
+The achievable stepsizes for the predictor direction, 
+in the primal and dual space respectively, are computed 
+according to (\ref{eq:Alphas}).
 
-Hence, the maximum feasible stepsizes $\alpha_P$ and $\alpha_D$ achievable
-in the predictor direction, in the primal and dual space respectively, 
-are computed as:
-\be
-  \alpha_P =\min \left\{ -\frac{x_i}{\Delta_a x_i} : \Delta_a x_i < 0 \right\},
-  \quad\;
-  \alpha_D =\min \left\{ -\frac{s_i}{\Delta_a s_i} : \Delta_a s_i < 0 \right\}.
-\ee
+As it targets a point for which $XSe = 0$, the affine-scaling direction 
+may be distracted by points that have small complementarity products 
+but are not optimal. 
+In particular, it may well point towards the boundary of the 
+positive orthant or approach an infeasible vertex, generating 
+a very small stepsize. 
+This issue is usually worsened if the current iterate is badly centered, 
+and therefore only a very small step is acceptable in order to 
+maintain positivity or to keep the iterate in the neighbourhood 
+of the central path.
 
-The affine scaling direction may well point towards the boundary 
-of the positive orthant, causing the need for a very small stepsize. 
 This is the reason why affine scaling alone is not enough in a 
 practical implementation of interior point methods. It has to be 
 complemented by other techniques.
-
 The role of the centering term is to remedy this situation by 
 affecting the search direction to move closer to the central path, 
 therefore allowing a longer stepsize. 
@@ -201,25 +224,16 @@ centering parameter can be crucial both in theory and in practice.
 It is suggested that it is a function of the Newton step. 
 This calls for two separate backsolves at each iteration.
 
+\ignore{
 Another problem with affine scaling is that it is only a linear 
 approximation to the central path. However, the central path is a curve
 with many high-degree turns \cite{VavasisYe}, and only close to the 
 solution set becomes approximately a straight line \cite{Megiddo}. 
-Therefore, affine scaling may be easily distracted by points that 
-have small complementarity products but are not optimal. In particular, 
-these points may not be feasible (in the feasible algorithm), or 
-may produce a much bigger improvement in optimality than what 
-attained in feasibility (in the general infeasible algorithm).
-
-The above issues are usually worsened if the current iterate is 
-badly centered, 
-and therefore only a very small step is acceptable in order to 
-maintain positivity or to keep the iterate in the neighbourhood 
-of the central path.
+}
 
 %
 %
-\subsection{Mehrotra's corrector direction}
+\subsection{Second order corrector direction}
 
 Mehrotra's algorithm exploits a centrality corrector in order to 
 remedy to badly centered points. The purpose of this direction is 
@@ -229,8 +243,8 @@ This is a somewhat conservative direction, which it is hoped will
 provide more room for movement at the next iteration.
 
 One tool introduced by Mehrotra \cite{Mehrotra92} is a dynamic evaluation 
-of the centering parameter $\sigma$. It is based on a simple and cleverly 
-implemented heuristic that evaluates the quality of the predictor direction
+of the centering parameter $\sigma$. It is based on a simple  
+heuristic that evaluates the quality of the predictor direction
 in order to judge the amount of centering term needed.
 %
 The length of the stepsizes $\alpha_P$ and $\alpha_D$ are used to 
@@ -256,23 +270,21 @@ is suggested
 %
 corresponding to the choice of $\sigma = (g_a / x^Ts)^3$ 
 for the centering parameter. 
-Other choices of the exponent are possible. Mehrotra \cite{Mehrotra92}
-studied the effect of different values $p=1,2,3,4$ for the exponent
-on a subset of Netlib problems, and concluded that for $p$ between
-2 and 4 there was not much difference.
 \fb{
 Mehrotra's heuristic was actually more elaborate.
 }
+
+The centering parameter, more generally could be chosen as
+\[
+  \sigma = \left( \frac{g_a}{x^Ts} \right)^p\!\!,
+\]
+for various choices of the exponent. Mehrotra \cite{Mehrotra92}
+studied the effect of different values $p=1,2,3,4$ for the exponent
+on a subset of Netlib problems, and concluded that for $p$ between
+2 and 4 there was not much difference.
 Also Lustig et al. \cite{LustigMarstenShanno} commented on the
 weak dependence of the computational performance on the choice 
 of the exponent.
-
-\ignore{ %%%%%%%%%%%%%%%%%
-The centering parameter, more generally could be chosen as
-\[
-  \sigma = \left( \frac{g_a}{x^Ts} \right)^p\!\!.
-\]
-}        %%%%%%%%%%%%%%%%%
 
 If affine scaling provides a good improvement, a small $\sigma$ 
 is chosen, and therefore very little centering will be used. When, 
@@ -280,21 +292,14 @@ on the other hand, affine scaling produces very small stepsizes
 and so very little improvement can be achieved, $\sigma$ will be 
 close to one, and so a stronger recentering will occur.
 
-\fb{
-Another problem with affine scaling is that it is only a linear 
-approximation to the central path. However, the central path is 
-a highly nonlinear curve which only close to the solution set 
-becomes approximately a straight line \cite{Megiddo}.
-}
-
 A further important contribution by Mehrotra consists in the 
 use of a second order direction. As said above, the affine-scaling direction 
 corresponds to a linear approximation to the the trajectory from 
 the current point to the optimal set, where no information about 
-higher order terms is taken into account. This linearisation, 
+higher-order terms is taken into account. This linearisation, 
 however, produces an error which can be determined analytically.
 %
-If a full step in the affine-scaling direction is made, then 
+Assuming that a full step in the affine-scaling direction is made, 
 the new complementarity products are equal to
 %
 \begin{eqnarray*}
@@ -307,9 +312,10 @@ as the third equation in the Newton system satisfies
 $S \Delta_a x + X \Delta_a s = -XSe.$
 %
 The term $\Delta_a X \Delta_a S e$ corresponds to the error introduced
-by Newton's method in linearising the perturbed complementarity condition.
+by Newton's method in linearising the complementarity conditions of 
+(\ref{eq:KKT}).
 
-Ideally we would like the next iterate to be perfectly centered: 
+Ideally, we would like the next iterate to be perfectly centered: 
 \[
   (X+\Delta X)(S+\Delta S)e=\mu e,
 \]
@@ -330,7 +336,7 @@ r =\left[ \begin{array}{c}
     0 \\ 0 \\ -\Delta_a X\Delta_a Se + \sigma \mu e
   \end{array} \right],
 \ee
-for the direction $\Delta_c (x,y,s)$.
+for the direction $\Delta_c w = (\Delta_c x,\Delta_c y,\Delta_c s)$.
 Such corrector direction combines the centrality term $\sigma \mu e$
 and the second-order term $\Delta_a X\Delta_a Se$.
 
@@ -339,16 +345,18 @@ added to produce the composite predictor--corrector direction
 \be \label{eq:CompositeDirection}
 \Delta w = \Delta_a w+ \Delta_c w.
 \ee
+Note that the affine-scaling predictor and Mehrotra's corrector direction 
+contribute with equal weights to the final search direction. 
+This argument will be considered again in Chapter~\ref{ch:Correctors}, 
+where we study the use of a weighting strategy for the corrector
+directions.
 
 The next iterate is given by
 \[
 w^{k+1} = (x^k,y^k,s^k)
         + (\alpha_P\Delta x^k,\alpha_D\Delta y^k,\alpha_D\Delta s^k)
 \]
-where $\alpha_P$ and $\alpha_D$ are again chosen to satisfy
-\[
-x^k+\alpha_P\Delta x^k \ge 0, \quad s^k+\alpha_D\Delta s^k \ge 0.
-\]
+where $\alpha_P$ and $\alpha_D$ are chosen according to (\ref{eq:Alphas}).
 
 For reasons of computational efficiency, in the computation of
 the corrector, Mehrotra's algorithm exploits 
@@ -363,7 +371,7 @@ The practical advantage of Mehrotra's predictor--corrector technique
 is that it often produces longer stepsizes before violating the 
 non-negativity constraints.
 %
-This usually translates in significant savings in the number of IPM 
+This usually translates in significant savings in the number of 
 iterations: Mehrotra \cite{Mehrotra92} reports on savings of the
 order of 35\%-50\% compared to other strategies.
 For problems for which the factorisation cost is relevant, this
@@ -374,23 +382,15 @@ interior point implementations for linear programming
 which use direct methods to compute 
 the Newton direction.
 
+\ignore{
 It should be noted that in the computation of the predicted gap, 
 it is assumed that a full step in the affine-scaling has been taken. 
-Also, the affine-scaling predictor and Mehrotra's corrector direction 
-contribute with equal weights to the final search direction. 
-This argument will be considered again in Chapter~\ref{ch:Correctors}, 
-where we study the use of a weighting strategy for the corrector
-directions.
+}
 
 As mentioned above, Mehrotra's way of assessing the value of $\sigma$
 and the computation of the second order term is an heuristic procedure: 
 thus there are 
 no global convergence results or polynomial complexity results. 
-There is a local convergence result \cite{TapiaZhangSaltzmanWeiser}, 
-according to which Mehrotra's method can be interpreted as a 
-perturbed composite Newton method, but this result lies on strong 
-assumptions (non degeneracy, strict complementarity).
-
 Tapia et al. \cite{TapiaZhangSaltzmanWeiser} interpreted the Newton step 
 produced by Mehrotra's predictor--corrector algorithm as a perturbed
 composite Newton method and gave results on the order of convergence. 
@@ -441,9 +441,9 @@ The idea behind this technique is to ``force'' an increase in the
 length of the stepsizes by correcting the centrality of Mehrotra's 
 iterate.
 
-These correctors can be described as ``less ambitious'' than Mehrotra's
-corrector. Instead of attempting to correct for the whole second-order error,
-they concentrate on improving the complementarity pairs which really seem 
+Instead of attempting to correct for the whole second-order error,
+multiple centrality correctors 
+concentrate on improving the complementarity pairs which really seem 
 to hinder the progress of the algorithm, ie. the complementarity products 
 that are far from the average.
 
@@ -451,7 +451,7 @@ We assume that a long-step path-following algorithm is used,
 and we work with the symmetric neighbourhood $\mathcal{N}_s(\gamma)$
 of the central path as defined in Section~\ref{sec:SymNeighbourhood}.
 
-\fb{
+\ignore{
 In the authors' experience, such a neighbourhood best describes the desired 
 properties of a ``well-centered'' interior point iterate.
 }
@@ -502,22 +502,21 @@ The products $\tilde v$ are very unlikely to align to the same value $\mu$.
 Some of them are significantly smaller than $\mu$, 
 including cases of negative components in $\tilde v$, 
 and some exceed $\mu$. Instead of trying to correct 
-them all to the value of $\mu$, we correct only the {\it outliers}. 
+them all to the value of $\mu$, we correct only those that
+lie outwith the symmetric neighbourhood.
+
 Namely, we try to move small products 
 $(\tilde x_j \tilde s_j \leq \gamma \mu)$ to $\gamma \mu$ and move 
 large products $(\tilde x_j \tilde s_j \geq \gamma^{-1} \mu)$ 
-to $\gamma^{-1} \mu$, where $\, \gamma \in (0,1)$;
+to $\gamma^{-1} \mu$, where $\gamma \in (0,1)$;
 complementarity products 
 which satisfy $\gamma \mu \leq x_j s_j \leq \gamma^{-1} \mu$ are
 already reasonably close to their target values, and 
 do not need to be changed. 
-
-\fb{
 In other words, we attempt to move the iterate inside the symmetric
-neighbourhood.
-}
+neighbourhood of the central path.
 
-Therefore, the corrector term $\Delta_m$ is computed by solving the usual 
+The corrector term $\Delta_m$ is computed by solving the usual 
 system of equations (\ref{eq:NewtonSystem}) for a special right-hand side
 $(0, \,0,\, t)^T$, where the target $t$ is defined as follows:
 %
@@ -537,19 +536,18 @@ $(0, \,0,\, t)^T$, where the target $t$ is defined as follows:
 The target point is not on the central path, but in the symmetric
 neighbourhood.
 
-One important feature of multiple centrality correctors is that they
-can be successfully applied recursively. 
-The number of centrality correctors to be computed is determined 
-heuristically, trying to balance the cost of additional backsolves to 
-the savings in iteration count.
-
-\fb{
-Present the heuristic according to \cite{Gondzio96}.
-
-This technique is applied 
-recursively on the direction $\Delta_p := \Delta_p + \Delta_m$.
+One important feature of multiple centrality correctors is that 
+this technique can be applied recursively on the direction 
+$\Delta_p := \Delta_p + \Delta_m$.
 Indeed, we use it as long as the stepsizes increase 
 at least by a fraction of the aspiration level $\delta$.
+
+The maximum number of centrality correctors allowed is
+problem dependent. Such number is determined 
+heuristically, trying to balance the cost of additional backsolves to 
+the savings in iteration count.
+\fb{
+Present the heuristic according to \cite{Gondzio96}.
 }
 
 The computational experience presented in \cite{Gondzio96} showed 
@@ -575,19 +573,18 @@ practical implementation of interior point methods.
 They concern the choice of the starting point, the termination
 criteria. This selection has been made according to the relevance
 of this thesis.
-Therefore, other topics of extreme importance in practical algorithms
-will not be discussed here. We refer the reader to the appropriate
-references.
+Therefore, we will not discuss other topics of extreme importance 
+in practical algorithms (presolve techniques, detection of infeasibilities, 
+linear algebra issues, use of iterative methods).
+We refer the reader to the references in 
+\cite{AndersenGondzioMeszarosXu,GondzioTerlaky}.
 
-Detection of infeasibilities, linear algebra issues, use of iterative
-methods.
-
-\hrulefill
-
+\ignore{
 The initialisation of an interior point method consists of two
 logically independent phases: the presolve (find duplicate rows or
 columns, fixed variables, redundant constraints, bound tightening),
 and the process of finding an initial iterate.
+}
 
 %
 %
@@ -599,21 +596,15 @@ critical one. It challenges both the feasible and infeasible
 algorithms, and the solutions proposed in the two contexts are
 extremely different.
 
-For the feasible algorithm, a starting iterate needs necessarily 
-to be primal and dual feasible.
-\fb{
-What about centrality?
-}
-
 Solving the feasibility problem is an optimization problem in its
 own right, which is as difficult as solving the original problem.
-One important tool in this respect is the self-dual formulation.
-\fb{
-Add a citation!
-}
+One important tool in this respect is the 
+homogeneuous self-dual formulation \cite[ch.~9]{ipm:Wright97}.
 The self-dual formulation wraps the optimization problem into one 
 of larger dimension, but for which a feasible solution is known 
 from the start.
+Also, the homogeneous self-dual formulation has the very
+appealing property of being able to detect infeasibility.
 
 \fb{
 The use of a self-dual formulation is not attractive from a
@@ -622,9 +613,6 @@ extra backsolve at each iteration.
 
 Stability issues?
 }
-
-However, the homogeneous self-dual formulation has the very
-appealing property of being able to detect infeasibility.
 
 Turning our attention to infeasible algorithms, the major hurdle
 of finding a feasible starting point is removed. 
@@ -678,61 +666,22 @@ When working in the context of limited precision of the
 floating point representation of computers, feasibility and
 complementarity can be attained only within a certain level
 of accuracy.
-
-Present common termination criteria used in practice.
-
-From \cite{GondzioTerlaky}:
-Primal feasibility:
-\[
-\frac{\| Ax - b \|}{1 + \|x\|_\infty} \le10 ^{-p}
-\]
-Dual feasibility:
-\[
-\frac{\| A^Ty + s - c \|}{1 + \|s\|_\infty} \le10 ^{-p}
-\]
-Duality gap:
-\[
-\frac{| c^Tx - b^Ty |}{1 + | b^Ty |} \le10 ^{-p}
-\]
+The common termination criteria used in practice are the
+following \cite{GondzioTerlaky}:
+\be  \label{eq:TerminationCriteria}
+\frac{\| Ax - b \|}{1 + \|x\|_\infty} \le10 ^{-p}, 
+\qquad
+\frac{\| A^Ty + s - c \|}{1 + \|s\|_\infty} \le10 ^{-p},
+\qquad
+\frac{| c^Tx - b^Ty |}{1 + | b^Ty |} \le10 ^{-p}.
+\ee
 
 The value of $p$ required depends on the specific application.
 In the literature, it is common to use the value $p = 8$.
 
-The third condition is usually the most important, as once that
-is attained, also the 2 before are attained as well.
+The third condition is usually the most important, as it is
+commonly attained only after the feasibility requirements are satisfied.
 
 \fb{
 Dependence on scaling.
 }
-
-%
-%
-\subsection{Choice of the step length}
-
-Choice of step length: either use neighbourhoods or strict 
-positivity of iterates. The latter works very efficiently 
-in practice but does not ensure global convergence.
-
-%
-%
-\subsection{Choice of penalty parameter}
-
-In all predictor-corrector algorithms there is a crucial decision 
-to be made at every iteration, namely the choice of the penalty 
-parameter $\mu$ to be used in the correction.
-
-The paper \cite{VillasBoasPerin} tries to answer this question. 
-They build a polynomial function of $\mu$ and $\alpha$, and they 
-use to determine what the optimal choices of these parameters are, 
-under a suitably chosen measure.
-
-By using this strategy they achieve a better iteration count on 
-most of the problems in their experiment. This, however, is not 
-supported by a corresponding reduction in computational time. 
-The reason for this is that the postponing of the choice of $\mu$ 
-requires the solution of additional systems. While it's true that 
-the most expensive operation is the computation of the Cholesky 
-factors, the actual cost of the backsolves is not negligible. 
-In the results of this paper, the additional cost of the extra 
-backsolves is bigger than the savings obtained by the decrease 
-in number of iterations.

@@ -9,7 +9,7 @@ bib:
 dvi:
 	latex $(INPUT).tex
 
-ps: $(INPUT).dvi
+ps: dvi
 	dvips -Ppdf $(INPUT).dvi -o
 
 ps2: ps
@@ -19,7 +19,7 @@ pdf: ps
 	ps2pdf $(INPUT).ps $(INPUT).pdf
 
 tar:
-	tar cvzhf $(INPUT).tar.gz .
+	tar cvzhf $(INPUT).tar.gz . --exclude=*~ --exclude=*.gz --exclude=.svn
 
 clean:
 	-rm -rf $(CRUFT)
