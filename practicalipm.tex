@@ -3,7 +3,7 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22
-%Feb:  1,  2,  4,  5,  6,  8
+%Feb:  1,  2,  4,  5,  6,  8,  9
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -24,17 +24,16 @@ These are documented in extensive literature (see, for example,
 %
 \section{A practical algorithm}
 
-In interior point methods the computation of the Cholesky factorization
-dominates the cost of each iteration; for the simplex, no single
-step dominates in the computations. 
-
 Interior point methods require the computation of the Newton 
 direction (\ref{eq:NewtonSystem})
 for the associated barrier problem and make a step along 
-this direction, thus usually reducing primal and dual infeasibilities 
+this direction, thus usually reducing infeasibilities 
 and complementarity gap.
-Since finding the Newton direction is usually a major computational task, 
-the efforts in the theory and practice of IPMs concentrate on reducing 
+The computation of the Cholesky factorization
+dominates the cost of each iteration.
+As this is usually a major computational task, 
+the efforts in the theory and practice of 
+interior point methods concentrate on reducing 
 the number of times the Newton system (\ref{eq:NewtonSystem}) has to be solved.
 
 In Section~\ref{sec:TheoreticalResults} we presented the theoretical
@@ -42,14 +41,13 @@ results on the order of convergence of some interior point algorithms.
 In practice, convergence is much faster than stated by those results:
 optimality is usually reached in a number of iterations which is 
 proportional to the logarithm of the problem dimension. 
-
-\fb{
-Find a citation for that!
-}
-
 As it happens with the analysis of the simplex method, we see quite
 a gap between the predicted and the observed performance which is still to
 be fully understood.
+
+\fb{
+Find a citation for the logarithm thing!
+}
 
 Practical algorithms are very different from the ones used for
 theoretical purposes, and usually they implement some variation
@@ -63,8 +61,9 @@ techniques or heuristic approaches, which make their analysis
 extremely difficult.
 
 The computation of different stepsizes in the primal and dual spaces is
-almost the rule for linear programming (while for quadratic programs
-the stepsizes have to be identical). This has the advantage of
+almost the rule for linear programming.
+% (while for quadratic programs the stepsizes have to be identical). 
+This has the advantage of
 speeding up the restoration of feasibility. According to
 \cite{GondzioTerlaky}, the use of different stepsizes contributes 
 to a reduction in number of iterations of 10\% on the Netlib
@@ -75,7 +74,7 @@ $\Delta w$ direction, we need to employ a linesearch procedure
 and find the maximum feasible stepsizes $\alpha_P$ and $\alpha_D$ 
 such that
 \[
-  x + \alpha_P \Delta_a x > 0, \qquad  s + \alpha_D \Delta_a s > 0.
+  x + \alpha_P \Delta x > 0, \qquad  s + \alpha_D \Delta s > 0.
 \]
 The achievable stepsizes for a given search direction $\Delta w$, 
 in the primal and dual space respectively, are computed as:
@@ -92,6 +91,17 @@ While this is done on the grounds of computational efficiency, we may
 lose the property of global convergence ensured by keeping the
 iterates in a neighbourhood of the central path.
 
+Upon discussing the choice for the centering term in his algorithm,
+Mehrotra \cite{Mehrotra92} makes this comment:
+\begin{quote}
+It is not clear if the central path (with
+equal weights) is the best path to follow, particularly since it
+is affected by the presence of redundant constraints. Furthermore,
+the points on (or near) the central path are only intermediate to
+solving the linear programming problem. It is only the limit point 
+on this path that is of interest to us.
+\end{quote}
+
 %
 %
 \subsection{Correcting techniques}
@@ -103,8 +113,11 @@ and multiple centrality correctors \cite{Gondzio96}. These
 techniques have been implemented in most of commercial and academic 
 interior point solvers for linear and quadratic programming such 
 as BPMPD, Cplex, HOPDM, Mosek, OOPS, OOQP, PCx and Xpress. 
+
+\ignore{
 They have also been used with success in semidefinite 
 programming with IPMs \cite{Haeberly99}.
+}
 
 Both correcting techniques originate from the observation that 
 (when direct methods of linear algebra are used) the computation 
@@ -596,24 +609,6 @@ critical one. It challenges both the feasible and infeasible
 algorithms, and the solutions proposed in the two contexts are
 extremely different.
 
-Solving the feasibility problem is an optimization problem in its
-own right, which is as difficult as solving the original problem.
-One important tool in this respect is the 
-homogeneuous self-dual formulation \cite[ch.~9]{ipm:Wright97}.
-The self-dual formulation wraps the optimization problem into one 
-of larger dimension, but for which a feasible solution is known 
-from the start.
-Also, the homogeneous self-dual formulation has the very
-appealing property of being able to detect infeasibility.
-
-\fb{
-The use of a self-dual formulation is not attractive from a
-computational viewpoint, particularly because of the need of one 
-extra backsolve at each iteration.
-
-Stability issues?
-}
-
 Turning our attention to infeasible algorithms, the major hurdle
 of finding a feasible starting point is removed. 
 However, the practical performance is very sensitive to the initial
@@ -662,10 +657,17 @@ the case of stochastic linear programming problems will be analysed.
 %
 \subsection{Termination criteria}
 
+Contrary to active set algorithms, interior point methods reach a
+solution only asymptotically. 
+Because of the presence of the barrier term that keeps the iterates
+away from the boundary, they can never produce an exact solution.
 When working in the context of limited precision of the
-floating point representation of computers, feasibility and
+floating point representation typical of computers, feasibility and
 complementarity can be attained only within a certain level
 of accuracy.
+
+For these reasons, some criteria have to be established according
+to which a decision in made about the termination of the algorithm.
 The common termination criteria used in practice are the
 following \cite{GondzioTerlaky}:
 \be  \label{eq:TerminationCriteria}
@@ -684,4 +686,27 @@ commonly attained only after the feasibility requirements are satisfied.
 
 \fb{
 Dependence on scaling.
+}
+
+Once a solution has been found within a prescribed 
+optimality tolerance, such a point can be projected onto a face 
+of the polyhedron in an efficient way.
+This can be done thanks to a strongly polynomial algorithm due
+to Megiddo \cite{Megiddo91}. This procedure goes under the name
+of {\em basis crossover}, 
+as given a complementary primal--dual solution it generates a basis 
+that is both primal and dual feasible.
+
+However, we should discuss what we mean by ``exact'' solution. In most
+cases we do not need the additional precision of being on a vertex (in
+this case, integer programming is the notable exception).
+Also, in case of multiple solutions, interior point methods terminate
+at the analytic center of the optimal face rather than at a vertex; 
+but note the arbitrariness of the simplex in the choice of the solution
+vertex.
+This difference has important consequences on the use of the solution
+for sensitivity analysis. 
+
+\fb{
+Find the correct citations! Have a look at Jansen's and Yildirim's phds.
 }

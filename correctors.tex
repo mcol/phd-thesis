@@ -3,45 +3,26 @@
 %Sep:  1
 % 2007
 %Jan: 16, 17, 22
-%Feb:  6
+%Feb:  6,  9
 
 %
 % Chapter: 
 %
 \label{ch:Correctors}
 
-The use of Mehrotra's predictor--corrector algorithm \cite{Mehrotra92},
-as already discussed in Section~\ref{sec:MehrotraPC}, is at the basis of all
-implementations of interior point methods for linear programming.
-In particular, as was noted by
-Mehrotra himself \cite{Mehrotra92}, the main advantage comes from 
-the use of the second-order term in the corrector direction.
-This technique works extremely well, and the practical superiority of 
-a second-order algorithm over a first-order one is broadly recognised.
-
-However, failures of Mehrotra's corrector have been known by practitioners 
-since its introduction. In practical implementations, it was noticed 
-that Mehrotra's corrector would sporadically produce a stepsize 
-shorter than the one obtained in the predictor direction. 
-In such situations, it is common 
-to reject the corrector, then try to use some multiple centrality 
-correctors or move along the predictor direction alone.
-
-\fb{
-Run netlib problems with HOPDM, print out Mehrotra rejected, and count them.
-}
-
 In this chapter we illustrate the theoretical understanding of 
 these issues, drawing particularly from \cite{Cartis04,Cartis05}.
-We then discuss subspace searches as a way to determine better
-search directions.
-
+We discuss subspace searches as a way to determine good
+search directions, and present a computationally competitive way
+to improve the performance of multiple centrality correctors.
+The original content of this chapter has already appeared 
+in \cite{ColomboGondzio05}.
 
 
 %
 % Section
 %
-\section{Theoretical understanding}
+\section{Weaknesses in the existing approaches}
 
 Newton's method applied to the primal--dual path-following algorithm 
 provides a first-order approximation of the central path, in which
@@ -53,13 +34,11 @@ it is computed. Depending on the specific characteristics of the point,
 such an approximation may not be a good direction at all 
 if used outside this neighbourhood.
 
-\fb{
-Reference for Newton's method.
-}
-
-Mehrotra's algorithm adds a second-order correction to the search 
+Mehrotra's algorithm, as already discussed in 
+Section~\ref{sec:MehrotraPC}, adds a second-order correction to the search 
 direction in order to construct a quadratic approximation 
-of the central path. This technique works extremely well, 
+of the central path. This technique is at the basis of all
+implementations of interior point methods for linear programming,
 and the practical superiority of a second-order algorithm over 
 a first-order one is broadly recognised.
 However, the central path is a highly nonlinear curve that, according 
@@ -68,7 +47,23 @@ of a high degree and segments in which it is approximately straight.
 Given the complexity of this curve, it is unrealistic to be able 
 to approximate it everywhere with a second-order curve.
 
-\hrulefill
+\ignore{
+In particular, as was noted by
+Mehrotra himself \cite{Mehrotra92}, the main advantage comes from 
+the use of the second-order term in the corrector direction.
+}
+
+However, failures of Mehrotra's corrector have been known by practitioners 
+since its introduction. In practical implementations, it was noticed 
+that Mehrotra's corrector would sporadically produce a stepsize 
+shorter than the one obtained in the predictor direction. 
+In such situations, it is common for a solver
+to reject the corrector, then try to use some multiple centrality 
+correctors or move along the predictor direction alone.
+
+\fb{
+Run Netlib problems with HOPDM, print Mehrotra rejected, and count them.
+}
 
 This issue has recently been analysed by Cartis \cite{Cartis04}, 
 who provided an example in which the second-order corrector does 
@@ -89,10 +84,8 @@ hence it is not accurate.
 
 \fb{
 Where does this misbehaviour come from?
-}
 
-\fb{
-Introduce Coralia's example, to describe that it is badly centered.
+Coralia's starting point is badly centered.
 Maybe we could try other points and see if a better centred point fixes
 the issue of the large magnitude of the corrector.
 }
@@ -114,14 +107,7 @@ the corrector by weighting the term $\Delta_a X \Delta_a S e$ in
 (\ref{eq:MehrotraRhs}) by the allowed stepsize for the affine-scaling 
 direction.
 
-%
-%
-\subsection{Weaknesses in the existing approaches}
-
-The approaches briefly outlined above have some weaknesses that 
-can be pointed out. Recognizing them could be the first step in 
-order to propose something better.
-
+\ignore{
 A weakness in Mehrotra's algorithm concerns the computation of the 
 second order direction. In this procedure, it is assumed that a 
 full step in the affine scaling direction has been taken. This is 
@@ -137,9 +123,10 @@ predictor--corrector pair. This setup overlooks the fact that the
 presence of outliers is known from the beginning of the iteration. 
 Still, in the centrality term,  we ask all of them to align to the 
 average $\mu$.
+}
 
 A better understanding of these issues and a solution to these
-problems will be the major focus of Chapter~\ref{ch:Correctors}.
+problems will be the major focus of the next sections.
 
 
 %
@@ -155,7 +142,7 @@ for a good search direction.
 
 %
 %
-\subsection{Jarre and Wechs}
+\subsection{Jarre and Wechs's directions}
 
 Jarre and Wechs \cite{JarreWechs} took a more pragmatic view and
 looked for an implementable technique for generating efficient 
@@ -482,7 +469,7 @@ Below we formalize the weighted correctors algorithm.
         the stepsize $\alpha$ in $\Delta^\omega = \Delta_p +\omega\Delta_m$.
       \item Set $\Delta_p := \Delta_p +\hat\omega\Delta_m$. 
 	\end{itemize}
-    \item[While] the stepsize has increased by at least a fraction of the aspiration level $\delta$;
+    \item[While] the stepsize increases by at least a fraction of the aspiration level $\delta$;
     \end{description}
   \item Update the iterate $(x^{k+1},y^{k+1},s^{k+1}) = (x^k,y^k,s^k) + \alpha_k\Delta_p (x^k,y^k,s^k).$
   \end{itemize}
