@@ -3,7 +3,7 @@
 %Sep:  1
 % 2007
 %Jan: 16, 17, 22
-%Feb:  6,  9
+%Feb:  6,  9, 11
 
 %
 % Chapter: 
@@ -11,12 +11,13 @@
 \label{ch:Correctors}
 
 In this chapter we illustrate the theoretical understanding of 
-these issues, drawing particularly from \cite{Cartis04,Cartis05}.
+the cases of failure of Mehrotra's corrector direction,
+drawing particularly from \cite{Cartis04,Cartis05}.
 We discuss subspace searches as a way to determine good
 search directions, and present a computationally competitive way
 to improve the performance of multiple centrality correctors.
 The original content of this chapter has already appeared 
-in \cite{ColomboGondzio05}.
+in \cite{ColomboGondzio05}, co-authored with Jacek Gondzio.
 
 
 %
@@ -26,7 +27,8 @@ in \cite{ColomboGondzio05}.
 
 Newton's method applied to the primal--dual path-following algorithm 
 provides a first-order approximation of the central path, in which
-the nonlinear KKT system corresponding to the barrier problem 
+the nonlinear KKT system (\ref{eq:PerturbedKKT}) corresponding 
+to the barrier problem 
 is linearised around the current point $(x^k,y^k,s^k)$. Consistently with 
 the standard analysis of Newton's method, this linear approximation 
 is valid locally, in a small neighbourhood of the point where 
@@ -53,10 +55,10 @@ Mehrotra himself \cite{Mehrotra92}, the main advantage comes from
 the use of the second-order term in the corrector direction.
 }
 
-However, failures of Mehrotra's corrector have been known by practitioners 
+Failures of Mehrotra's corrector have been known by practitioners 
 since its introduction. In practical implementations, it was noticed 
-that Mehrotra's corrector would sporadically produce a stepsize 
-shorter than the one obtained in the predictor direction. 
+that Mehrotra's corrector would sporadically produce a shorter stepsize 
+than the one obtained in the predictor direction. 
 In such situations, it is common for a solver
 to reject the corrector, then try to use some multiple centrality 
 correctors or move along the predictor direction alone.
@@ -67,11 +69,11 @@ Run Netlib problems with HOPDM, print Mehrotra rejected, and count them.
 
 This issue has recently been analysed by Cartis \cite{Cartis04}, 
 who provided an example in which the second-order corrector does 
-not behave well. Cartis' analysis is based on an algorithm 
+not behave well. Cartis's analysis is based on an algorithm 
 that combines a standard primal--dual path-following method with 
 a second-order correction. Despite not being exactly Mehrotra's 
 predictor--corrector algorithm, both are very close in spirit.
-Cartis' example shows that for certain starting points the corrector 
+Cartis's example shows that for certain starting points the corrector 
 is always orders of magnitude larger than the predictor, in both 
 primal and dual spaces. Whilst the predictor points towards 
 the optimum, the second-order corrector points away from it.
@@ -144,7 +146,7 @@ for a good search direction.
 %
 \subsection{Jarre and Wechs's directions}
 
-Jarre and Wechs \cite{JarreWechs} took a more pragmatic view and
+Jarre and Wechs \cite{JarreWechs} % took a more pragmatic view and
 looked for an implementable technique for generating efficient 
 higher-order search directions in a primal--dual interior-point framework.
 In the Newton system, while it is clear what to consider as right-hand 
@@ -275,7 +277,8 @@ and other strategies to guarantee good convergence properties.
 %
 \subsection{Krylov subspace searches}
 
-While the approach presented in Section~\ref{sec:MultipleCC} 
+While the multiple centrality correctors approach 
+presented in Section~\ref{sec:MultipleCC} 
 generates a series of correctors 
 that are evaluated and applied recursively, Mehrotra and Li 
 \cite{MehrotraLi} propose a scheme in which a collection of linearly 
@@ -443,7 +446,7 @@ The composite direction $\Delta = \Delta_p + \hat \omega \Delta_c$ becomes
 a predictor for the next centrality corrector, hence the correcting process
 is recursive, and can be interrupted at any stage.
 
-Below we formalize the weighted correctors algorithm.
+Below we formalise the weighted correctors algorithm.
 \begin{description}
 \item[Given] an initial iterate $(x^0,y^0,s^0)$ such that $(x^0, s^0) > 0$;
 \item[Repeat] for $k=0,1,2,\ldots$ until some convergence criteria are met:

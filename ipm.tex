@@ -3,7 +3,7 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
-%Feb:  1,  2,  4,  5,  6,  7,  8,  9
+%Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11
 
 %
 % Chapter: Interior point methods
@@ -416,17 +416,6 @@ study of the properties of the augmented system formulation.
 The study of the primal--dual properties of central path was pioneered by
 Megiddo \cite{Megiddo} and Bayer and Lagarias \cite{BayerLagarias}.
 
-Vavasis and Ye \cite{VavasisYe} studied the properties of the 
-curvature of the central path, discovering that the central path
-is characterised by $\bigO(n^2)$ curves of high degree and
-segments where it is relatively straight.
-Such curves appear in correspondence with changes in the optimal
-partition.
-Close to the end, when the optimal partition has been identified,
-the central path becomes a straight line \cite{Megiddo}.
-In this region, the algorithm displays the quadratic convergence 
-property typical of Newton's method.
-
 We have seen in Lemma~\ref{th:CentralPathConvergence}
 that as $\mu \to 0$ the solution to $(P_\mu)$ 
 converges to the optimal solutions of $(P)$.
@@ -462,6 +451,17 @@ can be found in \cite{ipm:Wright97}.
 The concepts of strict complementarity and optimal partition are
 recurrent motifs in the analysis of interior point methods.
 
+Vavasis and Ye \cite{VavasisYe} studied the properties of the 
+curvature of the central path, discovering that the central path
+is characterised by $\bigO(n^2)$ curves of high degree and
+segments where it is relatively straight.
+Such curves appear in correspondence with changes in the optimal
+partition.
+Close to the end, when the optimal partition has been identified,
+the central path becomes a straight line \cite{Megiddo}.
+In this region, the algorithm displays the quadratic convergence 
+property typical of Newton's method.
+
 We now consider
 the limit of $(P_\mu)$ for $\mu \to \infty$, and therefore
 find the point from which the central path departs.
@@ -486,7 +486,7 @@ maximum volume that can be inscribed in $\mathcal{P}$, volumetric center)
 can be defined, but they usually are too demanding to compute 
 \cite{Gonzaga92}. 
 
-\fb{
+\ignore{
 See a chapter in Ye's book.
 Terlaky's  Klee-Minty example.
 }
@@ -552,7 +552,7 @@ In Section (\ref{sec:SymNeighbourhood}) we will study a variation
 of the $\Nhood_{-\infty}$ neighbourhood which better describes
 the centrality requirements needed for a practical algorithm.
 
-\fb{
+\ignore{
 $N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
 }
 
