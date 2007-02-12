@@ -1,7 +1,42 @@
 %Started on Wednesday, 9th August 2006
+% 2007
+%Feb: 12
 
 %
 % Abstract
 %
 
-This research studies two advances in the computational implementation of interior point methods.
+This research studies two implementable techniques that improve
+the practical performance of existing computational implementations 
+of interior point methods for linear programming.
+Also, it provides the analysis of the concept of symmetric neighbourhood 
+as the driving tool for the analysis and understanding of the good 
+performance of some practical algorithms. 
+
+The use of the symmetric neighbourhood and the recent
+theoretical understanding of the behaviour of Mehrotra's
+corrector direction motivate the introduction of a weighting
+mechanism that can be applied to any corrector direction,
+whether originating from Mehrotra's predictor--corrector algorithm
+or as part of the multiple centrality correctors technique.
+Such modification on the way a corrector direction is applied
+concentrates on ensuring that such a direction can positively
+contribute to a successful iteration by increasing the overall
+stepsize. Also, it tries to use the information from a corrector
+direction even when otherwise it would be rejected because it
+produces a short stepsize. 
+The usefulness of the weighting strategy is documented through
+a complete numerical experience on various sets of publicly
+available test problems.
+
+The second advance is the development of an efficient way of 
+constructing a starting point for structured large-scale 
+stochastic linear programs.
+We generate a computationally viable warmstart point by solving 
+to low accuracy a stochastic problem of much smaller dimension.
+The solution to the reduced problem is then expanded to the
+size of the problem instance, and used to initialise the
+interior point algorithm.
+The performance of this warm-start strategy is verified through 
+a series of tests on problem instances coming from various stochastic
+programming sources.
