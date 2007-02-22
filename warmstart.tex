@@ -15,7 +15,7 @@ in many areas of applied mathematics, engineering, economics and
 finance where some parameters are unknown.
 %
 Stochastic programming models uncertainty through the analysis 
-of possible future outcomes (scenarios). The more detailed the 
+of possible future outcomes (scenarios). We hope that the more detailed the 
 description is, the more robust are the decisions taken. 
 
 Taking into account a large number of possible scenarios leads
@@ -56,13 +56,13 @@ prices or costs. In can be argued that nearly all practical
 optimization problems display uncertainty in the data, even if this is
 not made explicit in the chosen solution method. 
 
-A standard approach to the problem of optimization under uncertainty
+A crude approach to the problem of optimization under uncertainty
 has been to replace the uncertain data by their expected value and
 solve an {\em average case} problem. However, this approach is not
 suitable when some sort of provision of hedging against risk has to be
 taken into account. Another popular approach is {\em Robust
 optimization}, or the optimization of the {\em worst case}
-scenario. 
+scenario \cite{KallWallace}. 
 
 When the uncertainty cannot be conveniently forecasted, the use of 
 deterministic models is considered inadequate for decision making. In 
@@ -220,7 +220,7 @@ general recourse problem (\ref{eq:SPRecourse}):
 %
 where $y(\xi)$ denotes the recourse action which depends on the 
 outcome of the random process $\xi$. After discretizing $\xi$ 
-according to $P(xi=\xi_i) = p_i$, and using the notation 
+according to $P(x_i=\xi_i) = p_i$, and using the notation 
 $T_i = T(\xi_i)$ (and analogously for $h_i$, $W_i$, $y_i$ and $q_i$), 
 problem (\ref{eq:SLPRecourse}) can be written in the 
 {\em deterministic equivalent formulation}:
@@ -230,7 +230,7 @@ problem (\ref{eq:SLPRecourse}) can be written in the
 \mbox{s.t.} & Ax              &        &          & = b,   \\
             & T_1 x + W_1 y_1 &        &          & = h_1  \\
 	    & \vdots          & \hspace{-1em}\ddots & & \;\vdots \\
-            & T_1 x           &        &+\; W_n y_n & = h_n \\
+            & T_n x           &        &+\; W_n y_n & = h_n \\
             & x \geq 0,\; y_i \ge 0.
 \end{array}
 \ee
@@ -303,8 +303,7 @@ corresponding constraint matrix displays a nested dual block-angular
 structure.
 %
 While the different ordering of blocks whithin the matrix is not 
-relevant for general-purpose solvers (besided possibly different 
-reductions achieved by the presolve analysis), the 
+relevant for general-purpose solvers, the
 structure-exploiting software OOPS \cite{GondzioSarkissian} can take 
 fully advantage of the nested structure.
 
@@ -339,7 +338,7 @@ It is also very common in (mixed) integer programming, when the
 problems are solved by relaxing the integrality constraints and
 introducing some branching strategy, such as in branch-and-bound,
 branch-and-cut, branch-and-price.
-Similarly, sequential problems appear in the context solution 
+Similarly, sequential problems appear in the context of solution 
 methods based on cutting planes.
 
 In these situations, we expect the solution of an instance to be 
@@ -375,7 +374,8 @@ In such a case the previous solution is very close to a non optimal
 vertex or, in other words, very far from the central path. 
 
 The effectiveness of an interior point algorithm degrades when an 
-iterate gets too close to a boundary before optimality is reached. 
+iterate gets too close to a boundary before optimality is reached,
+and when the iterate gets far from the central path.
 
 \fb{
 As said in Chapter~\ref{ch:Ipm}, interior point methods approach 
@@ -387,7 +387,7 @@ Therefore, moving toward a vertex can be interpreted as making
 a decision on the optimal partitioning. If the vertex is not an 
 optimal one, then the central path will not approach it.
 
-Therefore the algorithm may spend several iterations in recovering
+Therefore the algorithm may spend many iterations in recovering
 centrality, during which small steps are usually generated and thus
 very slow progress is achieved.
 }
@@ -473,7 +473,7 @@ By considering a weighted least squares formulation, Hipolito
 develops the dual affine-scaling and the corresponding Newton 
 centering directions. 
 This study has an immediate interest for warm-starting approaches,
-as the resulting direction point towards the interior of the 
+as the resulting direction points towards the interior of the 
 feasible region, thus providing the algorithm with the necessary 
 space to make fast progress. 
 Unfortunately, it is developed only for the dual affine-scaling 
@@ -824,15 +824,15 @@ We start by showing how to initialise the warm-start iterate
 in the simplest case possible. Let the primal problem be
 \[
 \begin{array}{rllllll}
-  \min & c^T x_0 + c_1^Tx_1 + c_2^Tx_2 + c_3^Tx_3 \\
+  \min & c^T x_0 &+ c_1^Tx_1 &+ c_2^Tx_2 &+ c_3^Tx_3 \\
   \mbox{s.t.} & Fx_0 &   \!\!\! + \; Gx_1 &&& = & b_1 \\
               & Fx_0 &&  \!\!\! + \; Gx_2 &&  = & b_2 \\
               & Fx_0 &&& \!\!\! + \; Gx_3 &   = & b_3 \\
-              & x_i \ge 0, \quad i = 0, 1, 2, 3.
+              & x_i &\ge 0, &i = 0, 1, 2, 3.
 \end{array}
 \]
 
-Notice how the technology matrix $F$ and the recourse matrix 
+Note that the technology matrix $F$ and the recourse matrix 
 $G$ are the same for all scenarios. This fact is fundamental 
 in our approach, and is not overly simplistic: many real life 
 situations are modelled this way. 

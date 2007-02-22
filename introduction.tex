@@ -3,7 +3,7 @@
 %Sep:  1,  8
 % 2007
 %Jan: 15, 22, 26, 29, 31
-%Feb:  1,  2,  4,  5,  6,  9, 11
+%Feb:  1,  2,  4,  5,  6,  9, 11, 21
 
 %
 % Chapter: Background and introduction.
@@ -161,7 +161,6 @@ of possible vertices decreases after each iteration. Degeneracy
 happens when a vertex in $\R^m$ is traversed by $p > m$ constraints.
 In this case, there are $\binom{p}{m}$ different bases for the same
 vertex. 
-
 In such a case, the step length produced by the ratio test
 is zero. Therefore, the simplex method
 may try different changes of basis without actually moving away
@@ -196,8 +195,8 @@ we refer the reader to available introductions on the area,
 Complexity proofs rely on two assumptions that are necessary 
 simplifications:
 \begin{enumerate}
-\item Computations are performed in exact arithmetic
-\item The numerical data $(A, b, c)$ of a problem instance is rational
+\item Computations are performed in exact arithmetic;
+\item The numerical data $(A, b, c)$ of a problem instance is rational.
 \end{enumerate}
 
 Computational complexity is measured by the number of elementary operations
@@ -219,8 +218,8 @@ in real-life situations. Moreover, in most cases the simplex algorithm shows
 to have a polynomial behaviour, being linear in $m$ and sublinear in $n$
 \cite[p.94]{FangPuthenpura93}.
 A survey on the efficiency of the simplex method is done by Shamir 
-\cite{Shamir87}, where also probabilistic analysis (as opposed to
-worst-case analysis) are presented.
+\cite{Shamir87}, where also a probabilistic analysis (as opposed to
+worst-case analysis) is presented.
 
 The gap between the observed and the theoretical worst-case performance
 of the simplex method is still unexplained.
@@ -262,13 +261,12 @@ beginning of the 70s as methods to solve nonlinear programming problems
 with inequality constraints. 
 However, they fell from favour and attracted less and less attention
 because of their inefficiency and the presence of strong competitors
-(SQP).
+such as sequential quadratic programming.
 
 Since their reintroduction, this time to solve linear programs, 
 following Karmarkar's groundbreaking paper
 \cite{Karmarkar}, interior point methods (IPMs for short) have attracted 
 the interest of a growing number of researchers.
-
 Also this algorithm was proved to have polynomial complexity: 
 indeed, it converges in $\bigO(nL)$ iterations. As opposed to
 Khachiyan's ellipsoid method, Karmarkar's algorithm would actually
@@ -279,19 +277,18 @@ to the one that inspires the simplex algorithm: the optimal vertex
 is approached by moving through the interior of the feasible region.
 This is done by creating a family of parametrised approximate solutions
 that asymptotically converge to the exact solution.
-
 Therefore, by embedding the linear problem in a nonlinear context,
 an interior point method escapes the ``curse of dimensionality''
 characteristic of the dealing with the combinatorial features of the 
 linear programming problem.
 
-Karmarkar \cite{Karmarkar} explained like this the advantage of an
-interior point approach:
+Karmarkar \cite{Karmarkar} explained the advantage of an
+interior point approach as follows:
 \begin{quote}
 In the simplex method, the current solution is modified by introducing
 a nonzero coefficient for one of the columns in the constraint
 matrix. Our method allows the current solution to be modified by
-introducing several columns at one.
+introducing several columns at once.
 \end{quote}
 
 %Karmarkar's algorithm is a primal algorithm based on a projection
@@ -304,12 +301,10 @@ as reported in \cite{MWright92}).
 A variant of Karmarkar's original algorithm was then proposed and 
 implemented by Adler-Karmarkar-Resende-Veiga 
 (Math. Prog. 44, 1989).
-
-Since then the theoretical understanding has considerably increased,
+Since then the theoretical understanding has considerably improved,
 and many algorithmic variants have been proposed, and several of
 them have shown to be a computationally viable alternative to the
 simplex method.
-
 For details on Karmarkar's algorithm, we refer to
 \cite[ch.6]{FangPuthenpura93}.
 
@@ -317,7 +312,6 @@ Over the last 20 years, an impressive wealth of theoretical research
 has been published, and computational developments have brought life
 to a field, that of Linear Programming, that seemed not to attract much
 attention anymore.
-
 Among the positive consequences brought by the renewed interest in linear
 programming, let us remind the improvements in the implementations of 
 simplex-based solvers \cite{Bixby94,Bixby02}.

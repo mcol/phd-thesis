@@ -3,7 +3,7 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
-%Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11
+%Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
 
 %
 % Chapter: Interior point methods
@@ -60,7 +60,7 @@ dual interior points
 \mathcal{D} = \{ (y,s) : A^T y + s = c, \; s \ge 0 \}, \quad
 \mathcal{D}^0 = \{ (y,s) \in \mathcal{D} : s > 0 \}.
 \]
-The set of feasible primal--dual point is therefore
+The set of feasible primal--dual points is therefore
 $\mathcal{F} = \mathcal{P} \times \mathcal{D}$, and the set of primal--dual
 interior points is
 \[
@@ -139,8 +139,8 @@ primal feasibility, dual feasibility and complementarity.
 
 Complementarity can be seen as a certificate for optimality 
 in linear programming \cite{phd:Jansen,Schrijver86}.
-For non-optimal solutions, complementarity measures the distance of the
-solution to optimality:
+For non-optimal feasible iterates, complementarity measures the distance of the
+iterate to optimality:
 \be  \label{eq:DualityComplementarityGap}
   c^Tx - b^T y = c^Tx - x^T A^T y = x^T(c - A^T y) = x^T s.
 \ee
@@ -230,22 +230,20 @@ We postpone its presentation to Section~\ref{sec:CentralPath}.
 %system (\ref{eq:PerturbedKKT}) has a unique solution $(x(\mu),y(\mu))$.
 
 Under the assumptions that for a particular $\mu > 0$ the point
-$(x(\mu),y(\mu),s(\mu))$ is primal and dual feasible, we can show
-verify a similar result to what expressed by 
+$(x(\mu),y(\mu),s(\mu))$ is primal and dual feasible, we can state
+a similar result to what is expressed by 
 (\ref{eq:DualityComplementarityGap}):
 \[
   g(\mu) = c^Tx(\mu) - b^T y(\mu) = x(\mu)^T s(\mu),
 \]
 that is, the duality gap corresponds to the complementarity gap.
 Hence reducing either of them is identical.
-
 Also, as $XSe - \mu e = 0$ implies $x_is_i = \mu$, $i = 1, \ldots, n$, 
 we have
 \be  \label{eq:AverageComplementarity}
    s(\mu)^T x(\mu) = n\mu,
 \ee
 and for $\mu \to 0$, also $g(\mu) \to 0$.
-
 Megiddo \cite{Megiddo} shows that $c^Tx(\mu)\to c^Tx^*$ as $\mu\to 0$. 
 Furthermore, he proves the following, stronger result.
 %
@@ -354,13 +352,11 @@ Throughout this thesis, we will
 restrict our attention to using a direct approach in solving these
 equations.
 We should note, however, that a wealth of research explored the use
-of iterative methods in the computation of the search direction.
-\fb{
-Add a citation.
-}
+of iterative methods in the computation of the search direction
+\cite{BergamaschiGondzioZilli,OliveiraSorensen05}.
 
 System (\ref{eq:NewtonSystem}) is usually reduced to two other
-formulations by exploiting the block structure of the constraint
+formulations by exploiting the block structure of its
 matrix.
 %
 The {\em augmented system} formulation is obtained by using 
@@ -395,7 +391,7 @@ all $i = 1, \ldots, n$.
 
 Besides the issue of definiteness, the two formulations differ in
 terms of sparsity and conditioning, the normal equations usually 
-being dense and worse conditioned.
+being denser and worse conditioned.
 The choice between augmented system and normal equations depends also on 
 the relative density of $AD^2A^T$ with respect to $A$.
 Normal equations are to be avoided when there are dense columns in $A$, 
@@ -441,11 +437,12 @@ of a vector $v \in \R^n$ as
 \]
 and partition the set of indices $\{1,\ldots,n \}$ as
 \[
-   B = \sigma(x^*), \quad N = \sigma(s^*).
+   \mathcal{B} = \sigma(x^*), \quad \mathcal{M} = \sigma(s^*).
 \]
-This partition is well-defined in the sense that for a 
+This partition is well-defined in the sense that a 
 strictly complementary solution satisfies both 
-$B \cap N = \emptyset$ and $B \cup N = \{1,\ldots,n \}$. 
+$\mathcal{B} \cap \mathcal{M} = \emptyset$ and 
+$\mathcal{B} \cup \mathcal{M} = \{1,\ldots,n \}$. 
 A proof of the latter result, also known as Goldman-Tucker theorem, 
 can be found in \cite{ipm:Wright97}.
 The concepts of strict complementarity and optimal partition are
@@ -467,9 +464,9 @@ the limit of $(P_\mu)$ for $\mu \to \infty$, and therefore
 find the point from which the central path departs.
 This corresponds to finding the point that minimizes the barrier function:
 \[
-\theta = \arg \min_{x \in \mathcal{P}^0} -\sum_i \ln x_i.
+\hat{x} = \arg \min_{x \in \mathcal{P}^0} \left(-\sum_i \ln x_i \right).
 \]
-The point $\theta$ is the {\em analytic center} of the feasible polytope, 
+The point $\hat{x}$ is the {\em analytic center} of the feasible polytope, 
 and was first studied by Sonnevend.
 Given the strict convexity of the barrier function, the concept 
 of analytic center is well defined.
@@ -504,7 +501,7 @@ Finding a point that solves the perturbed complementarity conditions
 (\ref{eq:PerturbedComplementarity}) for a specific $\mu$ 
 is as difficult as solving the optimization problem itself.
 %
-Therefore, we never insist in this extremely restrictive requirement,
+Therefore, we never insist on this extremely restrictive requirement,
 but we rather allow the iterates to be somewhere around the central path.
 This leads to the introduction of the important concept of
 {\em neighbourhood} of the central path. 
@@ -518,7 +515,7 @@ to as the {\em tight neighbourhood}:
 \Nhood_2(\theta) = \{ (x,y,s) \in \mathcal{F}^0 :
                          \| XSe - \mu e \|_2 \le \theta\mu \}.
 \]
-This neighbourhood follows very closely the central path:
+This neighbourhood defines points which lie very close to the central path:
 search directions generated from points in this neighbourhood can be 
 followed with full step, and the barrier parameter can be decreased
 by a small amount at each iteration (giving rise to the name
@@ -539,7 +536,8 @@ and it is often called {\em wide neighbourhood}:
 \]
 Algorithms based on such a neighbourhood are allowed to generate
 iterates that follow more loosely the central path. The iterates 
-have more freedom of movement as they can approach the border.
+have more freedom of movement as they can approach the boundary
+of the feasible set.
 Hence, algorithms based on the wide neighbourhood (usually denoted as
 {\em long-step algorithms}) are less conservative and can decrease 
 the barrier parameter more rapidly.
@@ -574,7 +572,7 @@ they show that the direction computed by solving the Newton system
 (and therefore guarantees some progress) and generates an iterate 
 that retains the property of being in some neighbourhood of the central 
 path (possibly larger than the one before). Finally, they require
-a decrease in the barrier parameter that allows a polynomial upper
+a decrease in the barrier parameter that allows to derive a polynomial upper
 bound on the number of iterations.
 
 The theoretical analysis for the logarithmic barrier method was
@@ -619,7 +617,7 @@ $\Nhood_2(\theta^2)$ and $\Nhood_2(\theta)$, $\theta \in (0,1)$,
 and exploits the
 quadratic convergence property of Newton's method in such a tight
 neighbourhood of the central path.
-Their algorithm alternates two search directions characterised by
+Their algorithm alternates between two search directions characterised by
 different properties.
 First, by choosing $\sigma = 0$ in (\ref{eq:NewtonSystem}),
 the predictor direction gains optimality, possibly at the expense of
@@ -813,7 +811,7 @@ We define the symmetric neighbourhood to be the set
   \Nhood_s(\gamma)=\{(x,y,s)\in \mathcal{F}^0: 
   \gamma\mu\le x_is_i \le \frac{1}{\gamma}\mu, \; i=1,\ldots,n\},
 \]
-where $\mathcal{F}^0=\{(x,y,s) : Ax=b,A^Ty+s=c,(x,s)>0\}$ 
+where $\mathcal{F}^0$ 
 is the set of strictly feasible primal--dual points,
 $\mu = x^Ts/n$, and $\gamma \in (0,1)$.
 

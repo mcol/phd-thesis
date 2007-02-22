@@ -3,7 +3,7 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22
-%Feb:  1,  2,  4,  5,  6,  8,  9, 11
+%Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -148,7 +148,7 @@ in the overall number of factorizations.
 
 Since these two methods were developed, there have been a number of 
 attempts to investigate their behaviour rigorously and thus provide
-further insight on their successfulness. 
+further insight on their success. 
 Such objectives are difficult to achieve because 
 correctors use heuristics that are effective in practice but hard 
 to analyse theoretically. 
@@ -196,7 +196,7 @@ translates these observations into a powerful computational method.
 
 Mehrotra's predictor--corrector algorithm \cite{Mehrotra92,LustigMarstenShanno}
 is extremely efficient in practice. Since its introduction, it has 
-been the considered the method of choice for practical implementations 
+been considered the method of choice for practical implementations 
 because it is usually very fast and reliable. Moreover, it has a 
 convincing interpretation in terms of second order approximations.
 
@@ -212,7 +212,7 @@ This corresponds to computing the pure Newton direction for the
 original KKT system (\ref{eq:KKT}), and for this reason is often
 called {\em affine-scaling} direction. This 
 direction is strongly optimizing, as it targets a point for which 
-all complementarity products go to zero. 
+all complementarity products are zero. 
 The achievable stepsizes for the predictor direction, 
 in the primal and dual space respectively, are computed 
 according to (\ref{eq:Alphas}).
@@ -391,7 +391,7 @@ The practical advantage of Mehrotra's predictor--corrector technique
 is that it often produces longer stepsizes before violating the 
 non-negativity constraints.
 %
-This usually translates in significant savings in the number of 
+This usually translates into significant savings in the number of 
 iterations: Mehrotra \cite{Mehrotra92} reports on savings of the
 order of 35\%-50\% compared to other strategies.
 For problems for which the factorisation cost is relevant, this
@@ -611,7 +611,7 @@ and the process of finding an initial iterate.
 The choice of an initial iterate for interior point methods is a
 critical one. It challenges both the feasible and infeasible
 algorithms, and the solutions proposed in the two contexts are
-extremely different.
+completely different.
 
 Turning our attention to infeasible algorithms, the major hurdle
 of finding a feasible starting point is removed. 
@@ -637,7 +637,7 @@ shifted inside the positive orthant, and the starting point is
 (x_0,y_0,s_0) = (\tilde x + \delta_x e,\, \tilde y,\, \tilde s + \delta_s e),
 \]
 where $\delta_x$ and $\delta_s$ are positive quantities. 
-Their values depends on the distance of $\tilde x$ and $\tilde s$
+Their values depend on the distance of $\tilde x$ and $\tilde s$
 to non-negativity, and an additional correction term to ensure
 strict positivity.
 
