@@ -4,6 +4,7 @@
 % 2007
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
+%Mar:  8
 
 %
 % Chapter: Background and introduction.
@@ -245,7 +246,8 @@ solution in $\bigO(n^2L)$ iterations, thus has polynomial complexity.
 Khachiyan's contribution settled the question on the computational 
 complexity of linear programming.
 However, since this worst-case bound
-is generally attained, its practical performance is not competitive
+is generally attained in the ellipsoid algorithm \cite{GoldfarbTodd82},
+its practical performance is not competitive
 with other solution methods. Besides, it displays other drawbacks
 related to large round-off errors and the need of dense matrix computation.
 Nevertheless, the ellipsoid method is often used in the context of
@@ -387,44 +389,74 @@ analysis for the following reasons:
 \item 
 \end{itemize}
 
+\fb{
+Connect better with the next section.
+}
+
 %
 %
 \subsection{Scope of this thesis}
 
-We introduce and formalise the concept of symmetric neighbourhood as the
+The approach that permeates the aims of this research and 
+the presentation of its results is markedly computationally oriented. 
+While we recognise the importance and validity of theoretical developments, 
+and we appreciate the insights that such results provide, 
+we are keen on improving existing computer implementations of 
+interior point methods.
+
+The contributions of this research are threefold.
+
+First, we introduce and formalise the concept of 
+{\em symmetric neighbourhood} as the
 driving tool for the analysis and understanding of the good behaviour
 of some practical algorithms. 
-%Also, the symmetric neighbourhood plays
-%a central role in the development of the techniques that we propose here.
-%
-The use of the symmetric neighbourhood lets us simplify the presentation
-of the multiple centrality correctors technique \cite{Gondzio96}, and
-further motivate their use in a new and more adaptive way, thanks to the 
-introduction of a weighting mechanism.
-%
-The practical value of the symmetric neighbourhood is appreciated also
-in the context of generation of a warm-start iterate for stochastic
-linear programs.
+Also, the symmetric neighbourhood plays a central role in the development 
+of the two techniques that we introduce and study in this work.
 
-The original results presented in this thesis are mainly based on two
-papers that have been submitted for publication.
-
-The first \cite{ColomboGondzio05} is a joint work with Jacek Gondzio.
-The main objective of this paper is to analyze the efficiency of
+The most evident use of the concept of symmetric neighbourhood
+happens in the {\em weighted corrector technique},
+which is our second contribution.
+The weighting mechanism, which is an adaptive technique to judge the
+most effective way of including a corrector into the search direction, 
+works particularly well in conjunction with multiple centrality
+correctors.
+%The use of the symmetric neighbourhood lets us simplify the presentation
+%of the multiple centrality correctors technique \cite{Gondzio96}.
+The main objective of this research is to analyse the efficiency of
 corrector directions in the light of the theoretical studies of Cartis
 \cite{Cartis04,Cartis05}. It concentrates on ensuring that a corrector
 direction computed at the current iterate is not rejected because it
 produces a short stepsize. Such a behaviour usually is manifested when
 the point is badly centered or highly infeasible.
+For this reason, ensuring that an appropriate (centrality) corrector
+is accepted and produces an increase in the stepsize is crucial
+to move the iterate to a more favourable position.
+From the computational point of view, we have to consider that
+a failed iteration comes with the high cost of having factorised
+the matrix for no real improvement.
 
-The second \cite{ColomboGondzioGrothey06} is a joint work with
-Jacek Gondzio and Andreas Grothey. It aims at developing an
+The algorithm we introduced has been implemented in an interior
+point code, and the performance has been studied in a thorough
+computational experience. The introduction of the weighting mechanism,
+and of some other algorithmic changes that it allowed,
+has produced a considerable improvement, particularly for large-scale
+problems.
+
+Our third contribution is in the context of generation of 
+{\em warm-start iterates for stochastic linear programs}, 
+and the practical value of the 
+symmetric neighbourhood is appreciated also here.
+In this research we develop an
 efficient way of constructing a starting point for structured 
 large-scale stochastic linear programs.
-It shows that it is possible to obtain a computationally viable
-warmstart point by solving a stochastic problem of much smaller
+We show that it is possible to obtain a computationally viable
+warm-start point by solving a stochastic problem of much smaller
 dimension.
 
+The original results presented in this thesis have been the base for two
+papers that have been submitted for publication, jointly with
+Jacek Gondzio \cite{ColomboGondzio05}, and with Jacek Gondzio and 
+Andreas Grothey \cite{ColomboGondzioGrothey06}.
 
 %
 %
@@ -451,7 +483,7 @@ similar but considering a given set of directions. The advantages
 and drawbacks of both strategies will be discussed together with
 a rich computational study.
 
-In Chapter~\ref{ch:Warmstart} we present a warmstart technique
+In Chapter~\ref{ch:Warmstart} we present a warm-start technique
 that exploits the inherent structure of a stochastic linear programs.
 Alongside some theoretical results, we will show the computational
 experience on some standard test problems and larger instances coming

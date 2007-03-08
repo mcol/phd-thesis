@@ -3,7 +3,8 @@
 %Sep:  1,  7,  8
 % 2007
 %Jan: 15, 16, 17, 22
-%Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22
+%Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
+%Mar:  8
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -287,9 +288,6 @@ is suggested
 %
 corresponding to the choice of $\sigma = (g_a / x^Ts)^3$ 
 for the centering parameter. 
-\fb{
-Mehrotra's heuristic was actually more elaborate.
-}
 
 The centering parameter, more generally could be chosen as
 \[
@@ -305,7 +303,7 @@ of the exponent.
 
 If the predictor provides a good improvement, a small $\sigma$ 
 is chosen, and therefore very little centering will be used. When, 
-on the other hand, affine scaling produces very small stepsizes 
+on the other hand, the affine-scaling direction produces very small stepsizes 
 and so very little improvement can be achieved, $\sigma$ will be 
 close to one, and so a stronger recentering will occur.
 
@@ -656,6 +654,11 @@ and it does not guarantee to produce a well-centered iterate.
 The procedure of finding an appropriate starting point will be discussed
 again in Chapter~\ref{ch:Warmstart}, where a specialised technique for
 the case of stochastic linear programming problems will be analysed.
+
+\fb{
+Also check what is done by Lustig, Marsten and Shanno
+\cite{LustigMarstenShanno}.
+}
 
 %
 %

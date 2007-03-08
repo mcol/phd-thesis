@@ -4,6 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
+%Mar:  8
 
 %
 % Chapter: Interior point methods
@@ -403,6 +404,10 @@ it presents an indefinite matrix. This raises problems of numerical
 stability, and an accurate choice of pivoting strategies is fundamental.
 Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
 study of the properties of the augmented system formulation.
+In the broad context of weighted least squares computations, the choice
+between augmented system and normal equations has been studied long
+before the development of interior point methods, see for example
+\cite{DuffErismanReid86}.
 
 %
 %
@@ -464,7 +469,7 @@ the limit of $(P_\mu)$ for $\mu \to \infty$, and therefore
 find the point from which the central path departs.
 This corresponds to finding the point that minimizes the barrier function:
 \[
-\hat{x} = \arg \min_{x \in \mathcal{P}^0} \left(-\sum_i \ln x_i \right).
+\hat{x} = \arg \min_{x \in \mathcal{P}^0} \big(-\sum_i \ln x_i \big).
 \]
 The point $\hat{x}$ is the {\em analytic center} of the feasible polytope, 
 and was first studied by Sonnevend.
@@ -709,18 +714,18 @@ are feasible and optimal. This is obtained by using a
 neighbourhood that admits infeasible points:
 \[
 \Nhood_{-\infty}(\gamma,\beta) =\{ (x,y,s) | \; 
-           \|(r_b,r_c)\| \le \beta\mu \frac{\|(r_b^0,r_c^0)\|}{\mu_0}, 
+           \|(\xi_b,\xi_c)\| \le \beta\mu \frac{\|(\xi_b^0,\xi_c^0)\|}{\mu_0}, 
 	   (x,s)>0, x_is_i \ge \gamma\mu \},
 \]
 where $\gamma\in (0,1)$ and $\beta \ge 1$ are parameters, and 
 we denoted the primal and dual residuals, respectively, by 
-$r_b = Ax-b$ and $r_c = A^T y + s - c$.
+$\xi_b = Ax-b$ and $\xi_c = A^T y + s - c$.
 
 Therefore, there is no strict feasibility requirement for 
 the iterates; however, the residuals at each iteration must be 
 bounded above by a multiple of the duality measure $\mu$. 
 By reducing $\mu$ we can force the primal and dual residuals 
-$r_b$ and $r_c$ to zero, thus approaching complementarity and 
+$\xi_b$ and $\xi_c$ to zero, thus approaching complementarity and 
 feasibility at the same speed.
 
 Kojima, Megiddo and Mizuno \cite{KojimaMegiddoMizuno} proposed 
@@ -746,9 +751,8 @@ then:
 \item $x'^Ts' = (1-\alpha (1 -\sigma))(x^0)^Ts^0 +\alpha^2 \Delta x^T \Delta s$
 \end{itemize}
 so the reduction in infeasibilities is linear, while complementarity reduces
-for a small $\alpha$ (but if the point is feasible, then the reduction is
-linear as well, since $\Delta x^T \Delta s = 0$.)
-
+for a small $\alpha$. When feasibility is restored, the reduction in the
+complementarity measures becomes linear as well, as $\Delta x^T \Delta s = 0$.
 
 \fb{
 Order of convergence: $\bigO(n^2L)$ in Wright.

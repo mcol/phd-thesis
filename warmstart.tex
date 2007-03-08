@@ -3,6 +3,7 @@
 %Sep:  7,  8, 13
 % 2007
 %Feb:  4
+%Mar:  8
 
 %
 % Chapter: Warm-start
@@ -220,18 +221,18 @@ general recourse problem (\ref{eq:SPRecourse}):
 %
 where $y(\xi)$ denotes the recourse action which depends on the 
 outcome of the random process $\xi$. After discretizing $\xi$ 
-according to $P(x_i=\xi_i) = p_i$, and using the notation 
-$T_i = T(\xi_i)$ (and analogously for $h_i$, $W_i$, $y_i$ and $q_i$), 
+according to $P(x^i=\xi_i) = p^i$, and using the notation 
+$T^i = T(\xi_i)$ (and analogously for $h^i$, $W^i$, $y^i$ and $q^i$), 
 problem (\ref{eq:SLPRecourse}) can be written in the 
 {\em deterministic equivalent formulation}:
 \be \label{eq:DetEq-2stage}
 \begin{array}{rlllll}
-\min & c^T x + \sum_i p_iq_i^T y_i \\
+\min & c^T x + \sum_i p^i{q^i}^T y^i \\
 \mbox{s.t.} & Ax              &        &          & = b,   \\
-            & T_1 x + W_1 y_1 &        &          & = h_1  \\
+            & T^1 x + W^1 y^1 &        &          & = h^1  \\
 	    & \vdots          & \hspace{-1em}\ddots & & \;\vdots \\
-            & T_n x           &        &+\; W_n y_n & = h_n \\
-            & x \geq 0,\; y_i \ge 0.
+            & T^n x           &        &+\; W^n y^n & = h^n \\
+            & x \geq 0,\; y^i \ge 0.
 \end{array}
 \ee
 
@@ -240,6 +241,10 @@ in the constraint matrix.
 
 \fb{
 Explain why deterministic.
+}
+
+\fb{
+Make a step from two-stage to multistage.
 }
 
 To formulate the deterministic equivalent of the multi-stage 
@@ -292,10 +297,10 @@ problem has the following general form:
 \end{equation}
 
 Note that the probabilities in the objective function of problem 
-(\ref{DetEquiv}) are the unconditional path probabilities: $p^n$ is 
-the probability that a path goes through node $n$, which equals the 
+(\ref{DetEquiv}) are the unconditional path probabilities: $p^l$ is 
+the probability that a path goes through node $l$, which equals the 
 product of the conditional probabilities along the path from the root 
-to the node.
+to the node $l$.
 
 If the event tree is traversed with depth-first-search ordering of the 
 nodes during the generation of the mathematical program, the 

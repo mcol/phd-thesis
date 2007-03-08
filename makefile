@@ -13,7 +13,7 @@ ps: dvi
 	dvips -Ppdf $(INPUT).dvi -o
 
 ps2: ps
-	psnup -2 $(INPUT).ps th2.ps
+	psnup -2 $(INPUT).ps $(INPUT)2.ps
 
 pdf: ps
 	ps2pdf $(INPUT).ps $(INPUT).pdf
