@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
-%Mar:  8
+%Mar:  8,  9
 
 %
 % Chapter: Interior point methods
@@ -472,7 +472,7 @@ This corresponds to finding the point that minimizes the barrier function:
 \hat{x} = \arg \min_{x \in \mathcal{P}^0} \big(-\sum_i \ln x_i \big).
 \]
 The point $\hat{x}$ is the {\em analytic center} of the feasible polytope, 
-and was first studied by Sonnevend.
+and was first studied by Sonnevend \cite{Sonnevend86}.
 Given the strict convexity of the barrier function, the concept 
 of analytic center is well defined.
 As the analytic center minimizes the barrier, it
@@ -518,8 +518,9 @@ The first is based on the Euclidean norm, and it is often referred
 to as the {\em tight neighbourhood}:
 \[
 \Nhood_2(\theta) = \{ (x,y,s) \in \mathcal{F}^0 :
-                         \| XSe - \mu e \|_2 \le \theta\mu \}.
+                         \| XSe - \mu e \|_2 \le \theta\mu \},
 \]
+where $\theta \in (0,1)$.
 This neighbourhood defines points which lie very close to the central path:
 search directions generated from points in this neighbourhood can be 
 followed with full step, and the barrier parameter can be decreased
@@ -537,8 +538,9 @@ The other commonly used neighbourhood is instead based on the infinity norm,
 and it is often called {\em wide neighbourhood}:
 \[
 \Nhood_{-\infty}(\gamma) = \{ (x,y,s) \in \mathcal{F}^0 :
-                         x_is_i \ge \gamma\mu, \; \forall i \}.
+                         x_is_i \ge \gamma\mu, \;\; i = 1, \ldots, n \},
 \]
+where $\gamma \in (0,1).$
 Algorithms based on such a neighbourhood are allowed to generate
 iterates that follow more loosely the central path. The iterates 
 have more freedom of movement as they can approach the boundary
@@ -551,13 +553,14 @@ neighbourhood  has weaker properties, and a linesearch procedure is
 needed to ensure that the positivity of the $(x,s)$ iterates is
 preserved.
 
-In Section (\ref{sec:SymNeighbourhood}) we will study a variation
+In Section~\ref{sec:SymNeighbourhood} we will study a variation
 of the $\Nhood_{-\infty}$ neighbourhood which better describes
 the centrality requirements needed for a practical algorithm.
 
 \ignore{
 $N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
 }
+
 
 %
 % Section
@@ -582,14 +585,16 @@ bound on the number of iterations.
 
 The theoretical analysis for the logarithmic barrier method was
 initiated by Megiddo \cite{Megiddo}.
-On this basis, Kojima, Mizuno and Yoshise (1989) proposed a
-polynomial-time algorithm with the property of convergence 
+On this basis, Kojima, Mizuno and Yoshise \cite{KojimaMizunoYoshise89} 
+proposed a polynomial-time algorithm with the property of convergence 
 in $\bigO(nL)$ iterations.
-This was later refined by the same group \cite{KojimaMizunoYoshise} 
-and by Monteiro and Adler \cite{MonteiroAdler89a}.
-Both papers presented a primal--dual algorithm for linear programming 
+This was refined by the same group \cite{KojimaMizunoYoshise89b} 
+and by Monteiro and Adler \cite{MonteiroAdler89a}:
+both papers presented a primal--dual algorithm for linear programming 
 based on the tight $\Nhood_2$ neighbourhood
 with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
+This is still the best complexity result for interior point methods
+for linear programming.
 
 %
 %
@@ -688,9 +693,11 @@ appealing property of being able to detect infeasibility
 with accuracy.
 
 \fb{
-The use of a self-dual formulation is not attractive from a
+The use of a self-dual formulation comes with a price from a
 computational viewpoint, particularly because of the need of one 
 extra backsolve at each iteration.
+Also one more variable in the system.
+It works only for linear programming.
 Stability issues?
 Find a reference for that (Terlaky-Ye?).
 }
@@ -758,6 +765,7 @@ complementarity measures becomes linear as well, as $\Delta x^T \Delta s = 0$.
 Order of convergence: $\bigO(n^2L)$ in Wright.
 }
 
+
 %
 % Section
 %
@@ -765,10 +773,27 @@ Order of convergence: $\bigO(n^2L)$ in Wright.
 \label{sec:SymNeighbourhood}
 
 The quality of centrality (understood in a simplified way as complementarity)
+for a practical implementation of an interior point algorithm
 is {\it not} well characterised by either of two neighbourhoods 
 $\Nhood_2$ or $\Nhood_{-\infty}$ commonly used in theoretical developments 
 of interior point methods.
-Instead, we propose to use a symmetric neighbourhood $\Nhood_s(\gamma)$,
+
+The $\Nhood_2$ neighbourhood is too restrictive, and the short-step methods
+based on it are too conservative and, ultimately, very slow.
+The $\Nhood_{-\infty}$ provides a much better framework, as it allows to
+reduce the barrier parameter quickly. However, at it does not actively
+enforce an upper bound on the complementary products, it may allow the
+iterates to produce very unbalanced products.
+
+\fb{
+The issue of unbalanced complementary products is very important for
+the practical success of an interior point code. We should note how
+the complementary pairs play a role in the Newton system, and how
+their bad scaling causes a bad behaviour of Newton's method, which
+produces unreliable directions.
+}
+
+We propose to use a symmetric neighbourhood $\Nhood_s(\gamma)$,
 in which complementarity pairs have to satisfy 
 $\gamma \mu \leq x_i s_i \leq \gamma^{-1} \mu$, where $\gamma \in (0,1)$, 
 for a strictly feasible iterate $(x,y,s)$.
@@ -808,8 +833,10 @@ in theoretical developments of IPMs.
 To overcome this disadvantage, here we formalise a variation 
 on the usual $\Nhood_{-\infty}(\gamma)$ neighbourhood, 
 in which we introduce an upper bound on the complementary pairs. 
-This neighbourhood was implicitly used in Section~\ref{sec:MultipleCC}
-to define an achievable target for multiple centrality correctors.
+This neighbourhood was implicitly used in \cite{Gondzio96}
+to define an achievable target for multiple centrality correctors
+(we refer the reader to Section~\ref{sec:MultipleCC}).
+
 We define the symmetric neighbourhood to be the set
 \[
   \Nhood_s(\gamma)=\{(x,y,s)\in \mathcal{F}^0: 
@@ -828,10 +855,36 @@ neighbourhood $\Nhood_s$, on the other hand, promotes
 the decrease of complementarity pairs which are too large, thus taking 
 better care of centrality.
 
-\fb{
-Actually also the $\Nhood_{-\infty}$ neighbourhood expresses an upper
-bound, but it's much higher.
-}
+\hrulefill
+
+An upper bound is implicit in the $\Nhood_{-\infty}$ neighbourhood. To find it,
+suppose that all but one complementarity products are at the lower bound
+$\gamma\mu$:
+\[
+  n\mu = (n-1)\gamma\mu + x_n s_n,
+\]
+from which it follows that in general
+\be  \label{eq:UpperBoundN8hood}
+  x_i s_i \le (n (1-\gamma) + \gamma) \mu, \quad i = 1, \ldots, n.
+\ee
+We note the dependence on the problem dimension in the definition of the
+upper bound, hence its uneffectiveness for large-scale problems.
+
+We can also determine the value of $n$ for which the upper bound of
+the symmetric neighbourhood crosses the implicit upper bound
+(\ref{eq:UpperBoundN8hood}), that is
+\[
+  n(1-\gamma) + \gamma > \frac{1}{\gamma},
+\]
+which means that the symmetric neighbourhood has an effective bound
+for
+\[
+  n > \frac{1+\gamma}{\gamma}.
+\]
+
+%
+%
+\subsection{Analysis}
 
 The analysis is done for the long-step feasible path-following 
 algorithm, where the search direction $(\Delta x, \Delta y, \Delta s)$ 
@@ -930,3 +983,13 @@ result proved for the $\Nhood_{-\infty}(\gamma)$ neighbourhood
 neighbourhood provides a better practical environment without any 
 theoretical loss. This understanding provides some additional 
 insight into the desired characteristics of a well-behaved iterate.
+
+\hrulefill
+
+The use of the symmetric neighbourhood will be one of the theoretical
+motivations of this work. Through it, in Section~\ref{sec:MultipleCC}
+we will put the work of \cite{Gondzio96} inside a more sound framework.
+Then we will use it again in the presentation of the weighted corrector
+directions of Chapter~\ref{ch:Correctors}, and in the analysis of an 
+original warm-start strategy for stochastic programming of 
+Chapter~\ref{ch:Warmstart}.
