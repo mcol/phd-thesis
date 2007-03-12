@@ -30,6 +30,13 @@
 }
 
 %
+% Margin note
+%
+\let\oldmarginpar\marginpar
+\newcommand{\note}[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%
+                     {\raggedright\footnotesize #1}}
+
+%
 % Set of real numbers
 %
 \newcommand{\R}{\mathbb{R}}
@@ -81,7 +88,6 @@
 \newtheorem*{defn*}{Definition}
 \newtheorem{example}[subsection]{Example}
 \newtheorem{examples}[subsection]{Examples}
-\newtheorem{note}[subsection]{Note}
 \newtheorem{question}[subsection]{Question}
 \newtheorem*{question*}{Question}
 \newtheorem{remark}{Remark}[chapter]

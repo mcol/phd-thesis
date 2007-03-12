@@ -1,15 +1,16 @@
 %Started on Wednesday, 9th August 2006
 % 2007
 %Feb: 12
+%Mar: 12
 
 %
 % Abstract
 %
 
-This research studies two implementable techniques that improve
+This research studies two techniques that improve
 the practical performance of existing computational implementations 
 of interior point methods for linear programming.
-Also, it provides the analysis of the concept of symmetric neighbourhood 
+Both are based on the concept of symmetric neighbourhood 
 as the driving tool for the analysis and understanding of the good 
 performance of some practical algorithms. 
 
@@ -28,15 +29,22 @@ produces a short stepsize.
 The usefulness of the weighting strategy is documented through
 a complete numerical experience on various sets of publicly
 available test problems.
+The implementation within the HOPDM interior point code
+shows remarkable time savings for large-scale linear programming problems.
 
-The second advance is the development of an efficient way of 
+The second technique develops an efficient way of 
 constructing a starting point for structured large-scale 
 stochastic linear programs.
-We generate a computationally viable warmstart point by solving 
+We generate a computationally viable warm-start point by solving 
 to low accuracy a stochastic problem of much smaller dimension.
+The reduced problem is the deterministic equivalent program
+corresponding to an event tree composed of a restricted number
+of scenarios.
 The solution to the reduced problem is then expanded to the
 size of the problem instance, and used to initialise the
 interior point algorithm.
+We present theoretical conditions that the warm-start iterate
+has to satisfy in order to be successful.
 The performance of this warm-start strategy is verified through 
 a series of tests on problem instances coming from various stochastic
 programming sources.

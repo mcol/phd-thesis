@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
-%Mar:  8
+%Mar:  8, 12
 
 %
 % Chapter: Background and introduction.
@@ -99,89 +99,18 @@ to feasible points.
 The fact that the number of vertices is finite guarantees termination 
 of any algorithm that explores all vertices.
 However this number is exponential, as can be seen by further
-manipulating (\ref{eq:NumberVertices}) \cite[ch.~5.2]{FangPuthenpura93}:
+manipulating (\ref{eq:NumberVertices}):
 \[
 \frac{n!}{m!(n-m)!} \ge \left( \frac{n}{m} \right)^m \ge 2^m 
 \quad \mbox{for } n \ge 2m.
 \]
 
-This consideration gives rise to the need of defining an algorithm
+This observation gives rise to the need of defining an algorithm
 that discovers an optimal vertex among the multitude of nonoptimal ones.
 
-Many algorithms have been proposed to solve a variety of optimization
-problems. However, despite their diversity, they are based on the same 
-general framework summarised in the following scheme:
-
-\bt{
-\begin{description}
-\item[Given] an initial iterate;
-\item[Repeat] for $k=0,1,2,\ldots$ 
-  \begin{itemize}
-  \item Determine a search direction.
-
-  \item Determine how far to move along it.
-
-  \item Move to the next point.
-  \end{itemize}
-
-\item[Until] some termination criteria are met.
-\end{description}
-}
-
-Each element of this simplified algorithm 
-(starting point, search direction, stepsize, termination criteria)
-has to be specialised
-to the specific algorithm we are talking about.
-
-%
-%
-\subsection{The simplex method}
-
-The simplex method was introduced by George Dantzig in 1947.
-We should note that the
-introduction of the simplex method happened simultaneously with
-the realisation of linear programming as an efficient modelling tool
-for practical decision making. 
-
-The simplex method exploits the insight provided by the fundamental 
-theorem of linear programming (\ref{th:FundamentalLP}).
-The simplex method reaches a solution by visiting a sequence of 
-vertices of the polyhedron, moving from one vertex to an adjacent 
-one characterised by a better objective function value
-(in the non-degenerate case). 
-
-Since the number of vertices is finite, then termination is guaranteed.
-While it is possible that all of them get visited, in real-life problems, 
-this situation never arises, and only a fraction of the vertices are
-actually traversed (this discussion will be continued in 
-Section~\ref{sec:ComplexityConsiderations}).
-
-Moreover, given the monotonic
-way of choosing the next vertex, in the non-degenerate case the set 
-of possible vertices decreases after each iteration. Degeneracy
-happens when a vertex in $\R^m$ is traversed by $p > m$ constraints.
-In this case, there are $\binom{p}{m}$ different bases for the same
-vertex. 
-In such a case, the step length produced by the ratio test
-is zero. Therefore, the simplex method
-may try different changes of basis without actually moving away
-from the vertex and thus not obtaining any improvement in the objective
-function value.
-
-%The simplex method can be seen as an active set method, as at each
-%iteration only a set of constraints are active (those that define
-%the vertex).
-
-For the practical efficiency, the simplex algorithm has been considered
-for a long time the undiscussed method for solving linear programming
-problems.
-
-
-%
-%
-\subsection{Complexity considerations}
-\label{sec:ComplexityConsiderations}
-
+An important feature of any algorithm is its efficiency, that is 
+how much effort is needed for the algorithm to provide an answer
+given some input.
 The {\em computational complexity} of an algorithm can be used as a measure
 of the growth in the computational effort required by the algorithm
 as a function of the size of the problem. Therefore, it provides 
@@ -204,7 +133,77 @@ Computational complexity is measured by the number of elementary operations
 required to perform the algorithmic steps until termination. It often depends 
 on the size of the binary representation of the input ($L$).
 
-The simplex method has exponential complexity: it is possible that all
+Many algorithms have been proposed to solve a variety of optimization
+problems. However, despite their diversity, they are based on the same 
+general framework summarised in the scheme of 
+Algorithm~\ref{alg:GenericOptimization}.
+
+\algsetup{linenosize=\normalsize,linenodelimiter=.,indent=2em}
+\renewcommand{\algorithmicrequire}{\textbf{Given:}}
+\renewcommand{\algorithmicrepeat}{\textbf{Repeat:}}
+\renewcommand{\algorithmicuntil}{\textbf{Until}}
+\begin{algorithm}[h]
+  \caption{Generic optimization algorithm}
+    \begin{algorithmic}  \label{alg:GenericOptimization}
+      \REQUIRE An initial iterate $w$;
+      \smallskip
+      \REPEAT
+         \STATE Determine a search direction $\Delta w$.
+         \STATE Compute the distance $\alpha$ of how far to move along
+	        the search direction.
+         \STATE Move to the next point $w + \alpha\Delta w$.
+      \UNTIL Some termination criteria are met.
+  \end{algorithmic}
+\end{algorithm}
+
+Each element of this generic framework
+(starting point, search direction, stepsize, termination criteria)
+has to be specialised
+to the specific algorithm we are talking about.
+In what follows, we will introduce the main ideas behind three 
+different solution methods for linear programming: the simplex method,
+the ellipsoid method, and the class of interior point methods.
+
+%
+%
+\subsection{The simplex method}
+
+The simplex method was introduced by George Dantzig in 1947.
+We should note that the
+introduction of the simplex method happened simultaneously with
+the realisation of linear programming as an efficient modelling tool
+for practical decision making. 
+
+The simplex method exploits the insight provided by the fundamental 
+theorem of linear programming (\ref{th:FundamentalLP}).
+The simplex method reaches a solution by visiting a sequence of 
+vertices of the polyhedron, moving from one vertex to an adjacent 
+one characterised by a better objective function value
+(in the non-degenerate case). 
+
+Since the number of vertices is finite, then termination is guaranteed.
+While it is possible that all of them get visited, in real-life problems, 
+this situation never arises, and only a fraction of the vertices are
+actually traversed.
+
+Moreover, given the monotonic
+way of choosing the next vertex, in the non-degenerate case the set 
+of possible vertices decreases after each iteration. Degeneracy
+happens when a vertex in $\R^m$ is traversed by $p > m$ constraints.
+In such a case, the step length produced by the ratio test
+is zero. Therefore, the simplex method
+may try different changes of basis without actually moving away
+from the vertex and thus not obtaining any improvement in the objective
+function value.
+
+%The simplex method can be seen as an active set method, as at each
+%iteration only a set of constraints are active (those that define
+%the vertex).
+
+For the practical efficiency, the simplex algorithm has been considered
+for a long time the undiscussed method for solving linear programming
+problems.
+However, the simplex method has exponential complexity: it is possible that all
 the vertices of the feasible polyhedron have to be visited
 before reaching an optimal solution.
 Klee and Minty \cite{KleeMinty} were the first to provide an example 
@@ -384,10 +383,16 @@ algorithm happens in a context that is not amenable to theoretical
 analysis for the following reasons:
 \begin{itemize}
 \item Finite precision of floating-point arithmetic;
-\item Heuristic choices;
 \item Dependence on the numerical inputs;
+\item Heuristic algorithmic choices;
 \item 
 \end{itemize}
+
+For these reasons, we will take a very pragmatic approach to the
+field of optimization. While we will discuss the theoretical foundations
+of interior point methods for linear programming and contribute to
+it too, our main drive is the development of implementable techniques
+for interior-point-based linear programming solvers.
 
 \fb{
 Connect better with the next section.
@@ -451,7 +456,15 @@ efficient way of constructing a starting point for structured
 large-scale stochastic linear programs.
 We show that it is possible to obtain a computationally viable
 warm-start point by solving a stochastic problem of much smaller
-dimension.
+dimension corresponding to a reduced event tree.
+The way we produce a reduced tree tries to capture the 
+important information in the scenario space while keeping 
+the dimension of the corresponding (reduced) deterministic equivalent. 
+We present theoretical conditions that the warm-start iterate
+should satisfy to guarantee a successful warm-start of the complete 
+problem. 
+The implementation within the HOPDM and OOPS interior point solvers 
+shows remarkable advantages on a series of problem instances.
 
 The original results presented in this thesis have been the base for two
 papers that have been submitted for publication, jointly with
