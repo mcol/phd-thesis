@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
-%Mar:  8,  9
+%Mar:  8,  9, 13
 
 %
 % Chapter: Interior point methods
@@ -21,12 +21,14 @@ path-following interior point methods.
 We present the elements that are at the base of this successful class
 of algorithms, concentrating on their theoretical properties and
 attractive features.
+We also introduce and analyse the concept of symmetric neighbourhood,
+and its consequences for practical algorithms.
 
 
 %
 % Section
 %
-\section{Primal--dual path-following methods}
+\section{Derivation of primal--dual interior point methods}
 \label{sec:Derivation}
 
 Consider the following primal--dual pair of linear programming problems 
@@ -224,7 +226,8 @@ any $\mu>0$, then it determines a unique continuous smooth curve
 $(x(\mu),y(\mu),s(\mu))$ toward the optimal set as $\mu\to 0$. 
 In interior-point 
 terminology, this curve is called the {\em central path}.
-We postpone its presentation to Section~\ref{sec:CentralPath}.
+The study of the primal--dual properties of central path was pioneered by
+Megiddo \cite{Megiddo} and Bayer and Lagarias \cite{BayerLagarias}.
 
 %Moreover, if $A$ has full rank, then the value of $y$ is 
 %uniquely determined by the value of $x$. Therefore, 
@@ -257,6 +260,162 @@ full row rank of matrix $A$, then
 \]
 as $\mu \to 0$.
 \end{lemma}
+
+The solution that, according to Lemma~\ref{th:CentralPathConvergence},
+the central path converges to is
+characterised by strict complementarity.
+
+\begin{theorem}[Strict complementarity]
+If $(P)$ and $(D)$ are feasible, then there exist a point $x^* \in\mathcal{P}$
+and a pair $(y^*,s^*) \in \mathcal{D}$ such that
+\[
+(x^*)^T s^* = 0 \quad\mbox{ and }\quad x^*_i + s_i^* >0, \;\; i = 1, \ldots, n.
+\]
+\end{theorem}
+
+A solution $(x^*,s^*)$ that satisfies the above theorem is called 
+{\em strictly complementary}. 
+On the grounds of a strictly complementary
+solution we can define the concept of {\em optimal partition}.
+Following Jansen \cite{phd:Jansen}, we define the support set
+of a vector $v \in \R^n$ as
+\[
+   \sigma(v) = \{ i : v_i > 0, \; i=1,\ldots,n \},
+\]
+and partition the set of indices $\{1,\ldots,n \}$ as
+\[
+   \mathcal{B} = \sigma(x^*), \quad \mathcal{M} = \sigma(s^*).
+\]
+This partition is well-defined in the sense that a 
+strictly complementary solution satisfies both 
+$\mathcal{B} \cap \mathcal{M} = \emptyset$ and 
+$\mathcal{B} \cup \mathcal{M} = \{1,\ldots,n \}$. 
+A proof of the latter result, also known as Goldman-Tucker theorem, 
+can be found in \cite{ipm:Wright97}.
+The concepts of strict complementarity and optimal partition are
+recurrent motifs in the analysis of interior point methods.
+
+Vavasis and Ye \cite{VavasisYe} studied the properties of the 
+curvature of the central path, discovering that the central path
+is characterised by $\bigO(n^2)$ curves of high degree and
+segments where it is relatively straight.
+Such curves appear in correspondence with changes in the optimal
+partition.
+Close to the end, when the optimal partition has been identified,
+the central path becomes a straight line \cite{Megiddo}.
+In this region, the algorithm displays the quadratic convergence 
+property typical of Newton's method.
+
+We now consider
+the limit of $(P_\mu)$ for $\mu \to \infty$, and therefore
+find the point from which the central path departs.
+This corresponds to finding the point that minimizes the barrier function:
+\[
+\hat{x} = \arg \min_{x \in \mathcal{P}^0} \big(-\sum_i \ln x_i \big).
+\]
+The point $\hat{x}$ is the {\em analytic center} of the feasible polytope, 
+and was first studied by Sonnevend \cite{Sonnevend86}.
+Given the strict convexity of the barrier function, the concept 
+of analytic center is well defined.
+As the analytic center minimizes the barrier, it
+is the point farthest away from the boundary.
+
+However, there is a problem with defining the central path in terms
+of analytic center: the central path is affected by the presence of 
+redundant constraints. 
+This happens because it is an exclusively analytic concept, which does
+not exploit geometric considerations.
+Other type of centers (center of gravity, center of the ellipsoid of 
+maximum volume that can be inscribed in $\mathcal{P}$, volumetric center) 
+can be defined, but they usually are too demanding to compute 
+\cite{Gonzaga92}. 
+
+\fb{
+See a chapter in Ye's book.
+Terlaky's  Klee-Minty example.
+}
+
+%
+%
+\subsection{Neighbourhoods of the central path}
+\label{sec:Neighbourhoods}
+
+As we have seen, following the central path is the recommended
+way of traversing the interior of the feasible region towards
+the optimal solution. Nevertheless, it should be clear that keeping the
+iterates {\em exactly on} the central path is an unachievable aim.
+Finding a point that solves the perturbed complementarity conditions 
+(\ref{eq:PerturbedComplementarity}) for a specific $\mu$ 
+is as difficult as solving the optimization problem itself.
+%
+Therefore, we never insist on this extremely restrictive requirement,
+but we rather allow the iterates to be somewhere around the central path.
+This leads to the introduction of the important concept of
+{\em neighbourhood} of the central path. 
+We can define several neighbourhoods, characterised
+by different properties.
+Two neighbourhoods are often used in theoretical developments.
+
+The first is based on the Euclidean norm, and it is often referred
+to as the {\em tight neighbourhood}:
+\[
+\Nhood_2(\theta) = \{ (x,y,s) \in \mathcal{F}^0 :
+                         \| XSe - \mu e \|_2 \le \theta\mu \},
+\]
+where $\theta \in (0,1)$.
+This neighbourhood defines points which lie very close to the central path:
+search directions generated from points in this neighbourhood can be 
+followed with full step, and the barrier parameter can be decreased
+by a small amount at each iteration (giving rise to the name
+of {\em short-step algorithms} to the algorithms that are based on
+this neighbourhood). 
+The closeness to the central path that the tight neighbourhood
+imposes and maintains allows to produce the best convergence result
+for linear programming: short-step algorithms converge in 
+$\bigO(\sqrt{n}L)$ iterations \cite{KojimaMizunoYoshise89b,MonteiroAdler89a}.
+However, since the reduction in the barrier parameter at each iteration 
+is very small, the practical value of short-step algorithms is small.
+
+The other commonly used neighbourhood is instead based on the infinity norm, 
+and it is often called {\em wide neighbourhood}:
+\[
+\Nhood_{-\infty}(\gamma) = \{ (x,y,s) \in \mathcal{F}^0 :
+                         x_is_i \ge \gamma\mu, \;\; i = 1, \ldots, n \},
+\]
+where $\gamma \in (0,1).$
+Algorithms based on such a neighbourhood are allowed to generate
+iterates that follow more loosely the central path. The iterates 
+have more freedom of movement as they can get closer to the boundary
+of the feasible set.
+However, the Newton direction computed from points in the wide 
+neighbourhood  has weaker properties, and a linesearch procedure is
+needed to ensure that the positivity of the $(x,s)$ iterates is
+preserved.
+Algorithms based on the wide neighbourhood (usually called
+{\em long-step algorithms}) are less conservative their short-step
+counterparts, and can decrease 
+the barrier parameter more rapidly.
+Efficient implementations of interior point methods are based
+on some variation of a long-step algorithm.
+
+In Section~\ref{sec:SymNeighbourhood} we will study a variation
+of the $\Nhood_{-\infty}$ neighbourhood which better describes
+the centrality requirements needed for a practical algorithm.
+
+\ignore{
+$N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
+}
+
+
+%
+% Section
+%
+\section{Path-following algorithms}
+\label{sec:PathFollowingAlgorithms}
+
+We now bring together the elements we presented above and describe
+a complete path-following algorithm. We then discuss various
+theoretical results for algorithms in this class.
 
 %
 %
@@ -345,7 +504,6 @@ and obtain the so-called step equations
 which need to be solved for a search direction
 $\Delta w = (\Delta x, \Delta y, \Delta s)$,
 with $\mu = x^Ts/n$, $\sigma \in (0,1)$.
-For a feasible algorithm $\xi_b = \xi_c = 0$.
 
 The solution of system (\ref{eq:NewtonSystem}) is the computationally
 dominant step in each iteration of an interior point algorithm.
@@ -411,193 +569,6 @@ before the development of interior point methods, see for example
 
 %
 %
-\subsection{The central path}
-\label{sec:CentralPath}
-
-The study of the primal--dual properties of central path was pioneered by
-Megiddo \cite{Megiddo} and Bayer and Lagarias \cite{BayerLagarias}.
-
-We have seen in Lemma~\ref{th:CentralPathConvergence}
-that as $\mu \to 0$ the solution to $(P_\mu)$ 
-converges to the optimal solutions of $(P)$.
-More formally, the central path leads to a solution which is
-characterised by strict complementarity.
-
-\begin{theorem}[Strict complementarity]
-If $(P)$ and $(D)$ are feasible, then there exist a point $x^* \in\mathcal{P}$
-and a pair $(y^*,s^*) \in \mathcal{D}$ such that
-\[
-(x^*)^T s^* = 0 \quad\mbox{ and }\quad x^*_i + s_i^* >0, \;\; i = 1, \ldots, n.
-\]
-\end{theorem}
-
-A solution $(x^*,s^*)$ that satisfies the above theorem is called 
-{\em strictly complementary}. 
-On the grounds of a strictly complementary
-solution we can define the concept of {\em optimal partition}.
-Following Jansen \cite{phd:Jansen}, we define the support set
-of a vector $v \in \R^n$ as
-\[
-   \sigma(v) = \{ i : v_i > 0, \; i=1,\ldots,n \},
-\]
-and partition the set of indices $\{1,\ldots,n \}$ as
-\[
-   \mathcal{B} = \sigma(x^*), \quad \mathcal{M} = \sigma(s^*).
-\]
-This partition is well-defined in the sense that a 
-strictly complementary solution satisfies both 
-$\mathcal{B} \cap \mathcal{M} = \emptyset$ and 
-$\mathcal{B} \cup \mathcal{M} = \{1,\ldots,n \}$. 
-A proof of the latter result, also known as Goldman-Tucker theorem, 
-can be found in \cite{ipm:Wright97}.
-The concepts of strict complementarity and optimal partition are
-recurrent motifs in the analysis of interior point methods.
-
-Vavasis and Ye \cite{VavasisYe} studied the properties of the 
-curvature of the central path, discovering that the central path
-is characterised by $\bigO(n^2)$ curves of high degree and
-segments where it is relatively straight.
-Such curves appear in correspondence with changes in the optimal
-partition.
-Close to the end, when the optimal partition has been identified,
-the central path becomes a straight line \cite{Megiddo}.
-In this region, the algorithm displays the quadratic convergence 
-property typical of Newton's method.
-
-We now consider
-the limit of $(P_\mu)$ for $\mu \to \infty$, and therefore
-find the point from which the central path departs.
-This corresponds to finding the point that minimizes the barrier function:
-\[
-\hat{x} = \arg \min_{x \in \mathcal{P}^0} \big(-\sum_i \ln x_i \big).
-\]
-The point $\hat{x}$ is the {\em analytic center} of the feasible polytope, 
-and was first studied by Sonnevend \cite{Sonnevend86}.
-Given the strict convexity of the barrier function, the concept 
-of analytic center is well defined.
-As the analytic center minimizes the barrier, it
-is the point farthest away from the boundary.
-
-However, there is a problem with defining the central path in terms
-of analytic center: the central path is affected by the presence of 
-redundant constraints. 
-This happens because it is an exclusively analytic concept, which does
-not exploit geometric considerations.
-Other type of centers (center of gravity, center of the ellipsoid of 
-maximum volume that can be inscribed in $\mathcal{P}$, volumetric center) 
-can be defined, but they usually are too demanding to compute 
-\cite{Gonzaga92}. 
-
-\ignore{
-See a chapter in Ye's book.
-Terlaky's  Klee-Minty example.
-}
-
-%
-%
-\subsection{Neighbourhoods of the central path}
-\label{sec:Neighbourhoods}
-
-As we have seen, following the central path is the recommended
-way of traversing the interior of the feasible region towards
-the optimal solution. Nevertheless, it should be clear that keeping the
-iterates {\em exactly on} the central path is an unachievable aim.
-Finding a point that solves the perturbed complementarity conditions 
-(\ref{eq:PerturbedComplementarity}) for a specific $\mu$ 
-is as difficult as solving the optimization problem itself.
-%
-Therefore, we never insist on this extremely restrictive requirement,
-but we rather allow the iterates to be somewhere around the central path.
-This leads to the introduction of the important concept of
-{\em neighbourhood} of the central path. 
-We can define several neighbourhoods, characterised
-by different properties.
-Two neighbourhoods are often used in theoretical developments.
-
-The first is based on the Euclidean norm, and it is often referred
-to as the {\em tight neighbourhood}:
-\[
-\Nhood_2(\theta) = \{ (x,y,s) \in \mathcal{F}^0 :
-                         \| XSe - \mu e \|_2 \le \theta\mu \},
-\]
-where $\theta \in (0,1)$.
-This neighbourhood defines points which lie very close to the central path:
-search directions generated from points in this neighbourhood can be 
-followed with full step, and the barrier parameter can be decreased
-by a small amount at each iteration (giving rise to the name
-of {\em short-step algorithms} to the algorithms that are based on
-this neighbourhood). 
-The closeness to the central path that the tight neighbourhood
-imposes and maintains allows to produce the best convergence result
-for linear programming: short-step algorithms converge in 
-$\bigO(\sqrt{n}L)$ iterations.
-However, since the reduction in the barrier parameter at each iteration 
-is very small, the practical value of short-step algorithms is small.
-
-The other commonly used neighbourhood is instead based on the infinity norm, 
-and it is often called {\em wide neighbourhood}:
-\[
-\Nhood_{-\infty}(\gamma) = \{ (x,y,s) \in \mathcal{F}^0 :
-                         x_is_i \ge \gamma\mu, \;\; i = 1, \ldots, n \},
-\]
-where $\gamma \in (0,1).$
-Algorithms based on such a neighbourhood are allowed to generate
-iterates that follow more loosely the central path. The iterates 
-have more freedom of movement as they can approach the boundary
-of the feasible set.
-Hence, algorithms based on the wide neighbourhood (usually denoted as
-{\em long-step algorithms}) are less conservative and can decrease 
-the barrier parameter more rapidly.
-However, the Newton direction computed from points in the wide 
-neighbourhood  has weaker properties, and a linesearch procedure is
-needed to ensure that the positivity of the $(x,s)$ iterates is
-preserved.
-
-In Section~\ref{sec:SymNeighbourhood} we will study a variation
-of the $\Nhood_{-\infty}$ neighbourhood which better describes
-the centrality requirements needed for a practical algorithm.
-
-\ignore{
-$N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
-}
-
-
-%
-% Section
-%
-\section{Theoretical results}
-\label{sec:TheoreticalResults}
-
-Theoretical developments aim at lowering the upper bound on the number 
-of steps needed for convergence. The results provided by such worst-case 
-complexity analysis are informative but exceedingly pessimistic. 
-
-Theoretical proofs of complexity generally follow a common scheme.
-First they rely on a computable measure of the closeness to the central
-path: this is accomplished by the concept of neighbourhood. Second,
-they show that the direction computed by solving the Newton system
-(\ref{eq:NewtonSystem}) can be followed with a strictly positive step
-(and therefore guarantees some progress) and generates an iterate 
-that retains the property of being in some neighbourhood of the central 
-path (possibly larger than the one before). Finally, they require
-a decrease in the barrier parameter that allows to derive a polynomial upper
-bound on the number of iterations.
-
-The theoretical analysis for the logarithmic barrier method was
-initiated by Megiddo \cite{Megiddo}.
-On this basis, Kojima, Mizuno and Yoshise \cite{KojimaMizunoYoshise89} 
-proposed a polynomial-time algorithm with the property of convergence 
-in $\bigO(nL)$ iterations.
-This was refined by the same group \cite{KojimaMizunoYoshise89b} 
-and by Monteiro and Adler \cite{MonteiroAdler89a}:
-both papers presented a primal--dual algorithm for linear programming 
-based on the tight $\Nhood_2$ neighbourhood
-with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
-This is still the best complexity result for interior point methods
-for linear programming.
-
-%
-%
 \subsection{Feasible methods}
 
 A feasible algorithm is characterised by the requirement that
@@ -605,23 +576,55 @@ all primal and dual iterates always lie within the interior
 of the feasible region. For this reason, these algorithms 
 need to start from a strictly feasible point. 
 
-A short-step feasible method based on the $\Nhood_2$ neighbourhood
-reduced the barrier parameter by 
+Therefore, a feasible algorithm has $\xi_b = \xi_c = 0$
+in (\ref{eq:NewtonSystem}). It is easy to see that feasibility
+is maintained throughout the algorithm. Since
 \[
-   \sigma = 1 - \delta/\sqrt{n}
+  \begin{split}
+  A \Delta x              &= 0 \\
+  A^T \Delta y + \Delta s &= 0,
+  \end{split}
 \]
-at each iteration, for some positive constant $\delta$.
+we obtain
+\[
+  \begin{split}
+  A (x + \Delta x) &= Ax + A\Delta x = b \\
+  A^T(y +\Delta y) + (s +\Delta s) &= (A^T y +s) + (A^T\Delta y +\Delta s) = c.
+  \end{split}
+\]
 
-In complexity proof, the barrier parameter is reduced slightly at
-each iteration in order to guarantee that one iteration of Newton's
-method can keep the point in the tight neighbourhood of the central path.
-However, this is a worst-case analysis, and in practice the same would happen
-even for a bigger update of the barrier parameter. This brings to
-study ways of allowing a more substantial reduction of the barrier
-parameter, at least in some iterations. 
+As the progress in optimization is concerned,
+we have that from $s^T \Delta x + x^T \Delta s = -x^Ts + \sigma\mu$
+we obtain
+\be  \label{eq:OptimalityProgress}
+   x(\alpha)^Ts(\alpha) = x^Ts + \alpha(s^T \Delta x + x^T \Delta s)
+     + \alpha^2 \Delta x^T \Delta s = x^Ts (1 - \alpha (1 - \sigma)).
+\ee
+
+From (\ref{eq:OptimalityProgress}) we can make some observations.
+The length of the step $\alpha$ taken in the search direction
+$(\Delta x,\Delta y ,\Delta s)$ computed from (\ref{eq:NewtonSystem})
+controls the reduction in complementarity gap: for the chosen
+$\sigma$, the longer the step, the bigger the reduction. This motivates
+the attempts to enlarge the stepsize by the use of correctors
+techniques (see Section~\ref{sec:MultipleCC} and Chapter~\ref{ch:Correctors}).
+
+The centering parameter $\sigma$ plays an important role as well.
+We can see that the biggest reduction is obtained for $\sigma = 0$.
+This does not come as a surprise, as the choice of $\sigma = 0$
+corresponds to solving the KKT conditions (\ref{eq:KKT}) which
+describe the optimality conditions for the linear program
+(\ref{eq:PrimalDualPair}). The choice of $\sigma = 1$, instead,
+leaves the complementarity gap unchanged. While this does not
+produce a progress towards optimality, it tends to move the iterate
+closer to the central path. A step done in a direction computed
+with $\sigma = 1$ is often called a {\em pure centering step}.
+
+It is therefore essential to choose $\sigma$ appropriately, trying
+to balance the often conflicting aims of optimality and centrality.
 
 One important result is this direction was obtained by 
-Mizuno, Todd and Ye \cite{MizunoToddYe}, who analysed the short-step 
+Mizuno, Todd and Ye \cite{MizunoToddYe}, who analysed a short-step 
 predictor--corrector method. Their strategy uses two nested neighbourhoods 
 $\Nhood_2(\theta^2)$ and $\Nhood_2(\theta)$, $\theta \in (0,1)$, 
 and exploits the
@@ -646,12 +649,6 @@ While this
 algorithm is not effective in practical terms, it provides a scheme 
 upon which more computationally attractive methods can be constructed,
 as we will discuss in Chapter~\ref{ch:PracticalIpm}.
-
-Thanks to the optimizing predictor direction which is identical
-to a short-step feasible method, also the predictor--corrector
-algorithm converges in $\bigO(\sqrt{n}L)$ iterations, with the only
-difference that the value of the barrier parameter is reduced over
-two iterations.
 
 %
 %
@@ -761,9 +758,69 @@ so the reduction in infeasibilities is linear, while complementarity reduces
 for a small $\alpha$. When feasibility is restored, the reduction in the
 complementarity measures becomes linear as well, as $\Delta x^T \Delta s = 0$.
 
-\fb{
-Order of convergence: $\bigO(n^2L)$ in Wright.
-}
+%
+%
+\subsection{Theoretical results}
+\label{sec:TheoreticalResults}
+
+Theoretical developments aim at lowering the upper bound on the number 
+of steps needed for convergence. The results provided by such worst-case 
+complexity analysis are informative but exceedingly pessimistic. 
+
+Theoretical proofs of complexity generally follow a common scheme.
+First they rely on a computable measure of the closeness to the central
+path: this is accomplished by the concept of neighbourhood. Second,
+they show that the direction computed by solving the Newton system
+(\ref{eq:NewtonSystem}) can be followed with a strictly positive step
+(and therefore guarantees some progress) and generates an iterate 
+that retains the property of being in some neighbourhood of the central 
+path (possibly larger than the one before). Finally, they require
+a decrease in the barrier parameter that allows to derive a polynomial upper
+bound on the number of iterations.
+
+The theoretical analysis for the logarithmic barrier method was
+initiated by Megiddo \cite{Megiddo}.
+On this basis, Kojima, Mizuno and Yoshise \cite{KojimaMizunoYoshise89} 
+proposed a polynomial-time algorithm with the property of convergence 
+in $\bigO(nL)$ iterations.
+This was refined by the same group \cite{KojimaMizunoYoshise89b} 
+and by Monteiro and Adler \cite{MonteiroAdler89a}:
+both papers presented a primal--dual algorithm for linear programming 
+based on the tight $\Nhood_2$ neighbourhood
+with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
+This is still the best complexity result for interior point methods
+for linear programming.
+
+\hrulefill
+
+A short-step feasible method based on the $\Nhood_2$ neighbourhood
+reduced the barrier parameter by 
+\[
+   \sigma = 1 - \delta/\sqrt{n}
+\]
+at each iteration, for some positive constant $\delta$.
+
+In complexity proof, the barrier parameter is reduced slightly at
+each iteration in order to guarantee that one iteration of Newton's
+method can keep the point in the tight neighbourhood of the central path.
+However, this is a worst-case analysis, and in practice the same would happen
+even for a bigger update of the barrier parameter. This brings to
+study ways of allowing a more substantial reduction of the barrier
+parameter, at least in some iterations. 
+
+\hrulefill
+
+Thanks to the optimizing predictor direction which is identical
+to a short-step feasible method, also the Mizuno-Todd-Ye
+predictor--corrector algorithm \cite{MizunoToddYe}
+converges in $\bigO(\sqrt{n}L)$ iterations, with the only
+difference that the value of the barrier parameter is reduced over
+two iterations.
+
+\hrulefill
+
+Order of convergence for an infeasible algorithm is 
+$\bigO(n^2L)$ in Wright.
 
 
 %
@@ -886,8 +943,9 @@ for
 %
 \subsection{Analysis}
 
-The analysis is done for the long-step feasible path-following 
-algorithm, where the search direction $(\Delta x, \Delta y, \Delta s)$ 
+We analyse a long-step feasible path-following 
+algorithm based on the symmetric neighbourhood $\Nhood_s(\gamma)$, 
+where the search direction $(\Delta x, \Delta y, \Delta s)$ 
 is found by solving system (\ref{eq:NewtonSystem}) with 
 $r=(0,\; 0,-XSe+\sigma\mu e)^T$, $\sigma\in(0,1)$, $\mu=x^Ts/n$.
 %
@@ -939,7 +997,7 @@ By Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
 x_i(\alpha)s_i(\alpha) \le (1-\alpha)\frac{1}{\gamma}\mu +\alpha\sigma\mu 
 + \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
 \]
-At the new point $(x(\alpha),y(\alpha),s(\alpha))$, the new duality gap
+At the new point $(x(\alpha),y(\alpha),s(\alpha))$, the duality gap
 is $x(\alpha)^Ts(\alpha) = n\mu(\alpha)$.
 The relation $x_i(\alpha)s_i(\alpha)\le \frac{1}{\gamma}\mu(\alpha)$ 
 holds provided that

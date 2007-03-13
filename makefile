@@ -19,7 +19,7 @@ pdf: ps
 	ps2pdf $(INPUT).ps $(INPUT).pdf
 
 tar:
-	tar cvzhf $(INPUT).tar.gz . --exclude=*~ --exclude=*.gz --exclude=.svn --exclude=.tar
+	tar cvzhf $(INPUT).tar.gz . --exclude=*~ --exclude=*.gz --exclude=.svn --exclude=*.tar
 
 clean:
 	-rm -rf $(CRUFT)
