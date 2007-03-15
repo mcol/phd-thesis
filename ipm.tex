@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
-%Mar:  8,  9, 13
+%Mar:  8,  9, 13, 15
 
 %
 % Chapter: Interior point methods
@@ -14,7 +14,8 @@
 Interior point methods are well-suited to solving very
 large scale optimization problems. Their theory is well understood
 and a number of survey papers and academic books are available
-\cite{Gonzaga92,MWright92,ipm:Wright97}.
+\cite{AndersenGondzioMeszarosXu,GondzioTerlaky,Gonzaga92,
+RoosTerlakyVial,MWright92,ipm:Wright97}.
 
 This chapter is devoted to the derivation and analysis of primal--dual
 path-following interior point methods. 
@@ -76,7 +77,7 @@ Using this notation, the primal--dual pair (\ref{eq:PrimalDualPair}) can
 be written as
 \be \label{eq:PrimalDualPair2}
 \min \; c^T x, \;\;  x    \in \mathcal{P}; \qquad
-\max \; b^T y, \;\; (y,s) \in \mathcal{D},
+\max \; b^T y, \;\; (y,s) \in \mathcal{D}.
 \ee
 
 We recall here some well-known results on the relationship between
@@ -106,7 +107,7 @@ there exists a pair $(x,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
 If one of the sets $\mathcal{P}$ or $\mathcal{D}$ is empty, 
 then the other is either unbounded or empty as well. 
 In such a case, an optimal
-solution for problem (\ref{eq:PrimalDualPair2}) does not exist,
+solution for problem (\ref{eq:PrimalDualPair2}) does not exist.
 
 In what follows, we make the standard assumption for the development
 of interior point methods that $\mathcal{P}^0 \ne \emptyset$ and 
@@ -123,7 +124,6 @@ the algorithm to accept infeasible iterates
 Optimality conditions let us recognise that a solution has been
 found. They also provide insight on the development of algorithms 
 for finding a solution.
-
 The Karush-Kuhn-Tucker (KKT) conditions express first-order optimality 
 conditions for the primal--dual pair (\ref{eq:PrimalDualPair}).
 They can be written as
@@ -350,7 +350,7 @@ is as difficult as solving the optimization problem itself.
 %
 Therefore, we never insist on this extremely restrictive requirement,
 but we rather allow the iterates to be somewhere around the central path.
-This leads to the introduction of the important concept of
+This leads to the introduction of the concept of
 {\em neighbourhood} of the central path. 
 We can define several neighbourhoods, characterised
 by different properties.
@@ -392,7 +392,7 @@ neighbourhood  has weaker properties, and a linesearch procedure is
 needed to ensure that the positivity of the $(x,s)$ iterates is
 preserved.
 Algorithms based on the wide neighbourhood (usually called
-{\em long-step algorithms}) are less conservative their short-step
+{\em long-step algorithms}) are less conservative than their short-step
 counterparts, and can decrease 
 the barrier parameter more rapidly.
 Efficient implementations of interior point methods are based
@@ -414,12 +414,8 @@ $N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-
 \label{sec:PathFollowingAlgorithms}
 
 We now bring together the elements we presented above and describe
-a complete path-following algorithm. We then discuss various
+a complete path-following algorithm. We then discuss some
 theoretical results for algorithms in this class.
-
-%
-%
-\subsection{Solving the perturbed KKT conditions}
 
 Primal--dual path-following methods solve the perturbed KKT
 conditions (\ref{eq:KKT}) by asking the complementarity pairs to align 
@@ -435,15 +431,16 @@ barrier parameter $\mu$ and how to update it at each iteration.
 Explain how we choose it at the beginning.
 }
 
-At each iteration, $\mu$ is monotonically decreased by the quantity
-$\sigma \in (0,1)$, called {\em centering parameter} for reasons that
-will become clear later on.
-Hence, the perturbed KKT conditions (\ref{eq:PerturbedKKT}) 
-approximate better and better
+With the progress of iterations 
+we would like the perturbed KKT conditions (\ref{eq:PerturbedKKT}) 
+to approximate better and better
 the system (\ref{eq:KKT}) of optimality conditions for the original
 problem.
+Hence, at each iteration, $\mu$ is monotonically decreased by the quantity
+$\sigma \in (0,1)$, called {\em centering parameter} for reasons that
+will become clear later on.
 The choice of the centering parameter $\sigma$ 
-is algorithm-dependent. We provide some theoretical insights on some
+is algorithm-dependent. We provide theoretical insights on some
 possible choices in Section~\ref{sec:TheoreticalResults}.
 
 \ignore{
@@ -470,21 +467,23 @@ in number of iterations.
 
 Path-following interior point methods seek a solution 
 to the system of equations (\ref{eq:PerturbedKKT})
-\[
+\be  \label{eq:KKTSystem}
 F(x,y,s) = \left[
   \begin{array}{c}
     Ax-b \\
     A^Ty+s-c \\
     XSe - \sigma\mu e \\
   \end{array} \right] = 0,
-\]
+\ee
 which is nonlinear in the perturbed complementarity constraints.
 We use Newton's method to linearise the system around the 
 current point according to
 \[
 \nabla F(x,y,s) \Delta(x,y,s) = -F(x,y,s),
 \]
-and obtain the so-called step equations
+where $\nabla F(x,y,s)$ is the Jacobian of the function (\ref{eq:KKTSystem})
+evaluated at the current interate $w = (x,y,s)$.
+We obtain the so-called step equations
 %
 \be \label{eq:NewtonSystem}
 \left[ \begin{array}{ccc}
@@ -504,6 +503,10 @@ and obtain the so-called step equations
 which need to be solved for a search direction
 $\Delta w = (\Delta x, \Delta y, \Delta s)$,
 with $\mu = x^Ts/n$, $\sigma \in (0,1)$.
+
+%
+%
+\subsection{Solving the perturbed KKT conditions}
 
 The solution of system (\ref{eq:NewtonSystem}) is the computationally
 dominant step in each iteration of an interior point algorithm.
@@ -544,7 +547,7 @@ By further eliminating $\Delta x$, we reduce system
 \ee
 %
 where we introduced the notation $D^2 = S^{-1} X$.
-Under the assumption of full row rank for $A$, matrix 
+Under the standard assumption of full row rank for $A$, matrix 
 $A D^2 A^T$ is positive definite, since $D^2_i = x_i/s_i > 0$ for
 all $i = 1, \ldots, n$.
 
@@ -570,6 +573,7 @@ before the development of interior point methods, see for example
 %
 %
 \subsection{Feasible methods}
+\label{sec:FeasibleMethods}
 
 A feasible algorithm is characterised by the requirement that
 all primal and dual iterates always lie within the interior 
@@ -577,18 +581,19 @@ of the feasible region. For this reason, these algorithms
 need to start from a strictly feasible point. 
 
 Therefore, a feasible algorithm has $\xi_b = \xi_c = 0$
-in (\ref{eq:NewtonSystem}). It is easy to see that feasibility
+in the right-hand side of system (\ref{eq:NewtonSystem}). 
+It is easy to see that feasibility
 is maintained throughout the algorithm. Since
+the search direction computed from (\ref{eq:NewtonSystem})
+guarantees
 \[
-  \begin{split}
-  A \Delta x              &= 0 \\
-  A^T \Delta y + \Delta s &= 0,
-  \end{split}
+  A \Delta x = 0 \quad \text{and} \quad
+  A^T \Delta y + \Delta s = 0,
 \]
-we obtain
+we verify that
 \[
   \begin{split}
-  A (x + \Delta x) &= Ax + A\Delta x = b \\
+  A (x + \Delta x) &= Ax + A\Delta x = b, \\
   A^T(y +\Delta y) + (s +\Delta s) &= (A^T y +s) + (A^T\Delta y +\Delta s) = c.
   \end{split}
 \]
@@ -601,11 +606,13 @@ we obtain
      + \alpha^2 \Delta x^T \Delta s = x^Ts (1 - \alpha (1 - \sigma)).
 \ee
 
-From (\ref{eq:OptimalityProgress}) we can make some observations.
-The length of the step $\alpha$ taken in the search direction
+From (\ref{eq:OptimalityProgress}) we observe that the progress in
+optimization depends on both $\alpha$ and $\sigma$.
+For a fixed $\sigma$, the length of the step $\alpha$ taken in 
+the search direction
 $(\Delta x,\Delta y ,\Delta s)$ computed from (\ref{eq:NewtonSystem})
-controls the reduction in complementarity gap: for the chosen
-$\sigma$, the longer the step, the bigger the reduction. This motivates
+measures the reduction in complementarity gap: 
+the longer the step, the bigger the reduction. This motivates
 the attempts to enlarge the stepsize by the use of correctors
 techniques (see Section~\ref{sec:MultipleCC} and Chapter~\ref{ch:Correctors}).
 
@@ -619,12 +626,11 @@ leaves the complementarity gap unchanged. While this does not
 produce a progress towards optimality, it tends to move the iterate
 closer to the central path. A step done in a direction computed
 with $\sigma = 1$ is often called a {\em pure centering step}.
-
 It is therefore essential to choose $\sigma$ appropriately, trying
 to balance the often conflicting aims of optimality and centrality.
 
 One important result is this direction was obtained by 
-Mizuno, Todd and Ye \cite{MizunoToddYe}, who analysed a short-step 
+Mizuno, Todd and Ye \cite{MizunoToddYe}, who introduced a short-step 
 predictor--corrector method. Their strategy uses two nested neighbourhoods 
 $\Nhood_2(\theta^2)$ and $\Nhood_2(\theta)$, $\theta \in (0,1)$, 
 and exploits the
@@ -643,10 +649,9 @@ algorithm produces a point in $\Nhood_2(\theta^2)$.
 
 An important contribution of this technique, is the idea 
 of targeting optimality and centrality independently. 
-However, the use of the very restrictive $\Nhood_2$ neighbourhood 
-makes it unattractive for practical applications.
-While this 
-algorithm is not effective in practical terms, it provides a scheme 
+The use of the very restrictive $\Nhood_2$ neighbourhood 
+makes the Mizuno-Todd-Ye algorithm unattractive for practical applications.
+However, it provides a scheme 
 upon which more computationally attractive methods can be constructed,
 as we will discuss in Chapter~\ref{ch:PracticalIpm}.
 
@@ -689,10 +694,10 @@ Also, the homogeneous self-dual formulation has the very
 appealing property of being able to detect infeasibility
 with accuracy.
 
-\fb{
-The use of a self-dual formulation comes with a price from a
+The use of a self-dual formulation, however, comes with a price from a
 computational viewpoint, particularly because of the need of one 
 extra backsolve at each iteration.
+\fb{
 Also one more variable in the system.
 It works only for linear programming.
 Stability issues?
@@ -722,8 +727,8 @@ neighbourhood that admits infeasible points:
 	   (x,s)>0, x_is_i \ge \gamma\mu \},
 \]
 where $\gamma\in (0,1)$ and $\beta \ge 1$ are parameters, and 
-we denoted the primal and dual residuals, respectively, by 
-$\xi_b = Ax-b$ and $\xi_c = A^T y + s - c$.
+$\xi_b^0,\xi_c^0$ are the primal and dual residuals, respectively, 
+at the initial iterate $(x^0,y^0,s^0)$.
 
 Therefore, there is no strict feasibility requirement for 
 the iterates; however, the residuals at each iteration must be 
@@ -747,16 +752,22 @@ safeguards are implemented:
 stay in this neighbourhood.
 \end{itemize}
 
-Let $(x', y', s') = (x^0, y^0, s^0) + \alpha(\Delta x, \Delta y, \Delta s)$, 
-then:
-\begin{itemize}
-\item $\xi'_P = (1-\alpha) \xi^0_P$
-\item $\xi'_D = (1-\alpha) \xi^0_D$
-\item $x'^Ts' = (1-\alpha (1 -\sigma))(x^0)^Ts^0 +\alpha^2 \Delta x^T \Delta s$
-\end{itemize}
-so the reduction in infeasibilities is linear, while complementarity reduces
-for a small $\alpha$. When feasibility is restored, the reduction in the
-complementarity measures becomes linear as well, as $\Delta x^T \Delta s = 0$.
+Letting 
+$(x(\alpha),y(\alpha),s(\alpha)) =(x,y,s)+\alpha(\Delta x,\Delta y,\Delta s)$,
+then we can show that
+\[
+  \xi_b(\alpha) = (1-\alpha) \xi_b \quad \text{and} \quad 
+  \xi_c(\alpha) = (1-\alpha) \xi_c,
+\]
+so infeasibilities reduce linearly with $\alpha$, while for the 
+complementarity gap
+\[
+  x(\alpha)^Ts(\alpha)=(1-\alpha(1 -\sigma))x^Ts +\alpha^2 \Delta x^T \Delta s,
+\]
+a reduction happens for a sufficiently small $\alpha$. 
+
+When feasibility is restored, an infeasible algorithm becomes identical
+to a feasible algorithm. 
 
 %
 %
@@ -842,20 +853,15 @@ reduce the barrier parameter quickly. However, at it does not actively
 enforce an upper bound on the complementary products, it may allow the
 iterates to produce very unbalanced products.
 
-\fb{
 The issue of unbalanced complementary products is very important for
-the practical success of an interior point code. We should note how
+the practical success of an interior point code. 
+
+\fb{
+We should note how
 the complementary pairs play a role in the Newton system, and how
 their bad scaling causes a bad behaviour of Newton's method, which
 produces unreliable directions.
-}
 
-We propose to use a symmetric neighbourhood $\Nhood_s(\gamma)$,
-in which complementarity pairs have to satisfy 
-$\gamma \mu \leq x_i s_i \leq \gamma^{-1} \mu$, where $\gamma \in (0,1)$, 
-for a strictly feasible iterate $(x,y,s)$.
-
-\fb{
 Jansen \cite{JansenRoosTerlaky96} (or actually \cite{phd:Jansen}?)
 proposed to use the ratio 
 between the smallest and the largest complementarity pair as an 
@@ -886,10 +892,14 @@ which then become blocking components when the stepsizes are computed.
 The notion of spread in complementarity products
 is not well characterised by either 
 of the two neighbourhoods $\Nhood_2$ or $\Nhood_{-\infty}$ commonly used 
-in theoretical developments of IPMs.
+in theoretical developments of interior point methods.
 To overcome this disadvantage, here we formalise a variation 
 on the usual $\Nhood_{-\infty}(\gamma)$ neighbourhood, 
 in which we introduce an upper bound on the complementary pairs. 
+We propose to use a symmetric neighbourhood $\Nhood_s(\gamma)$,
+in which complementarity pairs have to satisfy 
+$\gamma \mu \leq x_i s_i \leq \gamma^{-1} \mu$, where $\gamma \in (0,1)$, 
+for a strictly feasible iterate $(x,y,s)$.
 This neighbourhood was implicitly used in \cite{Gondzio96}
 to define an achievable target for multiple centrality correctors
 (we refer the reader to Section~\ref{sec:MultipleCC}).
@@ -912,13 +922,12 @@ neighbourhood $\Nhood_s$, on the other hand, promotes
 the decrease of complementarity pairs which are too large, thus taking 
 better care of centrality.
 
-\hrulefill
-
-An upper bound is implicit in the $\Nhood_{-\infty}$ neighbourhood. To find it,
+An upper bound on the size of comlementary products
+is implicit in the $\Nhood_{-\infty}$ neighbourhood. To find it,
 suppose that all but one complementarity products are at the lower bound
 $\gamma\mu$:
 \[
-  n\mu = (n-1)\gamma\mu + x_n s_n,
+  n\mu = x_1s_1 + \sum_{i=2}^n x_is_i = x_1 s_1 + (n-1)\gamma\mu,
 \]
 from which it follows that in general
 \be  \label{eq:UpperBoundN8hood}
@@ -927,13 +936,13 @@ from which it follows that in general
 We note the dependence on the problem dimension in the definition of the
 upper bound, hence its uneffectiveness for large-scale problems.
 
-We can also determine the value of $n$ for which the upper bound of
-the symmetric neighbourhood crosses the implicit upper bound
+We now determine the value of $n$ for which the upper bound of
+the symmetric neighbourhood is tighter than the implicit upper bound
 (\ref{eq:UpperBoundN8hood}), that is
 \[
   n(1-\gamma) + \gamma > \frac{1}{\gamma},
 \]
-which means that the symmetric neighbourhood has an effective bound
+which means that the symmetric neighbourhood has a stronger bound
 for
 \[
   n > \frac{1+\gamma}{\gamma}.
@@ -1010,28 +1019,39 @@ from which we derive a first bound on the stepsize:
 \alpha \le 2^{3/2}\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} = \bar\alpha_1.
 \]
 %
-Considering now the bound $x_is_i\ge \gamma\mu$ and proceeding as before,
-%By Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
-%\[
-%x_i(\alpha)s_i(\alpha) \ge (1-\alpha)\gamma\mu + \alpha\sigma\mu 
-%- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
-%\]
-%Hence, $x_i(\alpha)s_i(\alpha)\ge \gamma\mu(\alpha)$ provided that
-%\[
-%(1-\alpha)\gamma\mu + \alpha\sigma\mu- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu 
-%\ge\gamma(1-\alpha+\alpha\sigma)\mu,
-%\]
-we derive a second bound on the stepsize:
+Considering now the bound $x_is_i\ge \gamma\mu$ and using again
+Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
+\[
+x_i(\alpha)s_i(\alpha) \ge (1-\alpha)\gamma\mu + \alpha\sigma\mu 
+- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu.
+\]
+Hence, $x_i(\alpha)s_i(\alpha)\ge \gamma\mu(\alpha)$ provided that
+\[
+(1-\alpha)\gamma\mu + \alpha\sigma\mu- \alpha^2 2^{-3/2}\left( 1+ \frac{1}{\gamma} \right)n\mu 
+\ge\gamma(1-\alpha+\alpha\sigma)\mu,
+\]
+from which we derive a second bound on the stepsize:
 \[
 \alpha\le 2^{3/2}\gamma\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} =\bar\alpha_2.
 \]
 
-Therefore, we satisfy both bounds and guarantee that 
-$(x(\alpha),y(\alpha),s(\alpha))\in \Nhood_s(\gamma)$ if
+Therefore, for
 \[
-\alpha \in [0,\min(\bar\alpha_1,\bar\alpha_2)],
+\alpha \in [0,\min(\bar\alpha_1,\bar\alpha_2)] = [0, \bar\alpha_2],
 \]
-which proves the claim, as $\gamma \in (0,1)$.
+we satisfy both bounds of the symmetric neighbourhood.
+
+To conclude our proof we need to show that the 
+$(x(\alpha),y(\alpha),s(\alpha))$ iterate is still strictly feasible.
+Feasibility is trivially maintained, for the same argument shown 
+in Section~\ref{sec:FeasibleMethods}.
+About positivity, we have that
+\[
+  x_i(\alpha)s_i(\alpha) \ge \gamma \mu(\alpha) 
+                         = \gamma(1 - \alpha(1-\sigma))\mu > 0,
+\]
+as $\gamma\in (0,1)$ and $\sigma \in (0,1)$. 
+Hence $x(\alpha)>0$ and $s(\alpha)>0$.
 \end{proof}
 
 It is interesting to note that the introduction of the upper bound 
@@ -1042,12 +1062,10 @@ neighbourhood provides a better practical environment without any
 theoretical loss. This understanding provides some additional 
 insight into the desired characteristics of a well-behaved iterate.
 
-\hrulefill
-
 The use of the symmetric neighbourhood will be one of the theoretical
 motivations of this work. Through it, in Section~\ref{sec:MultipleCC}
 we will put the work of \cite{Gondzio96} inside a more sound framework.
 Then we will use it again in the presentation of the weighted corrector
-directions of Chapter~\ref{ch:Correctors}, and in the analysis of an 
+directions strategy of Chapter~\ref{ch:Correctors}, and in the analysis of an 
 original warm-start strategy for stochastic programming of 
 Chapter~\ref{ch:Warmstart}.
