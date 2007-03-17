@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
-%Mar:  8, 12, 13
+%Mar:  8, 12, 13, 16, 17
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -32,14 +32,16 @@ for the associated barrier problem and make a step along
 this direction, thus usually reducing infeasibilities 
 and complementarity gap.
 The computation of the Cholesky factorization
-dominates the cost of each iteration.
+dominates the cost of each iteration: in general this procedure
+requires $\bigO(n^3)$ operations.
 As this is usually a major computational task, 
 the efforts in the theory and practice of 
 interior point methods concentrate on reducing 
 the number of times the Newton system matrix (\ref{eq:NewtonSystem}) 
 has to be factorised.
 
-In Section~\ref{sec:TheoreticalResults} we presented the theoretical
+In Sections~\ref{sec:FeasibleMethods} and \ref{sec:InfeasibleMethods}
+we presented the theoretical
 results on the order of convergence of some interior point algorithms.
 In practice, convergence is much faster than stated by those results:
 optimality is usually reached in a number of iterations 
@@ -380,7 +382,7 @@ where $\alpha_P$ and $\alpha_D$ are chosen according to (\ref{eq:Alphas}).
 
 For reasons of computational efficiency, in the computation of
 the corrector, Mehrotra's algorithm exploits 
-the same Jacobian matrix employed in finding the affine-scaling direction: 
+the Jacobian matrix employed in finding the affine-scaling direction: 
 hence, the same Cholesky factors are reused.
 The cost of a single iteration in the predictor--corrector 
 method is only slightly larger than that of the standard 

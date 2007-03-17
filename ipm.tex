@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
-%Mar:  8,  9, 13, 15
+%Mar:  8,  9, 13, 15, 16, 17
 
 %
 % Chapter: Interior point methods
@@ -380,7 +380,7 @@ The other commonly used neighbourhood is instead based on the infinity norm,
 and it is often called {\em wide neighbourhood}:
 \[
 \Nhood_{-\infty}(\gamma) = \{ (x,y,s) \in \mathcal{F}^0 :
-                         x_is_i \ge \gamma\mu, \;\; i = 1, \ldots, n \},
+                         x_is_i \ge \gamma\mu, \; i = 1, \ldots, n \},
 \]
 where $\gamma \in (0,1).$
 Algorithms based on such a neighbourhood are allowed to generate
@@ -405,6 +405,25 @@ the centrality requirements needed for a practical algorithm.
 \ignore{
 $N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
 }
+
+\hrulefill
+
+Many theoretical developments aim at lowering the upper bound on the number 
+of steps needed for convergence. The results provided by such worst-case 
+complexity analysis are informative but exceedingly pessimistic. 
+
+Theoretical proofs of complexity generally follow a common scheme.
+First they rely on a computable measure of the closeness to the central
+path: this is accomplished by the concept of neighbourhood. Second,
+they show that the direction computed by solving the Newton system
+(\ref{eq:NewtonSystem}) can be followed with a strictly positive step
+(and therefore some progress is made at every iteration) 
+and generates an iterate 
+that retains the property of being in some neighbourhood of the central 
+path (possibly larger than the one before). Finally, they require
+a decrease in the barrier parameter that allows to derive a polynomial upper
+bound on the number of iterations needed to reach the desired
+level of accuracy.
 
 
 %
@@ -441,7 +460,7 @@ $\sigma \in (0,1)$, called {\em centering parameter} for reasons that
 will become clear later on.
 The choice of the centering parameter $\sigma$ 
 is algorithm-dependent. We provide theoretical insights on some
-possible choices in Section~\ref{sec:TheoreticalResults}.
+possible choices in Section~\ref{sec:FeasibleMethods}.
 
 \ignore{
 In all predictor-corrector algorithms there is a crucial decision 
@@ -629,6 +648,14 @@ with $\sigma = 1$ is often called a {\em pure centering step}.
 It is therefore essential to choose $\sigma$ appropriately, trying
 to balance the often conflicting aims of optimality and centrality.
 
+In a short-step feasible method based on the $\Nhood_2$ neighbourhood
+the barrier parameter is reduced by 
+\[
+   \sigma = 1 - \delta/\sqrt{n}
+\]
+at each iteration, for some positive constant $\delta$, usually
+very small (0.05 according to Gonzaga \cite{Gonzaga91a}).
+
 One important result is this direction was obtained by 
 Mizuno, Todd and Ye \cite{MizunoToddYe}, who introduced a short-step 
 predictor--corrector method. Their strategy uses two nested neighbourhoods 
@@ -655,25 +682,55 @@ However, it provides a scheme
 upon which more computationally attractive methods can be constructed,
 as we will discuss in Chapter~\ref{ch:PracticalIpm}.
 
+\hrulefill
+
+Kojima, Mizuno and Yoshise \cite{KojimaMizunoYoshise89} 
+proposed a polynomial-time long-step algorithm with the property of convergence
+in $\bigO(nL)$ iterations.
+This was refined by the same group \cite{KojimaMizunoYoshise89b} 
+and by Monteiro and Adler \cite{MonteiroAdler89a}:
+both papers presented a primal--dual algorithm for linear programming 
+based on the tight $\Nhood_2$ neighbourhood
+with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
+This is still the best complexity result for interior point methods
+for linear programming.
+
+In complexity proof, the barrier parameter is reduced slightly at
+each iteration in order to guarantee that one iteration of Newton's
+method can keep the point in the tight neighbourhood of the central path.
+However, this is a worst-case analysis, and in practice the same would happen
+even for a bigger update of the barrier parameter. This brings to
+study ways of allowing a more substantial reduction of the barrier
+parameter, at least in some iterations. 
+
+The Mizuno-Todd-Ye predictor--corrector algorithm \cite{MizunoToddYe},
+discussed in Section~\ref{sec:FeasibleMethods},
+achieves this without losing the $\bigO(\sqrt{n}L)$ convergence property.
+This appealing result is obtained thanks to the optimizing predictor
+direction which guarantees the same progress achievable by a short-step 
+feasible method, with the only 
+difference that the value of the barrier parameter is reduced over
+two iterations.
+
 %
 %
 \subsection{Infeasible methods}
 \label{sec:InfeasibleMethods}
 
-\ignore{
 The results presented up to here concentrated on feasible methods. 
 For these methods we assume to have a strictly feasible starting point
 readily available.
-}
-
 Finding a strictly feasible starting point is, in general, a nontrivial task.
 Solving the feasibility problem is an optimization problem in its
 own right, and is as difficult as solving the original problem
 to optimality.
 Moreover, the feasible region may have empty interior,
 in which case the theory developed above does not apply.
-For these reasons, a need exists for practical 
-implementations to dispense from this requirement.
+Allowing an infeasible starting point is particularly important
+for the algorithms implemented in practical interior point solvers.
+For these reasons, a need exists for developing techniques
+that dispense from the requirement of feasibility of the 
+starting iterate.
 
 A way to recover a strictly feasible starting point involves 
 solving an artificial Phase~I subproblem by using 
@@ -686,34 +743,35 @@ by the presence of dense columns that compromises the
 computational efficiency. 
 
 A very different approach is based on the homogeneous 
-self-dual formulation \cite[ch.~9]{ipm:Wright97}.
+self-dual formulation introduced by Ye, Todd and Mizuno
+\cite{YeToddMizuno94}.
+This and a simplified variant are presented in \cite[ch.~9]{ipm:Wright97}.
 The self-dual formulation wraps the optimization problem into one 
-of larger dimension, but for which a feasible solution is known 
-from the start.
-Also, the homogeneous self-dual formulation has the very
+of slightly larger dimension, but for which a strictly feasible solution
+is known from the start.
+Therefore, once embedded in the homogeneous self-dual form,
+the problem can be solved with a feasible algorithm.
+Also, this formulation has the very
 appealing property of being able to detect infeasibility
 with accuracy.
-
 The use of a self-dual formulation, however, comes with a price from a
-computational viewpoint, particularly because of the need of one 
-extra backsolve at each iteration.
+computational viewpoint, particularly because of the need of
+two extra backsolves at each iteration.
 \fb{
-Also one more variable in the system.
 It works only for linear programming.
 Stability issues?
-Find a reference for that (Terlaky-Ye?).
 }
 
 It is possible to develop an algorithm which only requires 
 the $x$ and $s$ components to be strictly positive. 
 This was initiated by Lustig \cite{Lustig91}, who proposed some
 new feasibility restoration directions.
-
-\fb{
-However, was the work of Kojima, Megiddo and Mizuno \cite{KojimaMegiddoMizuno}
+However, it was the work of Kojima, Megiddo and Mizuno 
+\cite{KojimaMegiddoMizuno}
 that introduced a complete infeasible algorithm, with full
 theoretical analysis of convergence.
 
+\fb{
 Sure? Wright (page 109) says it was Lustig Marsten and Shanno.
 }
 
@@ -722,17 +780,18 @@ an algorithm, all iterates are infeasible, but the limit points
 are feasible and optimal. This is obtained by using a 
 neighbourhood that admits infeasible points:
 \[
-\Nhood_{-\infty}(\gamma,\beta) =\{ (x,y,s) | \; 
+\Nhood_{-\infty}(\gamma,\beta) =\{ (x,y,s) :
            \|(\xi_b,\xi_c)\| \le \beta\mu \frac{\|(\xi_b^0,\xi_c^0)\|}{\mu_0}, 
-	   (x,s)>0, x_is_i \ge \gamma\mu \},
+	   \; (x,s)>0, \; x_is_i \ge \gamma\mu, \; i = 1, \ldots, n \},
 \]
 where $\gamma\in (0,1)$ and $\beta \ge 1$ are parameters, and 
-$\xi_b^0,\xi_c^0$ are the primal and dual residuals, respectively, 
+$\xi_b^0,\,\xi_c^0$ are the primal and dual residuals, respectively, 
 at the initial iterate $(x^0,y^0,s^0)$.
 
-Therefore, there is no strict feasibility requirement for 
+In the $\Nhood_{-\infty}(\gamma,\beta)$ neighbourhood
+there is no strict feasibility requirement for 
 the iterates; however, the residuals at each iteration must be 
-bounded above by a multiple of the duality measure $\mu$. 
+bounded above by a multiple of the complementarity measure $\mu$. 
 By reducing $\mu$ we can force the primal and dual residuals 
 $\xi_b$ and $\xi_c$ to zero, thus approaching complementarity and 
 feasibility at the same speed.
@@ -744,13 +803,21 @@ An algorithm is globally convergent if it is possible to choose
 a strictly positive stepsize such that the complementarity gap
 is reduced at each iteration. This property is very important, at it
 guarantees the good behaviour of the algorithm for any given starting
-point. However, in order to prove it, it is required that some
-safeguards are implemented:
-\begin{itemize}
-\item reduction in infeasibility should be faster than in complementarity
-\item $x_i s_i \ge \beta x^Ts$ for a chosen $\beta$, and all iterates must
-stay in this neighbourhood.
-\end{itemize}
+point. 
+However, for the global convergence property to hold, two 
+safeguards need to be introduced.
+The first requires that the reduction in infeasibility should be faster 
+than in the complementarity gap. This ensures that the algorithm
+does not get too close to a complementary point before feasibility
+is restored.
+The second safeguard forces $x_i s_i \ge \beta x^Ts$ for a chosen 
+$\beta$, and requires that all iterates must stay in this neighbourhood.
+\fb{
+Check this Kojima-Megiddo-Mizuno stuff!
+
+Order of convergence for an infeasible algorithm is 
+$\bigO(n^2L)$ in Wright.
+}
 
 Letting 
 $(x(\alpha),y(\alpha),s(\alpha)) =(x,y,s)+\alpha(\Delta x,\Delta y,\Delta s)$,
@@ -765,73 +832,8 @@ complementarity gap
   x(\alpha)^Ts(\alpha)=(1-\alpha(1 -\sigma))x^Ts +\alpha^2 \Delta x^T \Delta s,
 \]
 a reduction happens for a sufficiently small $\alpha$. 
-
 When feasibility is restored, an infeasible algorithm becomes identical
 to a feasible algorithm. 
-
-%
-%
-\subsection{Theoretical results}
-\label{sec:TheoreticalResults}
-
-Theoretical developments aim at lowering the upper bound on the number 
-of steps needed for convergence. The results provided by such worst-case 
-complexity analysis are informative but exceedingly pessimistic. 
-
-Theoretical proofs of complexity generally follow a common scheme.
-First they rely on a computable measure of the closeness to the central
-path: this is accomplished by the concept of neighbourhood. Second,
-they show that the direction computed by solving the Newton system
-(\ref{eq:NewtonSystem}) can be followed with a strictly positive step
-(and therefore guarantees some progress) and generates an iterate 
-that retains the property of being in some neighbourhood of the central 
-path (possibly larger than the one before). Finally, they require
-a decrease in the barrier parameter that allows to derive a polynomial upper
-bound on the number of iterations.
-
-The theoretical analysis for the logarithmic barrier method was
-initiated by Megiddo \cite{Megiddo}.
-On this basis, Kojima, Mizuno and Yoshise \cite{KojimaMizunoYoshise89} 
-proposed a polynomial-time algorithm with the property of convergence 
-in $\bigO(nL)$ iterations.
-This was refined by the same group \cite{KojimaMizunoYoshise89b} 
-and by Monteiro and Adler \cite{MonteiroAdler89a}:
-both papers presented a primal--dual algorithm for linear programming 
-based on the tight $\Nhood_2$ neighbourhood
-with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
-This is still the best complexity result for interior point methods
-for linear programming.
-
-\hrulefill
-
-A short-step feasible method based on the $\Nhood_2$ neighbourhood
-reduced the barrier parameter by 
-\[
-   \sigma = 1 - \delta/\sqrt{n}
-\]
-at each iteration, for some positive constant $\delta$.
-
-In complexity proof, the barrier parameter is reduced slightly at
-each iteration in order to guarantee that one iteration of Newton's
-method can keep the point in the tight neighbourhood of the central path.
-However, this is a worst-case analysis, and in practice the same would happen
-even for a bigger update of the barrier parameter. This brings to
-study ways of allowing a more substantial reduction of the barrier
-parameter, at least in some iterations. 
-
-\hrulefill
-
-Thanks to the optimizing predictor direction which is identical
-to a short-step feasible method, also the Mizuno-Todd-Ye
-predictor--corrector algorithm \cite{MizunoToddYe}
-converges in $\bigO(\sqrt{n}L)$ iterations, with the only
-difference that the value of the barrier parameter is reduced over
-two iterations.
-
-\hrulefill
-
-Order of convergence for an infeasible algorithm is 
-$\bigO(n^2L)$ in Wright.
 
 
 %
