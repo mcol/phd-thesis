@@ -3,7 +3,7 @@
 %Sep:  7,  8, 13
 % 2007
 %Feb:  4
-%Mar:  8, 18
+%Mar:  8, 18, 19
 
 %
 % Chapter: Warm-start
@@ -120,28 +120,46 @@ the linear algebra.
 \subsection{Stochastic programming concepts}
 
 A stochastic programming problem incorporates the uncertain parameters
-in the model, as can be illustrated by the problem
+in the model. 
+Following \cite{BirgeLouveaux}, this can be illustrated by the 
+{\em two-stage stochastic problem}
 %
-\be \label{eq:SP}
-  \min_x \E_\xi(f(x, \xi)) \quad \text{ s.t. }\; g(x, \xi) \le 0,
+\be  \label{eq:SP1}
+  \begin{array}{rl}
+    \min        & c^T x + \E_\xi Q(x, \xi) \\
+    \mbox{s.t.} & Ax = b,  \\
+                & x\geq 0, \\
+  \end{array}
 \ee
 %
-where $\xi$ is a random variable and $\E_\xi$ is the expectation function.
+where $\xi$ is a random variable and $\E_\xi$ is the expectation function
+and
+\be  \label{eq:SP2}
+  \begin{array}{rcrl}
+  Q(x, \xi) &\!\!\! = \!\!\! & \min & q(\xi)^T y(\xi) \\
+            &   & \mbox{s.t.} & Wy(\xi) = h(\xi) - T(\xi)x, \\
+	    &   &             & y(\xi) \ge 0.
+  \end{array}
+\ee
 This can be interpreted as an optimization
 problem in which some parameters or coefficients are unknown.
+While (\ref{eq:SP1}) models the first stage decisions, 
+(\ref{eq:SP2}) refers to the second stage decisions, which can
+be made only after a realisation of the random variable $\xi$
+has become known. Note how the first-stage decision variables $x$ 
+appear in (\ref{eq:SP2}): at the time when the realisation
+become available, the first-stage decisions have already been made.
+
+\ignore{
 Formulation (\ref{eq:SP}) is however an unsatisfactory model, since
 it is unclear how to interpret the probabilistic constraint
 $g(x,\xi) \le 0$. A better formulation is the stochastic program
 with recourse:
-%
 \begin{eqnarray} \label{eq:SPRecourse}
 \min_x \hspace{-1.5em} && \E_\xi[f(x, \xi) + Q(x, \xi)] \nonumber \\ 
   && Q(x,\xi) = \min_y \{\, q(y) : u_i(y) \ge g_i^+(x, \xi),\:\forall i \,\},\\
   && g_i^+(x, \xi) = \max \{\, g_i(x, \xi), \, 0 \,\}. \nonumber
 \end{eqnarray}
-
-\fb{
-Explain what the recourse is.
 }
 
 In stochastic programming, the uncertain environment is 
@@ -172,6 +190,9 @@ The model can be generalised to a {\em multi-stage model} in which
 the evolution of uncertainties can be 
 described as an alternating sequence of decisions and random 
 realisations that occur at different stages.
+A multi-stage stochastic program with recourse is a multi-period 
+mathematical program where parameters are assumed to be uncertain 
+along the time path.
 
 The stages do not necessarily refer to time periods, but they correspond
 to steps in the decision process. In particular, at each stage the
@@ -227,27 +248,23 @@ A natural formulation of a stochastic programming problem relies on
 recursion to describe the dynamics of the modelled process.
 The term {\it recourse} means that, at each stage, the decision 
 variables adapt to the different outcomes of the random parameters.
-
-A multistage stochastic program with recourse is a multi-period 
-mathematical program where parameters are assumed to be uncertain 
-along the time path.
-
 For ease of presentation, we consider the linear version of the
-general recourse problem (\ref{eq:SPRecourse}):
+recourse problem:
 %
 \be \label{eq:SLPRecourse}
 \begin{array}{rl}
-\min & c^T x + \E_\xi[\min q(y)^T y(\xi)] \\
-\raisebox{2.8ex}{\mbox{s.t.}} & \!\!\begin{array}{lcl}
-	       Ax                       &=& b,     \\
-	       T(\xi) x + W(\xi) y(\xi) &=& h(\xi), \\
-	       x \geq 0,\; y(\xi) \ge 0,
-	      \end{array}
+  \min & c^T x + \E_\xi[\min\, q(\xi)^T y(\xi)]     \\
+  \text{s.t.} &  Ax                       = b,      \\
+	      &  T(\xi) x + W(\xi) y(\xi) = h(\xi), \\
+	      &  x \geq 0,\; y(\xi) \ge 0,
 \end{array}
 \ee
 %
 where $y(\xi)$ denotes the recourse action which depends on the 
-outcome of the random process $\xi$. After discretizing $\xi$ 
+outcome of the random process $\xi$. 
+Note that (\ref{eq:SLPRecourse}) combines in a single formulation
+both (\ref{eq:SP1}) and (\ref{eq:SP2}).
+After discretizing $\xi$ 
 according to $P(x^i=\xi_i) = p^i$, and using the notation 
 $T^i = T(\xi_i)$ (and analogously for $h^i$, $W^i$, $y^i$ and $q^i$), 
 problem (\ref{eq:SLPRecourse}) can be written in the 
@@ -262,13 +279,14 @@ problem (\ref{eq:SLPRecourse}) can be written in the
             & x \geq 0,\; y^i \ge 0.
 \end{array}
 \ee
-
-Problem (\ref{eq:DetEq-2stage}) displays dual-block angular structure
+The deterministic equivalent formulation is derived by writing
+explicitly each possible realisation of the random parameters.
+The formulation (\ref{eq:DetEq-2stage}) does not have any stochasticity
+left, but is completely deterministic, and is therefore a common
+linear programming problem of (very) large dimensions.
+Also note that problem (\ref{eq:DetEq-2stage}) displays a
+dual-block angular structure
 in the constraint matrix.
-
-\fb{
-Explain why deterministic.
-}
 
 \fb{
 Make a step from two-stage to multistage.
@@ -332,16 +350,36 @@ If the event tree is traversed with depth-first-search ordering of the
 nodes during the generation of the mathematical program, the 
 corresponding constraint matrix displays a nested dual block-angular 
 structure.
+Figure~\ref{fig:deteq} displays the two possible structures 
+for the event tree of Figure~\ref{fig:EventTree} according 
+to the chosen ordering of nodes.
+%
+\begin{figure}[ht]
+  \begin{center}
+    \includegraphics[scale=0.36]{figures/deteq-bfs.eps} \hspace{1cm}
+    \includegraphics[scale=0.36]{figures/deteq-dfs.eps}
+    \caption{Deterministic equivalent corresponding to the event tree 
+             of Figure~\ref{fig:EventTree}, with nodes listed in breadth-first 
+             order (left) and depth-first order (right).}
+    \label{fig:deteq}
+  \end{center}
+  \vspace{-3ex}
+\end{figure}
 %
 While the different ordering of blocks whithin the matrix is not 
 relevant for general-purpose solvers, the
 structure-exploiting software OOPS \cite{GondzioSarkissian} can take 
 fully advantage of the nested structure.
 
-\fb{
+Clearly, (\ref{DetEquiv}) represents a structured linear program. Its 
+structure should be exploited in the solution algorithm.
+Several solution methods for stochastic linear programs have been 
+presented in the literature. These often rely on some decomposition
+approach \cite{Birge85,MulveyRuszczynski,LinderothWright03}, among others.
 Kall and Mayer \cite{KallMayer} provided a comparison of different
 solution algorithms for stochastic linear programming problems.
-}
+In what follows, instead, we consider solving the deterministic equivalent
+problem directly through an interior point method.
 
 %
 % Section
@@ -381,7 +419,7 @@ In these situations, we expect the solution of an instance to be
 close to the solution of the next one, in the sense that some of
 the information gathered in the solution process may still be valid. 
 Therefore, starting the 
-optimization of one problem from the solution of the previous one
+optimization of one problem from the solution of the previous instance
 should reduce the computational effort of solving the perturbed instance.
 The strategies that exploit and advanced starting point are called
 {\em warm-start strategies}.
@@ -403,8 +441,8 @@ we outline below.
 \subsection{Difficulties}
 \label{sec:WarmStartDifficulties}
 
-An optimal solution of a linear programming problem found with 
-interior point methods is very close to the optimal vertex of 
+The optimal solution of a linear programming problem found with 
+a path-following interior point methods is very close to a vertex of 
 the feasible polytope or, in the more common case of multiple solutions, 
 corresponds in the analytic center of the optimal set of solutions.
 When the polytope changes (due, for example,
@@ -449,10 +487,11 @@ interior point algorithm are somewhat contradictory.
 The point should not be too close to the boundary of the feasible 
 region in order to be able to absorb larger perturbations in the 
 problem data. 
-However, it should be sufficiently advanced to provide 
+Also, it should be sufficiently advanced to provide 
 computational savings over a cold-start iterate.
-A common way of accommodating these requirements is to store an 
-approximate $\mu$-center well before reaching optimality 
+These considerations lead to the idea of storing an approximate
+
+$\mu$-center well before reaching optimality 
 \cite{Gondzio98,GondzioGrothey03,GondzioVial,YildirimWright}.
 
 The theory and practice of warm-start techniques for interior point 
@@ -559,18 +598,18 @@ of the problem
 instances. Thus they obtain conditions under which the complexity 
 of the warm-start approach is better than for the cold start case.
 
-The strategy proposed in \cite{YildirimWright} aims at correcting the 
+The strategy proposed in \cite{YildirimWright} aims at absorbing the 
 primal and dual infeasibilities introduced by the perturbation in just 
 one step.
 % relying on the centrality of the iterate from one instance
 % to provide enough centrality for the starting point of the next instance.
-In this strategy, they backtrack to an iterate for which $\mu$ is 
-large enough to allow a full step for the correction they produce. 
-Hence, the amount of necessary backtracking depends on the magnitude 
-of the perturbation.
-This is intuitively justified considering that a large perturbation 
+This strategy requires to backtrack to an iterate for which $\mu$ is 
+large enough to allow a full step for the correction direction they produce. 
+The amount of necessary backtracking depends on the magnitude 
+of the perturbation:
+this is intuitively justified considering that a large perturbation 
 will produce a large adjustment, and it is essential to guarantee that 
-a full step will not compromise the non-negativity requirements of the 
+a full step will not compromise the positivity requirements of the 
 iterate.
 %
 To ensure the availability of an approximate $\mu$-center from which 
@@ -609,10 +648,10 @@ the primal and the dual spaces are analysed independently.
 %This formulation aims at restoring feasibility, while the requirement 
 %for a well-centred iterate is considered separately. 
 
-Their reoptimization procedure is based on two phases: first, an attempt 
+This reoptimization procedure is based on two phases: first, an attempt 
 is made to absorb the infeasibilities caused by the perturbation with a full 
-Newton step; second, the centrality of the iterate is improved.
-Another key feature of their approach is that the primal search 
+Newton step; second, the centrality of the iterate is improved. Another 
+key feature of \yildirim and Wright's approach is that the primal search 
 direction is governed only by the primal perturbation, and similarly 
 for the dual space. This corresponds to solving the Newton system 
 (\ref{eq:NewtonSystem}) for the two right-hand sides independently
@@ -661,7 +700,6 @@ can immediately be used as an iterate for the next problem.
 If only one iterate is stored, then the absorption of infeasibilities 
 may be spread across a few iterations whenever the stepsizes fall 
 below a predefined level.
-
 As this strategy does not make assumptions upon the centrality of the 
 warm-start iterate,
 it can be initialised with any iterate.
@@ -882,10 +920,7 @@ n_t = \frac{1}{|S_t|} \sum_{l_t \in S_t} (T^{l_t}, W^{l_t}, h^{l_t}, q^{l_t}),
 \]
 
 We define the average scenario for subtree $S$ as the ordered
-set of nodes 
-\[
-  s_k = \{ l_k, n_{k+1}, \ldots, n_T \}.
-\]
+set of nodes $s_k = \{ l_k, n_{k+1}, \ldots, n_T \}$.
 Therefore, the average scenario $\bar s$ (in the complete tree) 
 is obtained by listing the 
 nodes from the root of the tree to the root of the subtree $S$, and 
@@ -935,7 +970,6 @@ conditional probabilities of visiting the children nodes is 1.
 The conditional probability $\delta_R^k$ associated to node $k \in \Rtree$
 is the sum of the conditional probabilities $\delta^i$ of the nodes 
 $i \in \Ctree$ that are being replaced by node $k \in \Rtree$.
-
 Defining $\mathcal{D}_{l_t} = \{ i \in \Ctree : a(i) = k \}$
 the set of descendants of node $l_t$, and
 $\mathcal{I}_k = \{\, i \in \Ctree : r(i) = k \,\}$, $k \in \Rtree$,
@@ -1001,6 +1035,7 @@ of the reduced problem in the following manner:
 \be  \label{eq:WarmstartSolution}
   \hat x^{l} = x_R^{r(l)}, \qquad 
  (\hat y^{l}, \hat s^{l}) = \frac{p^{l}}{p_R^{r(l)}} (y_R^{r(l)}, s_R^{r(l)}),
+  \qquad l in \Ctree,
 \ee
 where $p^i_R$ is computed according to (\ref{eq:UpdatePathProbs}).
 This means that the dual reduced-tree solution is spread among the
@@ -1009,7 +1044,7 @@ nodes it initialises, as can be seen here:
    \sum_{i \in \mathcal{I}_k} (\hat y^i, \hat s^i)
   = \sum_{i \in \mathcal{I}_k} \frac{p^i}{p^k_R} (y^k_R, s^k_R)
   = (y^k_R, s^k_R) \frac{1}{p^k_R} \sum_{i \in \mathcal{I}_k} p^i 
-  = (y^k_R, s^k_R)
+  = (y^k_R, s^k_R).
 \]
 
 Considering again the example of Figure~\ref{fig:Tree}, suppose that 
@@ -1022,6 +1057,8 @@ nodes: these can be used directly in the complete iterate
 We fill the missing elements 
 by reproducing the solution from the nodes in the same subtree 
 and the same stage (Figure~\ref{fig:Solution} bottom).
+The proposed way of constructing the complete iterate is easy to
+implement and its execution time is negligible.
 %
 \begin{figure}[ht]
   \begin{center}
@@ -1032,14 +1069,14 @@ and the same stage (Figure~\ref{fig:Solution} bottom).
   \vspace{-3ex}
 \end{figure}
 
-The proposed way of constructing the complete iterate is easy to
-implement and its execution time is negligible.
+\ignore{
 This simple strategies can be further 
 generalised by considering a linear combination of the solutions 
 corresponding to nodes that belong to the same stage. In this sense, 
 the parts of the solution for nodes 4 and 7 may be used to initialise 
 the solution for nodes 5, 6 and 8 (similarly for nodes 10 and 15 to 
 initialise the starting solution for the other leaf nodes).
+}
 
 %
 % Section
@@ -1084,7 +1121,7 @@ Note that the warm-start iterate $(\hat{x},\hat{y},\hat{s})$
 generated by the procedure of Section~\ref{sec:Construction}
 is a solution to the expanded problem (\ref{eq:ExpandedProblem}) 
 to the level of accuracy with which we solved the reduced problem.
-This guarantees us the following:
+This guarantees the following:
 \be  \label{eq:ExpandedSolutionProperties}
 \hat{A} \hat{x} = \hat{b}, \qquad
 \hat{A}^T \hat{y} + \hat{s} = \hat{c}, \qquad
@@ -1092,7 +1129,7 @@ This guarantees us the following:
 \ee
 
 In order to prove a feasibility result for the expanded problem,
-we first prove the following technical result.
+we first need to prove a technical result.
 
 \begin{lemma}  \label{th:SumOfTerms}
 The following holds:
@@ -1130,31 +1167,31 @@ primal and dual feasible for the expanded problem (\ref{eq:ExpandedProblem}).
 \end{theorem}
 %
 \begin{proof}
-For the primal case, as $\hat x^{l_t} = x^{r(l_t)}_R$, this is trivially
+For the primal case, as $\hat x^{l} = x^{r(l)}_R$, this is trivially
 satisfied:
 \be  \label{eq:RedTreePrimalContribution}
-   T^{r(l_t)}\hat x^{a(l_t)} + W^{r(l_t)} \hat x^{l_t} =  h^{r(l_t)}, 
-      \quad l_t \in \Ctree.
+   T^{r(l)}\hat x^{a(l)} + W^{r(l)} \hat x^{l} =  h^{r(l)}, 
+      \quad l \in \Ctree.
 \ee
 %
 For the dual case, by assumption the reduced problem solution satisfies 
 the dual constraints:
 \[
-  {W^{r(l_t)}}^T y^{r(l_t)}_R +\sum_{i \in \mathcal{D}^R_{r(l_t)}} {T^{r(i)}}^T
-     y^{r(i)}_R + s^{r(l_t)}_R = p^{r(l_t)}_R q^{r(l_t)},
-     \quad r(l_t) \in \Rtree.
+  {W^{r(l)}}^T y^{r(l)}_R +\sum_{i \in \mathcal{D}^R_{r(l)}} {T^{r(i)}}^T
+     y^{r(i)}_R + s^{r(l)}_R = p^{r(l)}_R q^{r(l)},
+     \quad r(l) \in \Rtree.
 \]
-Multiplying both terms by $p^{l_t}/p^{r(l_t)}_R$ we obtain
+Multiplying both terms by $p^{l}/p^{r(l)}_R$ we obtain
 \[
-  \frac{p^{l_t}}{p^{r(l_t)}_R} \Big( {W^{r(l_t)}}^T y^{r(l_t)}_R
-     +\sum_{i\in \mathcal{D}_{r(l_t)}^R} {T^{r(i)}}^T y^{r(i)}_R + s^{r(l_t)}_R
-     \Big) = p^{l_t} q^{r(l_t)},
+  \frac{p^{l}}{p^{r(l)}_R} \Big( {W^{r(l)}}^T y^{r(l)}_R
+     +\sum_{i\in \mathcal{D}_{r(l)}^R} {T^{r(i)}}^T y^{r(i)}_R + s^{r(l)}_R
+     \Big) = p^{l} q^{r(l)},
 \]
 which, according to (\ref{eq:WarmstartSolution}) and 
 Lemma~\ref{th:SumOfTerms}, becomes
 \be  \label{eq:RedTreeDualContribution}
-  {W^{r(l_t)}}^T \hat y^{l_t}+\sum_{i\in\mathcal{D}_{l_t}}{T^{r(i)}}^T \hat y^i
-   + \hat s^{l_t} = p^{l_t} q^{r(l_t)}, \quad l_t \in \Ctree,
+  {W^{r(l)}}^T \hat y^{l}+\sum_{i\in\mathcal{D}_{l}}{T^{r(i)}}^T \hat y^i
+   + \hat s^{l} = p^{l} q^{r(l)}, \quad l \in \Ctree,
 \ee
 so $(\hat y, \hat s)$ satisfies
 the dual constraints in the expanded problem.
@@ -1162,7 +1199,7 @@ the dual constraints in the expanded problem.
 
 %
 %
-\subsection{Feasibility of the warm-start iterate}
+\subsection{Absorbing perturbations}
 
 We argue that the difference between the data of the expanded 
 problem (\ref{eq:ExpandedProblem}) and that of the original (complete) 
@@ -1369,7 +1406,7 @@ which proves the statement of the theorem.
 
 %
 %
-\subsection{Absorbable perturbations}
+\subsection{Conditions on the warm-start iterate}
 
 We use Lemma~\ref{th:FullNewtonStep} to obtain conditions that the 
 reduced tree has to satisfy in order for a warm start of the complete problem 
@@ -1394,7 +1431,7 @@ In other words, the boundedness of the iterate
 $(x_R^\ast, y_R^\ast, s_R^\ast)$ implies the boundedness of the 
 component-wise inverses of $x_R^\ast$ and $s_R^\ast$.
 
-\fb{
+\ignore{
 We argue that our way of constructing a reduced event tree by choosing
 scenarios that minimize the distance from a representative average
 scenario from each subtree can be designed to produce perturbations
@@ -1448,24 +1485,24 @@ Using the form of the stochastic programming problem (\ref{DetEquiv})
 we can write the primal residual of the complete problem as
 \[
   \|\xi_b\|_\infty = \|b-A\hat x\|_\infty 
-                   = \max\{\|h^{l_t} - T^{l_t}\hat x^{a(l_t)} 
-                     - W^{l_t}\hat x^{l_t}\|_\infty:l_t = 1,\ldots,L_T\}.
+                   = \max\{\|h^{l} - T^{l}\hat x^{a(l)} 
+                     - W^{l}\hat x^{l}\|_\infty:l = 1,\ldots,L_T\}.
 \]
 %
-The contribution of a node $l_t \in \Ctree$ to $\xi_b$ is 
+The contribution of a node $l \in \Ctree$ to $\xi_b$ is 
 \[
 \begin{split}
-  \| \xi_b^{l_t} \|_{\infty}
-    & = \|h^{l_t}\!-\!T^{l_t}\hat x^{a(l_t)}\!-\!W^{l_t}\hat x^{l_t}\| \\
-    & = \|h^{l_t} \!-\! h^{r(l_t)} - (T^{l_t} \!- T^{r(l_t)})\hat x^{a(l_t)}
-        - (W^{l_t} - W^{r(l_t)}) \hat x^{l_t}\| \\
-%   & \le \|h^{l_t} \! - \! h^{r(l_t)}\| +
-%         \|T^{l_t} \! - \! T^{r(l_t)}\| \| x^{a(r(l_t))}_R \|
-%         + \|W^{l_t} - W^{r(l_t)}\| \| x^{r(l_t)}_R\| \\
-    & \le \big( \|h^{l_t} \! - \! h^{r(l_t)}\| +
-           \|T^{l_t} \! - \! T^{r(l_t)}\| +
-           \|W^{l_t} \! - \! W^{r(l_t)}\| \big) B \\
-    & \le  d(l_t, r(l_t)) B \le \varepsilon B,
+  \| \xi_b^{l} \|_{\infty}
+    & = \|h^{l}\!-\!T^{l}\hat x^{a(l)}\!-\!W^{l}\hat x^{l}\| \\
+    & = \|h^{l} \!-\! h^{r(l)} - (T^{l} \!- T^{r(l)})\hat x^{a(l)}
+        - (W^{l} - W^{r(l)}) \hat x^{l}\| \\
+%   & \le \|h^{l} \! - \! h^{r(l)}\| +
+%         \|T^{l} \! - \! T^{r(l)}\| \| x^{a(r(l))}_R \|
+%         + \|W^{l} - W^{r(l)}\| \| x^{r(l)}_R\| \\
+    & \le \big( \|h^{l} \! - \! h^{r(l)}\| +
+           \|T^{l} \! - \! T^{r(l)}\| +
+           \|W^{l} \! - \! W^{r(l)}\| \big) B \\
+    & \le  d(l, r(l)) B \le \varepsilon B,
 \end{split}
 \]
 where the step from the first to the second line uses 
@@ -1478,30 +1515,30 @@ The dual residual for the complete problem at the warm-start point
 can be written as
 \[
   \|\xi_c\|_\infty = \|c -A^T\hat y -\hat s \|_\infty 
-                   = \max\{\|p^{l_t}q^{l_t}
-                   - {W^{l_t}}^T\hat y^{l_t} 
-                   - \sum_{i \in \mathcal{D}_{l_t}} {T^{i}}^T\hat y^{i}
-                   - \hat s^{l_t}
-  \|_\infty : l_t = 1,\ldots,L_T\}.
+                   = \max\{\|p^{l}q^{l}
+                   - {W^{l}}^T\hat y^{l} 
+                   - \sum_{i \in \mathcal{D}_{l}} {T^{i}}^T\hat y^{i}
+                   - \hat s^{l}
+  \|_\infty : l = 1,\ldots,L_T\}.
 \]
 %
-The contribution of a node $l_t \in \Ctree$ to $\xi_c$ is
+The contribution of a node $l \in \Ctree$ to $\xi_c$ is
 \[
 \begin{split}
-  \xi_c^{l_t} 
- & = p^{l_t} q^{l_t} - {W^{l_t}}^T\hat y^{l_t}
-     - \sum_{i\in \mathcal{D}_{l_t}} {T^i}^T \!\hat y^{i} -\hat s^{l_t} \\
- & = p^{l_t}(q^{l_t}\!-\! q^{r(l_t)})
-     - (W^{l_t} \!-\! W^{r(l_t)})^T \hat y^{l_t}
-     -\sum_{i \in \mathcal{D}_{l_t}} (T^{i} \!-\! T^{r(i)})^T\hat y^i \\
-% & = p^{l_t}(q^{l_t} \!-\! q^{r(l_t)})
-%     - \frac{p^{l_t}}{p^{r(l_t)}_R}(W^{l_t} \!-\! W^{r(l_t)})^T y^{r(l_t)}_R
-%     -\sum_{i \in \mathcal{D}_{l_t}} (T^{i} \!-\! T^{r(i)})^T 
+  \xi_c^{l} 
+ & = p^{l} q^{l} - {W^{l}}^T\hat y^{l}
+     - \sum_{i\in \mathcal{D}_{l}} {T^i}^T \!\hat y^{i} -\hat s^{l} \\
+ & = p^{l}(q^{l}\!-\! q^{r(l)})
+     - (W^{l} \!-\! W^{r(l)})^T \hat y^{l}
+     -\sum_{i \in \mathcal{D}_{l}} (T^{i} \!-\! T^{r(i)})^T\hat y^i \\
+% & = p^{l}(q^{l} \!-\! q^{r(l)})
+%     - \frac{p^{l}}{p^{r(l)}_R}(W^{l} \!-\! W^{r(l)})^T y^{r(l)}_R
+%     -\sum_{i \in \mathcal{D}_{l}} (T^{i} \!-\! T^{r(i)})^T 
 %           \frac{p^i}{p^{r(i)}_R} y^{r(i)}_R \\
- & = p^{l_t}(q^{l_t} \!-\! q^{r(l_t)})
-     - \frac{p^{l_t}}{p^{r(l_t)}_R} \Big[
-       (W^{l_t} \!-\! W^{r(l_t)})^T y^{r(l_t)}_R
-       +\sum_{i\in \mathcal{D}_{l_t}} %\setminus\mathcal{D}_{r(l_t)}^R}
+ & = p^{l}(q^{l} \!-\! q^{r(l)})
+     - \frac{p^{l}}{p^{r(l)}_R} \Big[
+       (W^{l} \!-\! W^{r(l)})^T y^{r(l)}_R
+       +\sum_{i\in \mathcal{D}_{l}} %\setminus\mathcal{D}_{r(l)}^R}
            (T^{i} \!-\! T^{r(i)})^T 
            \frac{\delta^i}{\delta^{r(i)}_R} y^{r(i)}_R \Big],
 \end{split}
@@ -1510,30 +1547,30 @@ where the step from the first to the second line uses
 (\ref{eq:RedTreeDualContribution}).
 % and in the last line we 
 %exploited the fact that $T^i - T^{r(i)} = 0$
-%for $i \in \mathcal{D}_{l_t}\cap\mathcal{D}_{r(l_t)}^R$.
+%for $i \in \mathcal{D}_{l}\cap\mathcal{D}_{r(l)}^R$.
 %
 Taking norms (all norms here should be intended as infinity norms)
 we obtain
 \[
 \begin{split}
-  \| \xi_c^{l_t} \|_\infty
-  & \le \|q^{l_t} - q^{r(l_t)}\| 
-        + \|W^{l_t} - W^{r(l_t)}\| \| y^{r(l_t)}_R\|
-        + \!\!\! \sum_{k\in \mathcal{D}_{r(l_t)}^R} \!\!\! \| y^{k}_R \| \!\!
-          \sum_{i\in \mathcal{I}_k \cap \mathcal{D}_{l_t}\setminus \{k\} }
+  \| \xi_c^{l} \|_\infty
+  & \le \|q^{l} - q^{r(l)}\| 
+        + \|W^{l} - W^{r(l)}\| \| y^{r(l)}_R\|
+        + \!\!\! \sum_{k\in \mathcal{D}_{r(l)}^R} \!\!\! \| y^{k}_R \| \!\!
+          \sum_{i\in \mathcal{I}_k \cap \mathcal{D}_{l}\setminus \{k\} }
 	  \!\!\! \| T^{i} - T^{k} \| \frac{\delta^i}{\delta_R^k} \\
-  & \le \|q^{l_t} - q^{r(l_t)}\| 
-        + \|W^{l_t} - W^{r(l_t)}\| \| y^{r(l_t)}_R\|
-        + \!\!\! \sum_{k\in \mathcal{D}_{r(l_t)}^R} \!\!\! \| y^{k}_R \|
+  & \le \|q^{l} - q^{r(l)}\| 
+        + \|W^{l} - W^{r(l)}\| \| y^{r(l)}_R\|
+        + \!\!\! \sum_{k\in \mathcal{D}_{r(l)}^R} \!\!\! \| y^{k}_R \|
           \varepsilon \!\!
-          \sum_{i\in \mathcal{I}_k \cap \mathcal{D}_{l_t}\setminus \{k\} }
+          \sum_{i\in \mathcal{I}_k \cap \mathcal{D}_{l}\setminus \{k\} }
 	  \! \frac{\delta^i}{\delta_R^k} \\
-  & \le \Big( \|q^{l_t} - q^{r(l_t)}\| 
-        + \|W^{l_t} - W^{r(l_t)}\|
-        + \sum_{k\in \mathcal{D}_{r(l_t)}^R}
+  & \le \Big( \|q^{l} - q^{r(l)}\| 
+        + \|W^{l} - W^{r(l)}\|
+        + \sum_{k\in \mathcal{D}_{r(l)}^R}
 	  \big( 1 - \frac{\delta^k}{\delta_R^k} \big) \varepsilon \Big) B 
    \le \varepsilon B\times 
-        \max_{l_t} |\mathcal{D}_{l_t}^R| (1 - \frac{\delta^k}{\delta^k_R}).
+        \max_{l} |\mathcal{D}_{l}^R| (1 - \frac{\delta^k}{\delta^k_R}).
 \end{split}
 \]
 %
@@ -1549,7 +1586,8 @@ Let the assumptions of Lemma~\ref{th:BoundResiduals} be satisfied and
 \varepsilon B^2 \max\{\|A\|_\infty\|(AA^T)^{-1}\|_\infty, \; 1\} 
    \le \frac{1}{2} \left(1+\sqrt{n} / \gamma \right)^{-1}.
 \]
-Then the full Newton step from the warm-start iterate is feasible 
+Then the full Newton step (\ref{eq:NewtonSystem2})
+from the warm-start iterate is feasible 
 and it restores primal and dual feasibility.
 \end{theorem}
 %

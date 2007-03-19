@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
-%Mar:  8, 12, 17
+%Mar:  8, 12, 17, 19
 
 %
 % Chapter: Background and introduction.
@@ -91,17 +91,17 @@ we can restrict our attention to the vertices of this polyhedron.
 The polyhedron corresponding to a linear system of $m$ constraints 
 in $n$ variables ($m < n$) has a number of vertices equal to
 \be \label{eq:NumberVertices}
-\binom{n}{m} = \frac{n!}{m!(n-m)!}.
+\binom{n}{m} = \frac{n!}{m!(n-m)!} \ge \left( \frac{n}{m} \right)^m.
 \ee
 This number is an overestimate, as not all of these choices correspond
 to feasible points.
 
 The fact that the number of vertices is finite guarantees termination 
 of any algorithm that explores all vertices.
-However this number is exponential, as can be seen by further
+However this number is exponential, as can be clearly seen by further
 manipulating (\ref{eq:NumberVertices}):
 \[
-\frac{n!}{m!(n-m)!} \ge \left( \frac{n}{m} \right)^m \ge 2^m 
+\left( \frac{n}{m} \right)^m \ge 2^m 
 \quad \mbox{for } n \ge 2m.
 \]
 

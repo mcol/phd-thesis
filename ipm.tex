@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
-%Mar:  8,  9, 13, 15, 16, 17
+%Mar:  8,  9, 13, 15, 16, 17, 19
 
 %
 % Chapter: Interior point methods
@@ -374,7 +374,7 @@ imposes and maintains allows to produce the best convergence result
 for linear programming: short-step algorithms converge in 
 $\bigO(\sqrt{n}L)$ iterations \cite{KojimaMizunoYoshise89b,MonteiroAdler89a}.
 However, since the reduction in the barrier parameter at each iteration 
-is very small, the practical value of short-step algorithms is small.
+is very small, the practical value of short-step algorithms is limited.
 
 The other commonly used neighbourhood is instead based on the infinity norm, 
 and it is often called {\em wide neighbourhood}:
@@ -501,7 +501,7 @@ current point according to
 \nabla F(x,y,s) \Delta(x,y,s) = -F(x,y,s),
 \]
 where $\nabla F(x,y,s)$ is the Jacobian of the function (\ref{eq:KKTSystem})
-evaluated at the current interate $w = (x,y,s)$.
+evaluated at the current iterate $w = (x,y,s)$.
 We obtain the so-called step equations
 %
 \be \label{eq:NewtonSystem}
@@ -522,6 +522,16 @@ We obtain the so-called step equations
 which need to be solved for a search direction
 $\Delta w = (\Delta x, \Delta y, \Delta s)$,
 with $\mu = x^Ts/n$, $\sigma \in (0,1)$.
+The search direction $\Delta w$ thus computed is used to generate 
+a new iterate
+\[
+  \hat w = w + \alpha\Delta w,
+\]
+where $\alpha \in (0,1]$ is the feasible stepsize computed in
+such a way that
+\[
+   x + \alpha \Delta x > 0, \quad s + \alpha \Delta s > 0.
+\]
 
 %
 %
@@ -602,7 +612,7 @@ need to start from a strictly feasible point.
 Therefore, a feasible algorithm has $\xi_b = \xi_c = 0$
 in the right-hand side of system (\ref{eq:NewtonSystem}). 
 It is easy to see that feasibility
-is maintained throughout the algorithm. Since
+is maintained throughout the algorithm: since
 the search direction computed from (\ref{eq:NewtonSystem})
 guarantees
 \[
@@ -618,11 +628,15 @@ we verify that
 \]
 
 As the progress in optimization is concerned,
-we have that from $s^T \Delta x + x^T \Delta s = -x^Ts + \sigma\mu$
-we obtain
-\be  \label{eq:OptimalityProgress}
+from $s^T \Delta x + x^T \Delta s = -x^Ts + \sigma\mu$
+we have 
+\[
    x(\alpha)^Ts(\alpha) = x^Ts + \alpha(s^T \Delta x + x^T \Delta s)
-     + \alpha^2 \Delta x^T \Delta s = x^Ts (1 - \alpha (1 - \sigma)).
+     + \alpha^2 \Delta x^T \Delta s = (1 - \alpha (1 - \sigma)) x^Ts,
+\]
+and, dividing through by $n$, we obtain
+\be  \label{eq:OptimalityProgress}
+   \mu(\alpha) = (1 - \alpha (1 - \sigma)) \mu.
 \ee
 
 From (\ref{eq:OptimalityProgress}) we observe that the progress in
@@ -633,7 +647,8 @@ $(\Delta x,\Delta y ,\Delta s)$ computed from (\ref{eq:NewtonSystem})
 measures the reduction in complementarity gap: 
 the longer the step, the bigger the reduction. This motivates
 the attempts to enlarge the stepsize by the use of correctors
-techniques (see Section~\ref{sec:MultipleCC} and Chapter~\ref{ch:Correctors}).
+techniques (see Sections~\ref{sec:MehrotraPC} and
+\ref{sec:MultipleCC} and Chapter~\ref{ch:Correctors}).
 
 The centering parameter $\sigma$ plays an important role as well.
 We can see that the biggest reduction is obtained for $\sigma = 0$.
@@ -648,15 +663,38 @@ with $\sigma = 1$ is often called a {\em pure centering step}.
 It is therefore essential to choose $\sigma$ appropriately, trying
 to balance the often conflicting aims of optimality and centrality.
 
+Kojima, Mizuno and Yoshise \cite{KojimaMizunoYoshise89} 
+proposed a polynomial-time long-step algorithm with the 
+property of convergence in $\bigO(nL)$ iterations.
+This was refined by the same group \cite{KojimaMizunoYoshise89b} 
+and by Monteiro and Adler \cite{MonteiroAdler89a},
+which both presented a primal--dual algorithm for linear programming 
+based on the tight $\Nhood_2$ neighbourhood
+with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
+This is still the best complexity result for interior point methods
+for linear programming.
+
 In a short-step feasible method based on the $\Nhood_2$ neighbourhood
 the barrier parameter is reduced by 
-\[
+\be  \label{eq:ShortStepSigma}
    \sigma = 1 - \delta/\sqrt{n}
-\]
+\ee
 at each iteration, for some positive constant $\delta$, usually
 very small (0.05 according to Gonzaga \cite{Gonzaga91a}).
+As $\sigma$ is always very close to 1, a lot of emphasis is put 
+on maintaining centrality rather than advancing towards optimality. 
+%
+The slight reduction of the barrier parameter at
+each iteration guarantees that one iteration of Newton's
+method can keep the point in the tight neighbourhood of the central path.
+The choice of (\ref{eq:ShortStepSigma}) allows to prove convergence
+in $\bigO(\sqrt{n}L)$ iterations.
+However, this is a worst-case analysis, and in practice the same would happen
+even for a bigger update of the barrier parameter. This brings to
+study ways of allowing a more substantial reduction of the barrier
+parameter, at least in some iterations. 
 
-One important result is this direction was obtained by 
+One important result in this direction was obtained by 
 Mizuno, Todd and Ye \cite{MizunoToddYe}, who introduced a short-step 
 predictor--corrector method. Their strategy uses two nested neighbourhoods 
 $\Nhood_2(\theta^2)$ and $\Nhood_2(\theta)$, $\theta \in (0,1)$, 
@@ -665,14 +703,23 @@ quadratic convergence property of Newton's method in such a tight
 neighbourhood of the central path.
 Their algorithm alternates between two search directions characterised by
 different properties.
-First, by choosing $\sigma = 0$ in (\ref{eq:NewtonSystem}),
+Starting from a point in the $\Nhood_2(\theta^2)$ neighbourhood,
+by choosing $\sigma = 0$ in (\ref{eq:NewtonSystem}),
 the predictor direction gains optimality, possibly at the expense of
-worsening the centrality, keeping the iterate in a larger neighbourhood
+worsening centrality, keeping the iterate in a larger neighbourhood
 $\Nhood_2(\theta)$ of the central path. 
 Then, a pure re-centering step is performed, by setting $\sigma = 1$,
 leaving the duality gap unchanged but moves the iterate back into a 
 tighter $\Nhood_2(\theta^2)$ neighbourhood. Hence, every second step the 
 algorithm produces a point in $\Nhood_2(\theta^2)$.
+
+The Mizuno-Todd-Ye predictor--corrector algorithm \cite{MizunoToddYe},
+achieves the $\bigO(\sqrt{n}L)$ convergence property
+thanks to the optimizing predictor
+direction which guarantees the same progress achievable by a short-step 
+feasible method, with the only 
+difference that the value of the barrier parameter is reduced over
+two iterations.
 
 An important contribution of this technique, is the idea 
 of targeting optimality and centrality independently. 
@@ -682,36 +729,6 @@ However, it provides a scheme
 upon which more computationally attractive methods can be constructed,
 as we will discuss in Chapter~\ref{ch:PracticalIpm}.
 
-\hrulefill
-
-Kojima, Mizuno and Yoshise \cite{KojimaMizunoYoshise89} 
-proposed a polynomial-time long-step algorithm with the property of convergence
-in $\bigO(nL)$ iterations.
-This was refined by the same group \cite{KojimaMizunoYoshise89b} 
-and by Monteiro and Adler \cite{MonteiroAdler89a}:
-both papers presented a primal--dual algorithm for linear programming 
-based on the tight $\Nhood_2$ neighbourhood
-with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
-This is still the best complexity result for interior point methods
-for linear programming.
-
-In complexity proof, the barrier parameter is reduced slightly at
-each iteration in order to guarantee that one iteration of Newton's
-method can keep the point in the tight neighbourhood of the central path.
-However, this is a worst-case analysis, and in practice the same would happen
-even for a bigger update of the barrier parameter. This brings to
-study ways of allowing a more substantial reduction of the barrier
-parameter, at least in some iterations. 
-
-The Mizuno-Todd-Ye predictor--corrector algorithm \cite{MizunoToddYe},
-discussed in Section~\ref{sec:FeasibleMethods},
-achieves this without losing the $\bigO(\sqrt{n}L)$ convergence property.
-This appealing result is obtained thanks to the optimizing predictor
-direction which guarantees the same progress achievable by a short-step 
-feasible method, with the only 
-difference that the value of the barrier parameter is reduced over
-two iterations.
-
 %
 %
 \subsection{Infeasible methods}
@@ -720,7 +737,8 @@ two iterations.
 The results presented up to here concentrated on feasible methods. 
 For these methods we assume to have a strictly feasible starting point
 readily available.
-Finding a strictly feasible starting point is, in general, a nontrivial task.
+However, finding a strictly feasible starting point is, 
+in general, a nontrivial task.
 Solving the feasibility problem is an optimization problem in its
 own right, and is as difficult as solving the original problem
 to optimality.
@@ -766,10 +784,14 @@ It is possible to develop an algorithm which only requires
 the $x$ and $s$ components to be strictly positive. 
 This was initiated by Lustig \cite{Lustig91}, who proposed some
 new feasibility restoration directions.
+These were obtained as limiting directions as the big-$M$
+weight tends to infinity, and were shown to be equivalent
+to those obtained by an infeasible algorithm.
 However, it was the work of Kojima, Megiddo and Mizuno 
 \cite{KojimaMegiddoMizuno}
-that introduced a complete infeasible algorithm, with full
-theoretical analysis of convergence.
+that provided full theoretical analysis of convergence of
+an infeasible interior point method as well as
+a stepsize rule that guarantees global convergence of the algorithm.
 
 \fb{
 Sure? Wright (page 109) says it was Lustig Marsten and Shanno.
@@ -796,9 +818,7 @@ By reducing $\mu$ we can force the primal and dual residuals
 $\xi_b$ and $\xi_c$ to zero, thus approaching complementarity and 
 feasibility at the same speed.
 
-Kojima, Megiddo and Mizuno \cite{KojimaMegiddoMizuno} proposed 
-a stepsize rule that guarantees global convergence of an 
-infeasible interior-point algorithm.
+\ignore{
 An algorithm is globally convergent if it is possible to choose
 a strictly positive stepsize such that the complementarity gap
 is reduced at each iteration. This property is very important, at it
@@ -814,9 +834,7 @@ The second safeguard forces $x_i s_i \ge \beta x^Ts$ for a chosen
 $\beta$, and requires that all iterates must stay in this neighbourhood.
 \fb{
 Check this Kojima-Megiddo-Mizuno stuff!
-
-Order of convergence for an infeasible algorithm is 
-$\bigO(n^2L)$ in Wright.
+}
 }
 
 Letting 
@@ -834,6 +852,13 @@ complementarity gap
 a reduction happens for a sufficiently small $\alpha$. 
 When feasibility is restored, an infeasible algorithm becomes identical
 to a feasible algorithm. 
+
+A globally convergent infeasible interior point algorithm has
+been implemented and tested by Lustig, Marsten and Shanno
+\cite{LustigMarstenShanno94b}, who report positive results on
+a set of feasible test problems.
+The order of convergence for an infeasible algorithm was
+established by Zhang \cite{Zhang94} to be $\bigO(n^2L)$.
 
 
 %
@@ -857,21 +882,19 @@ iterates to produce very unbalanced products.
 
 The issue of unbalanced complementary products is very important for
 the practical success of an interior point code. 
-
-\fb{
-We should note how
+We should stress how
 the complementary pairs play a role in the Newton system, and how
 their bad scaling causes a bad behaviour of Newton's method, which
 produces unreliable directions.
+Atkinson and Vaidya \cite{AtkinsonVaidya} noticed that as the ratio 
+between the smallest and the largest complementarity pair
+increases, the region in which Newton's method converges becomes smaller.
 
+\fb{
 Jansen \cite{JansenRoosTerlaky96} (or actually \cite{phd:Jansen}?)
 proposed to use the ratio 
 between the smallest and the largest complementarity pair as an 
 indication of the quality of a point.
-
-It mentions that was Atkinson and Vaidya \cite{AtkinsonVaidya} 
-that noticed that as the ratio increases, the region in which 
-Newton converges becomes smaller.
 }
 
 Practical experience with the primal--dual algorithm in HOPDM \cite{HOPDM}
@@ -1020,7 +1043,7 @@ from which we derive a first bound on the stepsize:
 \[
 \alpha \le 2^{3/2}\frac{1-\gamma}{1+\gamma}\frac{\sigma}{n} = \bar\alpha_1.
 \]
-%
+
 Considering now the bound $x_is_i\ge \gamma\mu$ and using again
 Lemma~\ref{Wright:5.10}, equation (\ref{eq:CompProdAlpha}) implies
 \[
