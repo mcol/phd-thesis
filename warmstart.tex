@@ -3,7 +3,7 @@
 %Sep:  7,  8, 13
 % 2007
 %Feb:  4
-%Mar:  8, 18, 19
+%Mar:  8, 18, 19, 20
 
 %
 % Chapter: Warm-start
@@ -271,10 +271,10 @@ problem (\ref{eq:SLPRecourse}) can be written in the
 {\em deterministic equivalent formulation}:
 \be \label{eq:DetEq-2stage}
 \begin{array}{rlllll}
-\min & c^T x + \sum_i p^i{q^i}^T y^i \\
+\min & c^T x + \sum_i p^i(q^i)^T y^i \\
 \mbox{s.t.} & Ax              &        &          & = b,   \\
             & T^1 x + W^1 y^1 &        &          & = h^1  \\
-	    & \vdots          & \hspace{-1em}\ddots & & \;\vdots \\
+	    & \quad\vdots     & \hspace{-1em}\ddots & & \;\vdots \\
             & T^n x           &        &+\; W^n y^n & = h^n \\
             & x \geq 0,\; y^i \ge 0.
 \end{array}
@@ -297,7 +297,7 @@ stochastic programming problem we first need to enumerate all nodes
 of the event tree. We use a breadth-first 
 search order, i.e., we start from a root node corresponding 
 to the initial stage and end with leaf nodes corresponding 
-to the last stage. In this case, the constrint matrix displays
+to the last stage. In this case, the constraint matrix displays
 a nested dual-block angular structure.
 
 Let $t = 1,2,\ldots,T$ denote the stage and $l_t$ be the index of a 
@@ -305,14 +305,10 @@ node at stage $t$.
 Let $L_t$ denote the last node at stage $t$. Hence 
 the nodes that belong to stage $t > 1$ have indices 
 $l_t = L_{t-1} \! + \! 1, L_{t-1} \! + \! 2, \dots, L_t$. 
-With $a(l_t)$ we denote the direct ancestor of node $l_t$ (which is a 
-node that belongs to stage $t-1$).
-
-\fb{
 For any node in the tree at stage $t$ there is only one immediate
 ancestor at stage $t-1$ and a finite number of descendants at $t+1$.
-}
-
+With $a(l_t)$ we denote the direct ancestor of node $l_t$ (which is a 
+node that belongs to stage $t-1$).
 All decision variables $x$ are superscripted with the node number 
 $l_t$.
 
@@ -490,7 +486,6 @@ problem data.
 Also, it should be sufficiently advanced to provide 
 computational savings over a cold-start iterate.
 These considerations lead to the idea of storing an approximate
-
 $\mu$-center well before reaching optimality 
 \cite{Gondzio98,GondzioGrothey03,GondzioVial,YildirimWright}.
 
@@ -503,7 +498,7 @@ of the warm-start approaches proposed in the interior point literature.
 %
 \subsection{Changes in the problem size}
 
-Mitchell \cite{Mitchell88} and Mitchell and Todd \cite{MitchellTodd}
+Mitchell \cite{phd:Mitchell} and Mitchell and Todd \cite{MitchellTodd}
 analyse the potential reduction interior point method within
 a cutting plane algorithm. They exploit the fact that
 the primal feasible point can be constructed after a set of new
@@ -542,7 +537,7 @@ the addition of cuts, large infeasibilities are often produced.
 The role of interior point methods in integer and combinatorial 
 optimization has been comprehensively surveyed in \cite{Mitchell96} 
 and \cite{MitchellPardalosResende98}. This is relevant as these classes
-of optimization problems are generally solved by solving a sequence
+of optimization problems are generally solved by formulating a sequence
 of linear relaxations, where the problem instances differ by the
 addition of cutting planes and facet-inducing constraints.
 
@@ -689,7 +684,6 @@ A practical implementation is developed within an infeasible interior
 point method. In this context, a stronger emphasis may be put on 
 reducing the infeasibilities. This is accomplished with additional 
 centering steps.
-
 An approximate $\mu$-center is stored for a tolerance level that 
 depends on the magnitude of the expected perturbation. This does not 
 exclude the possibility of storing a sequence of iterates, as proposed 
@@ -745,21 +739,6 @@ This is where structure-exploiting parallel solvers such as OOPS
 point methods can be used not only for linear programming problems, 
 but also for quadratic and nonlinear problems \cite{GondzioGrothey04}.
 
-In a large scenario tree there may be very little difference among 
-scenarios, and so the large-scale problem can provide a fine-grained 
-solution to a problem that could have been solved more coarsely by 
-using a much smaller tree. This observation suggests a
-warm-start technique that can be applied in the context of interior 
-point methods. A warm-start solution is obtained by solving the 
-stochastic optimization problem for a reduced event tree, whose 
-dimension is much smaller than that of the complete one. The solution 
-to the reduced problem is used to construct an advanced iterate for 
-the complete formulation. We provide evidence that this novel way 
-of exploiting the problem structure to generate an initial point 
-provides a better iterate (in terms of centrality, feasibility, 
-and closeness to optimality) than the one produced by a generic 
-strategy.
-
 
 %
 % Section
@@ -779,6 +758,22 @@ branches in the first few stages. Two ``neighbouring'' scenarios,
 that is two scenarios that have common nodes, may display large 
 differences concerning later stage decisions, but the decisions 
 taken in the earlier stages are identical (nonanticipativity).
+Moreover, there may be very little difference among 
+scenarios, and so the large-scale problem can provide a fine-grained 
+solution to a problem that could have been solved more coarsely by 
+using a much smaller tree. 
+
+These observations suggests a
+warm-start technique that can be applied in the context of interior 
+point methods. A warm-start solution is obtained by solving the 
+stochastic optimization problem for a reduced event tree, whose 
+dimension is much smaller than that of the complete one. The solution 
+to the reduced problem is used to construct an advanced iterate for 
+the complete formulation. We provide evidence that this novel way 
+of exploiting the problem structure to generate an initial point 
+provides a better iterate (in terms of centrality, feasibility, 
+and closeness to optimality) than the one produced by a generic 
+strategy.
 
 Techniques for reducing the size of the scenario tree have been studied 
 before from a probabilistic perspective; in some cases considerable 
@@ -1638,8 +1633,10 @@ We first implemented the strategy of generating a reduced tree and
 the corresponding warm-start iterate within the HOPDM \cite{Gondzio96} 
 solver. We tested a series of publicly available stochastic problems in 
 the SMPS format \cite{SMPS} coming from the POSTS collection 
-available from:\\
-{\tt http://users.iems.northwestern.edu/\~{}jrbirge/html/dholmes/post.html}. \\
+available from:
+\begin{center}
+{\tt http://users.iems.northwestern.edu/\~{}jrbirge/html/dholmes/post.html}.
+\end{center}
 %
 % while problem {\tt stocfor} comes from \\
 % {\tt http://www.uwsp.edu/math/afelt/slptestset/download.html}. \\
@@ -1923,7 +1920,7 @@ this produces consistent savings in computational time.
 \item The reduced tree approach to construct a warmstart iterate 
 doesn't seem to be IPM specific, and could be exploited also by a 
 simplex solver (in which case, how would such a solver obtain the 
-complete basis?). However, the advantage of IPM are the possibility 
+complete basis?). However, interior point methods have the advantage
 of solving huge scale problems, parallelism, and extension to 
 quadratic problems.
 

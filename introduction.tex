@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
-%Mar:  8, 12, 17, 19
+%Mar:  8, 12, 17, 19, 20
 
 %
 % Chapter: Background and introduction.
@@ -39,21 +39,21 @@ can be found in many sources, such as \cite[ch.~2]{Dantzig63} and
 in \cite{Dantzig02}.
 
 A definition of Linear programming has been given by Dantzig \cite{Dantzig02}:
-\begin{quote}
+\begin{quotation}%
 Linear programming can be viewed as part of the great revolutionary 
 development which has given mankind the ability to state general goals
 and to lay out a path of detailed decisions to take in order to ``best''
-achieve its goals when faced with practical situations of great complexity.
-\end{quote}
+achieve its goals when faced with practical situations of great complexity.%
+\end{quotation}
 
 Further, Dantzig \cite{Dantzig02} mentions the essential 
 components of linear programming:
-\begin{quote}
+\begin{quotation}%
 Our tools for doing this are ways to formulate real-world problems in
 detailed mathematical terms (models), techniques for solving the models
 (algorithms), and engines for executing the steps of algorithms
-(computers and software).
-\end{quote}
+(computers and software).%
+\end{quotation}
 
 An {\em optimization problem} can be described in terms of a set of variables, 
 some constraints, and an objective function. 
@@ -106,7 +106,7 @@ manipulating (\ref{eq:NumberVertices}):
 \]
 
 This observation gives rise to the need of defining an algorithm
-that discovers an optimal vertex among the multitude of nonoptimal ones.
+that discovers an optimal vertex among the multitude of non-optimal ones.
 
 An important feature of any algorithm is its efficiency, that is 
 how much effort is needed for the algorithm to provide an answer
@@ -146,7 +146,6 @@ Algorithm~\ref{alg:GenericOptimization}.
   \caption{Generic optimization algorithm}
     \begin{algorithmic}  \label{alg:GenericOptimization}
       \REQUIRE An initial iterate $w$;
-      \smallskip
       \REPEAT
          \STATE Determine a search direction $\Delta w$.
          \STATE Compute the distance $\alpha$ of how far to move along
@@ -266,7 +265,7 @@ such as sequential quadratic programming.
 
 Since their reintroduction, this time to solve linear programs, 
 following Karmarkar's groundbreaking paper
-\cite{Karmarkar}, interior point methods (IPMs for short) have attracted 
+\cite{Karmarkar}, interior point methods have attracted 
 the interest of a growing number of researchers.
 Also this algorithm was proved to have polynomial complexity: 
 indeed, it converges in $\bigO(nL)$ iterations. As opposed to
@@ -285,12 +284,12 @@ linear programming problem.
 
 Karmarkar \cite{Karmarkar} explained the advantage of an
 interior point approach as follows:
-\begin{quote}
+\begin{quotation}%
 In the simplex method, the current solution is modified by introducing
 a nonzero coefficient for one of the columns in the constraint
 matrix. Our method allows the current solution to be modified by
-introducing several columns at once.
-\end{quote}
+introducing several columns at once.%
+\end{quotation}
 
 %Karmarkar's algorithm is a primal algorithm based on a projection
 %in some transformed space and steepest descent. It uses a potential
@@ -300,8 +299,8 @@ Karmarkar announced that his method was extremely successful in practice,
 claiming to beat the simplex method by a large margin (50 times,
 as reported in \cite{MWright92}).
 A variant of Karmarkar's original algorithm was then proposed and 
-implemented by Adler-Karmarkar-Resende-Veiga 
-(Math. Prog. 44, 1989).
+implemented by Adler, Resende, Veiga and Karmarkar 
+\cite{AdlerResendeVeigaKarmarkar89}.
 Since then the theoretical understanding has considerably improved,
 and many algorithmic variants have been proposed, and several of
 them have shown to be a computationally viable alternative to the
@@ -331,9 +330,11 @@ structure in an extremely efficient manner.
 
 Interior point methods are well-suited to solving very
 large scale optimization problems. Their theory is well understood
-\cite{ipm:Wright97} and the techniques used in their implementation 
+\cite{RoosTerlakyVial,ipm:Wright97,Ye97} 
+and the techniques used in their implementation 
 are documented in extensive literature (see, for example, 
-\cite{AndersenGondzioMeszarosXu,GondzioTerlaky} and the references therein).
+\cite{AndersenGondzioMeszarosXu,GondzioTerlaky,LustigMarstenShanno94} 
+and the references therein).
 They can be applied to a wider range of situations with no need
 of major changes. In particular, they have been successfully applied to
 complementarity problems, quadratic programming and convex 
@@ -402,7 +403,7 @@ Connect better with the next section.
 %
 \subsection{Scope of this thesis}
 
-The approach that permeates the aims of this research and 
+The approach that permeates this research and 
 the presentation of its results is markedly computationally oriented. 
 While we recognise the importance and validity of theoretical developments, 
 and we appreciate the insights that such results provide, 
@@ -415,6 +416,16 @@ First, we introduce and formalise the concept of
 {\em symmetric neighbourhood} as the
 driving tool for the analysis and understanding of the good behaviour
 of some practical algorithms. 
+This neighbourhood is a variation on the more common
+$\Nhood_{-\infty}$ neighbourhood, in which the complementarity pairs
+are bounded above by a quantity independent on $n$.
+Therefore, the spread among complementarity pairs is kept
+under control and is reduced with the barrier parameter $\mu$.
+This has beneficial consequences on the quality of the search
+directions generated by Newton's method. Moreover, we show that
+a long-step feasible algorithm based on the symmetric neighbourhood
+has the same computational complexity as an algorithm based
+on the wide $\Nhood_{-\infty}$ neighbourhood.
 Also, the symmetric neighbourhood plays a central role in the development 
 of the two techniques that we introduce and study in this work.
 
@@ -444,7 +455,7 @@ The algorithm we introduced has been implemented in an interior
 point code, and the performance has been studied in a thorough
 computational experience. The introduction of the weighting mechanism,
 and of some other algorithmic changes that it allowed,
-has produced a considerable improvement, particularly for large-scale
+has produced considerable improvements, particularly for large-scale
 problems.
 
 Our third contribution is in the context of generation of 
@@ -475,11 +486,15 @@ Andreas Grothey \cite{ColomboGondzioGrothey06}.
 %
 \subsection{Outline of this thesis}
 
-In Chapter~\ref{ch:Ipm} we introduce and derive the primal--dual
-path-following algorithm for linear programming. This will be
-the moment of introducing the main theoretical results that are at
-the base of most interior-point methods, as well as concentrate
-on those that are more used in practical implementations.
+In Chapter~\ref{ch:Ipm} we introduce and formalise some basic
+notions on linear programming and present the main theoretical results 
+that are at the base of most interior-point methods. 
+We will concentrate on the path-following class of
+primal--dual interior point methods, as they are at the base of 
+most of practical implementations.
+Alongside reviewing the theoretical achievements known in the
+literature, we will introduce and analyse the concept of 
+symmetric neighbourhood.
 
 In Chapter~\ref{ch:PracticalIpm} we shift our focus towards 
 the main techniques adopted in computer implementations of

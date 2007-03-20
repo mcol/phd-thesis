@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
-%Mar:  8, 12, 13, 16, 17
+%Mar:  8, 12, 13, 16, 17, 20
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -46,12 +46,13 @@ results on the order of convergence of some interior point algorithms.
 In practice, convergence is much faster than stated by those results:
 optimality is usually reached in a number of iterations 
 proportional to the logarithm of the problem dimension. 
+This was also shown by Ye \cite[ch.~6]{Ye97} through an
+average-case and probabilistic analysis.
 As it happens with the analysis of the simplex method, we see a large
 gap between the predicted and the observed performance that is still to
 be fully understood.
 
 \fb{
-Find a citation for the logarithm thing!
 Was it said in \cite{AndersenGondzioMeszarosXu}?
 }
 
@@ -99,14 +100,14 @@ iterates in a neighbourhood of the central path.
 
 Upon discussing the choice for the centering term in his algorithm,
 Mehrotra \cite{Mehrotra92} makes this comment:
-\begin{quote}
+\begin{quotation}%
 It is not clear if the central path (with
 equal weights) is the best path to follow, particularly since it
 is affected by the presence of redundant constraints. Furthermore,
 the points on (or near) the central path are only intermediate to
 solving the linear programming problem. It is only the limit point 
-on this path that is of interest to us.
-\end{quote}
+on this path that is of interest to us.%
+\end{quotation}
 
 %
 %
@@ -122,7 +123,7 @@ as BPMPD, Cplex, HOPDM, Mosek, OOPS, OOQP, PCx and Xpress.
 
 \ignore{
 They have also been used with success in semidefinite 
-programming with IPMs \cite{Haeberly99}.
+programming with interior point methods \cite{Haeberly99}.
 }
 
 Both correcting techniques originate from the observation that 

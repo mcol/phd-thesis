@@ -1,7 +1,7 @@
 %Started on Wednesday, 9th August 2006
 % 2007
 %Feb: 12
-%Mar: 12
+%Mar: 12, 20
 
 %
 % Abstract
@@ -21,7 +21,7 @@ mechanism that can be applied to any corrector direction,
 whether originating from Mehrotra's predictor--corrector algorithm
 or as part of the multiple centrality correctors technique.
 Such modification on the way a corrector direction is applied
-concentrates on ensuring that such a direction can positively
+concentrates on ensuring that any computed search direction can positively
 contribute to a successful iteration by increasing the overall
 stepsize. Also, it tries to use the information from a corrector
 direction even when otherwise it would be rejected because it
@@ -45,6 +45,8 @@ size of the problem instance, and used to initialise the
 interior point algorithm.
 We present theoretical conditions that the warm-start iterate
 has to satisfy in order to be successful.
+We implemented this technique in both the HOPDM and the OOPS
+frameworks.
 The performance of this warm-start strategy is verified through 
 a series of tests on problem instances coming from various stochastic
 programming sources.
