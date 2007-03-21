@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
-%Mar:  8, 12, 17, 19, 20
+%Mar:  8, 12, 17, 19, 20, 21
 
 %
 % Chapter: Background and introduction.
@@ -142,7 +142,7 @@ Algorithm~\ref{alg:GenericOptimization}.
 \renewcommand{\algorithmicrequire}{\textbf{Given:}}
 \renewcommand{\algorithmicrepeat}{\textbf{Repeat:}}
 \renewcommand{\algorithmicuntil}{\textbf{Until}}
-\begin{algorithm}[h]
+\begin{algorithm}[ht]
   \caption{Generic optimization algorithm}
     \begin{algorithmic}  \label{alg:GenericOptimization}
       \REQUIRE An initial iterate $w$;
@@ -496,20 +496,25 @@ Alongside reviewing the theoretical achievements known in the
 literature, we will introduce and analyse the concept of 
 symmetric neighbourhood.
 
-In Chapter~\ref{ch:PracticalIpm} we shift our focus towards 
+Chapter~\ref{ch:PracticalIpm} is dedicated to presenting
 the main techniques adopted in computer implementations of
 interior point methods.
-We will discuss two important strategies used in generating
-effective search directions, paying particular attention
-to the details for which there is a divergence between theoretical
-analysis and practical implementation.
+We will discuss the details for which there is a divergence 
+between theoretical analysis and practical implementation,
+paying particular attention to two important strategies used 
+in generating effective search directions: 
+Mehrotra's predictor--corrector algorithm and the
+multiple centrality correctors technique.
 
-Chapter~\ref{ch:Correctors} is dedicated to studying the use of
+In Chapter~\ref{ch:Correctors} we continue the discussion on
+Mehrotra's algorithm, presenting some recent insight on the
+cases of failure of the corrector direction, and studying the use of
 weighted correctors in the generation of search directions. This will
 be compared to the subspace searches approach, which tries something
 similar but considering a given set of directions. The advantages
 and drawbacks of both strategies will be discussed together with
-a rich computational study.
+a rich computational study on the implementation of the
+weighted correctors technique.
 
 In Chapter~\ref{ch:Warmstart} we present a warm-start technique
 that exploits the inherent structure of a stochastic linear programs.

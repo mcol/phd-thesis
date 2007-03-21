@@ -453,37 +453,36 @@ a predictor for the next centrality corrector, hence the correcting process
 is recursive, and can be interrupted at any stage.
 
 Below we formalise the weighted correctors algorithm.
-\begin{description}
-\item[Given] an initial iterate $(x^0,y^0,s^0)$ such that $(x^0, s^0) > 0$;
-\item[Repeat] for $k=0,1,2,\ldots$ until some convergence criteria are met:
-  \begin{itemize}
-  \item Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_1$
-        (\ref{eq:PredictorRhs}) for a predictor direction $\Delta_a$.
-
-  \item Set $\mu$ according to (\ref{eq:Mu}) and find Mehrotra's corrector 
-        direction $\Delta_c$ by solving system (\ref{eq:NewtonSystem}) 
-        with right-hand side (\ref{eq:MehrotraRhs}).
-
-  \item Do a linesearch to find the optimal $\hat\omega$ that maximizes 
-        the stepsize $\alpha$ in $\Delta^\omega = \Delta_a +\omega\Delta_c$.
-
-  \item Set $\Delta_p = \Delta_a +\hat\omega\Delta_c$. 
-    \begin{description}
-    \item[Do]
-      \begin{itemize}
-      \item Solve system (\ref{eq:NewtonSystem}) with right-hand side
-	$(0,0,t)$, $t$ given by (\ref{eq:Target}) for a centrality corrector
-	direction $\Delta_m$.
-      \item Perform a linesearch to find the optimal $\hat\omega$ that maximizes 
-        the stepsize $\alpha$ in $\Delta^\omega = \Delta_p +\omega\Delta_m$.
-      \item Set $\Delta_p := \Delta_p +\hat\omega\Delta_m$. 
-	\end{itemize}
-    \item[While] the stepsize increases by at least a fraction of the aspiration level $\delta$;
-    \end{description}
-  \item Update the iterate $(x^{k+1},y^{k+1},s^{k+1}) = (x^k,y^k,s^k) + \alpha_k\Delta_p (x^k,y^k,s^k).$
-  \end{itemize}
-\item[End]
-\end{description}
+\begin{algorithm}[ht]
+  \caption{Weighted correctors algorithm}
+    \begin{algorithmic}[0]  \label{alg:WeightedCorrectors}
+      \REQUIRE An initial iterate $(x^0,y^0,s^0)$ such that $(x^0, s^0) > 0$;
+      \REPEAT
+         \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_1$
+	        (\ref{eq:PredictorRhs}) for a predictor direction $\Delta_a$.
+         \STATE  Set $\mu$ according to (\ref{eq:Mu}) and find Mehrotra's
+                 corrector direction $\Delta_c$ by solving system
+                 (\ref{eq:NewtonSystem}) with right-hand side
+                 (\ref{eq:MehrotraRhs}).
+         \STATE Do a linesearch to find the optimal $\hat\omega$ that
+                maximizes the stepsize $\alpha$ in
+                $\Delta^\omega = \Delta_a +\omega\Delta_c$
+	\STATE Set $\Delta_p := \Delta_p +\hat\omega\Delta_m$. 
+        \WHILE{the stepsize increases by at least a fraction of the aspiration 
+               level $\delta$}
+           \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side
+                  $(0,0,t)$, $t$ given by (\ref{eq:Target}), for a centrality
+                 corrector direction $\Delta_m$.
+	   \STATE Perform a linesearch to find the optimal $\hat\omega$ that
+                  maximizes the stepsize $\alpha$ in
+                  $\Delta^\omega = \Delta_p +\omega\Delta_m$.
+           \STATE Set $\Delta_p := \Delta_p +\hat\omega\Delta_m$.
+        \ENDWHILE
+        \STATE Update the iterate $(x^{k+1},y^{k+1},s^{k+1}) = (x^k,y^k,s^k) +
+               \alpha_k\Delta_p (x^k,y^k,s^k).$
+      \UNTIL Some termination criteria are met.
+  \end{algorithmic}
+\end{algorithm}
 
 %
 %
