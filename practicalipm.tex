@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
-%Mar:  8, 12, 13, 16, 17, 20
+%Mar:  8, 12, 13, 16, 17, 20, 21
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -31,7 +31,7 @@ direction (\ref{eq:NewtonSystem})
 for the associated barrier problem and make a step along 
 this direction, thus usually reducing infeasibilities 
 and complementarity gap.
-The computation of the Cholesky factorization
+The computation of the Cholesky factors
 dominates the cost of each iteration: in general this procedure
 requires $\bigO(n^3)$ operations.
 As this is usually a major computational task, 
@@ -52,20 +52,103 @@ As it happens with the analysis of the simplex method, we see a large
 gap between the predicted and the observed performance that is still to
 be fully understood.
 
-\fb{
-Was it said in \cite{AndersenGondzioMeszarosXu}?
-}
-
 Practical algorithms are very different from the ones used for
 theoretical purposes, and usually they implement some variation
 of infeasible interior point algorithms. In particular they show
-differences in the search directions, the evaluation of the stepsize, 
+differences in the computation of the search directions, 
+the evaluation of the stepsize, 
 the use of the neighbourhood concept, and the update of the
 barrier parameter.
 This is further complicated by issues of computational efficiency
 and numerical stability, which often suggest the use of amended
 techniques or heuristic approaches, which make extremely difficult 
 the analysis of the algorithms implemented in practice.
+
+In the rest of this section we illustrate some of 
+the differences that are relevant to any 
+practical implementation of interior point methods.
+They concern the choice of the starting point, the computation
+of the stepsize, the termination criteria and the use
+of correctors in the search directions.
+This selection has been made according to the relevance
+for this thesis.
+Therefore, we will not discuss other topics of extreme importance 
+in practical algorithms such as presolve techniques, 
+detection of infeasibilities, linear algebra implementations, 
+use of iterative methods in the solution of the Newton system,
+and many others.
+For these additional topics we refer the reader to the references in 
+\cite{AndersenGondzioMeszarosXu,GondzioTerlaky}.
+
+%
+%
+\subsection{Mehrotra's starting point heuristic}
+\label{sec:StartingPoint}
+
+\ignore{
+The initialisation of an interior point method consists of two
+logically independent phases: the presolve (find duplicate rows or
+columns, fixed variables, redundant constraints, bound tightening),
+and the process of finding an initial iterate.
+}
+
+The choice of an initial iterate for interior point methods is a
+critical one. It challenges both the feasible and infeasible
+algorithms, and the solutions proposed in the two contexts are
+completely different.
+
+Turning our attention to infeasible algorithms, the major hurdle
+of finding a feasible starting point is removed. 
+However, the practical performance is very sensitive to the initial
+iterate, so the use of arbitrary points is not recommended.
+In particular, two requirements become important: the centrality 
+of the point and the magnitude of the corresponding infeasibilities.
+\fb{
+Expand!
+}
+
+Mehrotra \cite{Mehrotra92} introduced a tool to find a starting point 
+that attempts to fulfil the above requirements. In this
+heuristic, we solve two least squares problems which aim to
+satisfy the primal and dual constraints:
+\begin{eqnarray*}
+  \min_x    \!\! & x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
+  \min_{y,s}\!\! & s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c.
+\end{eqnarray*}
+The corresponding solution $(\tilde x, \tilde y, \tilde s)$ is further 
+shifted inside the positive orthant, and the starting point is
+\[
+(x_0,y_0,s_0) = (\tilde x + \delta_x e,\, \tilde y,\, \tilde s + \delta_s e),
+\]
+where $\delta_x$ and $\delta_s$ are positive quantities. 
+Their values depend on the distance of $\tilde x$ and $\tilde s$
+to non-negativity, and an additional correction term to ensure
+strict positivity.
+
+The following variation is described in \cite{GondzioTerlaky}:
+\begin{eqnarray*} 
+  \min_x    \!\! & c^Tx + \rho x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
+  \min_{y,s}\!\! & b^Ty + \rho s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c,
+\end{eqnarray*}
+where the parameter $\rho$ is fixed to a predetermined value, in order
+to compensate for the contribution of the primal and dual objectives.
+
+A problem with Mehrotra's strategy is that it is scale dependent,
+it is affected by the presence of redundant constraints,
+and it does not guarantee to produce a well-centered iterate.
+
+The procedure of finding an appropriate starting point will be discussed
+again in Chapter~\ref{ch:Warmstart}, where a specialised technique for
+the case of stochastic linear programming problems will be analysed.
+
+\fb{
+Also check what is done by Lustig, Marsten and Shanno
+\cite{LustigMarstenShanno}.
+}
+
+%
+%
+\subsection{Computation of the stepsize}
 
 The computation of different stepsizes in the primal and dual spaces is
 almost the rule for linear programming.
@@ -95,7 +178,7 @@ We remark that in the computation of the stepsizes, we
 maintain the strict positivity of the iterates, without restricting
 the point inside a neighbourhood.
 While this is done on the grounds of computational efficiency, we may
-lose the property of global convergence ensured by keeping the
+lose the global convergence property ensured by keeping the
 iterates in a neighbourhood of the central path.
 
 Upon discussing the choice for the centering term in his algorithm,
@@ -108,6 +191,73 @@ the points on (or near) the central path are only intermediate to
 solving the linear programming problem. It is only the limit point 
 on this path that is of interest to us.%
 \end{quotation}
+This statement represents a very pragmatic viewpoint of the interior
+point algorithm. It stresses the fact that while the central path
+is the reference trajectory for approaching the optimal set,
+in practice we should not worry too much if we stray from it.
+Also it raises a warning about trusting too much the concept
+of analytic center as it can be easily distorted by the presence
+of redundant constraints. He we mention the fact that presolve
+techniques are usually implemented to find and remove as many as
+possible of such constraints, but while they are based on successful
+heuristics, they are not optimal. In particular, they may find hard
+to detect implied constraints (see Cartis and Gould).
+
+%
+%
+\subsection{Termination criteria}
+
+Contrary to active set algorithms, interior point methods reach a
+solution only asymptotically. 
+Because of the presence of the barrier term that keeps the iterates
+away from the boundary, they can never produce an exact solution.
+When working in the context of limited precision of the
+floating point representation typical of computers, feasibility and
+complementarity can be attained only within a certain level
+of accuracy.
+
+For these reasons, some criteria have to be established according
+to which a decision in made about the termination of the algorithm.
+The common termination criteria used in practice are the
+following \cite{GondzioTerlaky}:
+\be  \label{eq:TerminationCriteria}
+\frac{\| Ax - b \|}{1 + \|x\|_\infty} \le10 ^{-p}, 
+\qquad
+\frac{\| A^Ty + s - c \|}{1 + \|s\|_\infty} \le10 ^{-p},
+\qquad
+\frac{| c^Tx - b^Ty |}{1 + | b^Ty |} \le10 ^{-p}.
+\ee
+
+The value of $p$ required depends on the specific application.
+In the literature, it is common to use the value $p = 8$.
+The third condition is usually the most important, as it is
+commonly attained only after the feasibility requirements are satisfied.
+
+It is worth noting that the criteria (\ref{eq:TerminationCriteria})
+are dependent on the scaling of the data.
+
+Once a solution has been found within a prescribed 
+optimality tolerance, such a point can be projected onto a face 
+of the polyhedron in an efficient way.
+This can be done thanks to a strongly polynomial algorithm due
+to Megiddo \cite{Megiddo91}. This procedure goes under the name
+of {\em basis crossover}, 
+as given a complementary primal--dual solution it generates a basis 
+that is both primal and dual feasible.
+
+However, we should discuss what we mean by ``exact'' solution. In most
+cases we do not need the additional precision of being on a vertex (in
+this case, integer programming is the notable exception).
+Also, in case of multiple solutions, interior point methods terminate
+at the analytic center of the optimal face rather than at a vertex; 
+but note the arbitrariness of the simplex in the choice of the solution
+vertex.
+This difference has important consequences on the use of the solution
+for sensitivity analysis. 
+
+\fb{
+Find the correct citations! Have a look at Jansen's and Yildirim's phds.
+}
 
 %
 %
@@ -116,28 +266,20 @@ on this path that is of interest to us.%
 Two techniques have proved particularly successful in reducing 
 the number of iterations within practical algorithms:
 Mehrotra's predictor--corrector algorithm \cite{Mehrotra92} 
-and multiple centrality correctors \cite{Gondzio96}. These 
-techniques have been implemented in most of commercial and academic 
-interior point solvers for linear and quadratic programming such 
-as BPMPD, Cplex, HOPDM, Mosek, OOPS, OOQP, PCx and Xpress. 
-
-\ignore{
-They have also been used with success in semidefinite 
-programming with interior point methods \cite{Haeberly99}.
-}
+and multiple centrality correctors \cite{Gondzio96}. 
 
 Both correcting techniques originate from the observation that 
 (when direct methods of linear algebra are used) the computation 
 of the Newton direction requires two computationally intensive
 operations: 
-\begin{enumerate}
-\item Factorization: computation of the Cholesky factors of a sparse 
+\begin{description}
+\item[Factorisation:] computation of the Cholesky factors of a sparse 
 symmetric matrix; 
-\item Backsolve: use of the factors just computed to solve the system. 
-\end{enumerate}
+\item[Backsolve:] use of the factors just computed to solve the system. 
+\end{description}
 However, the cost of computing the factors is usually significantly 
 larger than that of backsolving: in some cases the ratio between 
-these two computational efforts may even exceed 1000. 
+these two computational efforts may even exceed a hundred. 
 
 \fb{
 Present a small table that shows the cost of factoring and of backsolving
@@ -145,12 +287,17 @@ for HOPDM (and PC-x?).
 }
 
 Consequently, it is worth adding more (cheap) 
-backsolves if this reduces the number of (expensive) factorizations. 
+backsolves if this reduces the number of (expensive) factorisations. 
 Mehrotra's predictor--corrector technique \cite{Mehrotra92} uses two 
-backsolves per factorization; the multiple centrality correctors technique
+backsolves per factorisation; the multiple centrality correctors technique
 \cite{Gondzio96} allows recursive corrections: a larger number 
 of backsolves per iteration is allowed, leading to a further reduction 
-in the overall number of factorizations. 
+in the overall number of factorisations. 
+These 
+techniques have been implemented in most of commercial and academic 
+interior point solvers for linear and quadratic programming such 
+as BPMPD, Cplex, HOPDM, Mosek, OOPS, OOQP, PCx and Xpress
+(see Appendix B in \cite{ipm:Wright97}).
 
 Since these two methods were developed, there have been a number of 
 attempts to investigate their behaviour rigorously and thus provide
@@ -200,8 +347,9 @@ taken into account and
 corrected. Mehrotra's predictor--corrector technique \cite{Mehrotra92}
 translates these observations into a powerful computational method.
 
-Mehrotra's predictor--corrector algorithm \cite{Mehrotra92,LustigMarstenShanno}
-is extremely efficient in practice. Since its introduction, it has 
+Mehrotra's predictor--corrector algorithm 
+is extremely efficient in practice \cite{Mehrotra92,LustigMarstenShanno}. 
+Since its introduction, it has 
 been considered the method of choice for practical implementations 
 because it is usually very fast and reliable. Moreover, it has a 
 convincing interpretation in terms of second order approximations.
@@ -231,7 +379,7 @@ positive orthant or approach an infeasible vertex, generating
 a very small stepsize. 
 This issue is usually worsened if the current iterate is badly centered, 
 and therefore only a very small step is acceptable in order to 
-maintain positivity or to keep the iterate in the neighbourhood 
+maintain positivity or to keep the iterate in some neighbourhood 
 of the central path.
 
 Since it completely ignores the central path, the affine-scaling 
@@ -239,7 +387,8 @@ direction is not enough in a practical implementation of
 interior point methods, but it has to be 
 complemented by other techniques.
 The role of the centering term is to remedy this situation by 
-affecting the search direction to move closer to the central path, 
+affecting the search direction to rotate towards the interior 
+of the feasible region,
 therefore allowing a longer stepsize. 
 
 Tapia et al. \cite{TapiaZhangSaltzmanWeiser} noted that the choice of the 
@@ -280,7 +429,7 @@ The ratio $g_a / x^{T}s \in (0,1)$ measures the quality of the
 predictor direction.
 A small ratio indicates a successful reduction of the complementarity 
 gap. On the other hand, if the ratio is close to one, then very little 
-progress is achievable in direction $\Delta_a$, and a strong recentering 
+progress is achievable in direction $\Delta_a$, and a bigger centering term
 is recommended.
 
 In \cite{Mehrotra92} the following choice of the new barrier parameter 
@@ -304,7 +453,7 @@ on a subset of Netlib problems, and concluded that for $p$ between
 2 and 4 there was not much difference.
 Also Lustig et al. \cite{LustigMarstenShanno} commented on the
 weak dependence of the computational performance on the choice 
-of the exponent.
+of the exponent, and settled for the value $p=2$.
 
 If the predictor provides a good improvement, a small $\sigma$ 
 is chosen, and therefore very little centering will be used. When, 
@@ -379,7 +528,8 @@ The next iterate is given by
 w^{k+1} = w^k
         + (\alpha_P\Delta x^k,\alpha_D\Delta y^k,\alpha_D\Delta s^k)
 \]
-where $\alpha_P$ and $\alpha_D$ are chosen according to (\ref{eq:Alphas}).
+where $\alpha_P$ and $\alpha_D$ are chosen according to (\ref{eq:Alphas})
+with respect to the direction $\Delta w$ of (\ref{eq:CompositeDirection}).
 
 For reasons of computational efficiency, in the computation of
 the corrector, Mehrotra's algorithm exploits 
@@ -472,29 +622,16 @@ that are far from the average.
 We assume that a long-step path-following algorithm is used, 
 and we work with the symmetric neighbourhood $\mathcal{N}_s(\gamma)$
 of the central path as defined in Section~\ref{sec:SymNeighbourhood}.
-
-\ignore{
-In the authors' experience, such a neighbourhood best describes the desired 
-properties of a ``well-centered'' interior point iterate.
-}
-
-%Like the previous one, this method also uses a composite direction 
-%of the following form 
-%\[
-%  \Delta = \Delta_p + \Delta_{\Red{m}},
-%\]
-%where $\Delta_{p}$ and $\Delta_{m}$ are the predictor
-%and corrector terms, respectively. The initial predictor is usually 
-%chosen to be the affine-scaling direction although different choices 
-%are also possible and, in certain special circumstances such as 
-%for example warm-starting, may be justified.
-
-In this context, Mehrotra's predictor--corrector direction 
-(\ref{eq:CompositeDirection}) is considered to be a new predictor direction
-$\Delta_p$ to which one or more centrality correctors can be applied. 
 In the framework of multiple centrality correctors, we look for a 
 centrality corrector $\Delta_m$ for which larger
 steps are allowed in the composite direction $\Delta = \Delta_p + \Delta_m$.
+In this context,
+Mehrotra's predictor--corrector direction 
+(\ref{eq:CompositeDirection}) is considered to be a new predictor direction
+$\Delta_p$ to which one or more centrality correctors can be applied. 
+Different choices for the first predictor direction are also possible and, 
+in certain special circumstances such as for example warm-starting, 
+may be justified.
 
 Assume that a predictor direction $\Delta_p$ is given and the corresponding
 feasible stepsizes $\alpha_{P}$ and $\alpha_{D}$ 
@@ -509,30 +646,39 @@ We want to enlarge the stepsizes to
 %
 for some fixed aspiration level $\delta \in(0,1)$. We compute a trial point
 %
-\[
+\be  \label{eq:TrialPoint}
   \tilde{x} = x + \tilde{\alpha}_{P} \Delta_{p} x, \quad 
   \tilde{s} = s + \tilde{\alpha}_{D} \Delta_{p} s,
-\]
+\ee
 %
 and the corresponding complementarity products 
 $\tilde v = \tilde X \tilde S e \in \R^{n}$.
-It is worth noting that this trial point is necessarily infeasible: 
-this is not a drawback, as the trial point is used exclusively in
-determining a target for the centrality corrector.
+It is worth noting that since we increased the stepsizes from 
+$\alpha_P,\alpha_D$ to $\tilde \alpha_P,\tilde \alpha_D$,
+the trial point (\ref{eq:TrialPoint}) is necessarily infeasible.
+However,as the trial point is used exclusively in
+determining a target for the centrality corrector, we will not
+worry about it.
 
 The products $\tilde v$ are very unlikely to align to the same value $\mu$.
 Some of them are significantly smaller than $\mu$, 
 including cases of negative components in $\tilde v$, 
 and some exceed $\mu$. Instead of trying to correct 
-them all to the value of $\mu$, we correct only those that
-lie outwith the symmetric neighbourhood.
+all of them to the same value $\mu$, we correct only those that
+lie outwith the symmetric neighbourhood of the central path.
+As the symmetric neighbourhood (\ref{eq:SymmetricNeighbourhood})
+provides both a lower and an upper bound on each complementarity product,
+this means checking where each $\tilde v_i$ lies with respects to
+them.
+
 Namely, we try to move small products 
-$(\tilde x_i \tilde s_i \leq \gamma \mu)$ to $\gamma \mu$ and move 
-large products $(\tilde x_i \tilde s_i \geq \gamma^{-1} \mu)$ 
-to $\gamma^{-1} \mu$, where $\gamma \in (0,1)$;
-complementarity products 
-which satisfy $\gamma \mu \leq x_i s_i \leq \gamma^{-1} \mu$ are
-already reasonably close to their target values, and 
+$(\tilde v_i \leq \gamma \mu)$ to the lower bound $\gamma \mu$, and move 
+large products $(\tilde v_i \geq \gamma^{-1} \mu)$ 
+to the upper bound $\gamma^{-1} \mu$, where $\gamma \in (0,1)$.
+Complementarity products 
+which satisfy $\gamma \mu \leq \tilde v_i \leq \gamma^{-1} \mu$ are
+already within the bounds of the symmetric neighbourhood and thus
+reasonably close to their target values: therefore they
 do not need to be changed. 
 In other words, we attempt to move the iterate inside the symmetric
 neighbourhood of the central path.
@@ -544,18 +690,19 @@ $(0, \,0,\, t)^T$, where the target $t$ is defined as follows:
 \begin{eqnarray} \label{eq:Target}
   t_i = \left\{
   \begin{array}{ll}
-    \gamma \mu - \tilde x_i \tilde s_i
-    & \mbox{ if } \;\; \tilde x_i \tilde s_i \leq \gamma \mu  \\
-    \gamma^{-1} \mu - \tilde x_i \tilde s_i
-    & \mbox{ if } \;\; \tilde x_i \tilde s_i \geq \gamma^{-1} \mu  \\
+    \gamma \mu - \tilde v_i 
+    & \mbox{ if } \;\; \tilde v_i \leq \gamma \mu  \\
+    \frac{1}{\gamma} \mu - \tilde v_i 
+    & \mbox{ if } \;\; \tilde v_i \geq \frac{1}{\gamma} \mu  \\
     0    
     & \mbox{ otherwise.}
   \end{array}
   \right.
 \end{eqnarray}
-
-The target point is not on the central path, but in the symmetric
-neighbourhood.
+We stress that the target point is not on the central path, 
+but in the symmetric neighbourhood and not all complementary
+products are being targeted. This makes the target (\ref{eq:Target})
+an achievable one.
 
 One important feature of multiple centrality correctors technique
 is that it can be applied recursively on the direction 
@@ -576,150 +723,12 @@ that this strategy is effective, as the stepsizes in the primal and
 dual spaces computed for the composite direction are larger than 
 those corresponding to the predictor direction. 
 This leads to reductions in the number of iterations, which in turn 
-translate into bigger CPU time savings the higher the factorization
+translate into bigger CPU time savings the higher the factorisation
 cost.
 
 Virtually all existing interior point codes implement such technique 
 \cite[Appendix B]{ipm:Wright97}.
-Their use depends on the quality of the linear algebra codes.
+Their use depends on the quality of the linear algebra implementation,
+particularly with respect of the Cholesky factorisation routines,
+as this affects the ratio between factorisation and backsolve costs.
 
-%
-% Section
-%
-\section{Other considerations for implementations}
-
-In this section we mention a few more topics that are relevant to any 
-practical implementation of interior point methods.
-
-They concern the choice of the starting point, the termination
-criteria. This selection has been made according to the relevance
-of this thesis.
-Therefore, we will not discuss other topics of extreme importance 
-in practical algorithms (presolve techniques, detection of infeasibilities, 
-linear algebra issues, use of iterative methods).
-We refer the reader to the references in 
-\cite{AndersenGondzioMeszarosXu,GondzioTerlaky}.
-
-\ignore{
-The initialisation of an interior point method consists of two
-logically independent phases: the presolve (find duplicate rows or
-columns, fixed variables, redundant constraints, bound tightening),
-and the process of finding an initial iterate.
-}
-
-%
-%
-\subsection{Mehrotra's starting point heuristic}
-\label{sec:StartingPoint}
-
-The choice of an initial iterate for interior point methods is a
-critical one. It challenges both the feasible and infeasible
-algorithms, and the solutions proposed in the two contexts are
-completely different.
-
-Turning our attention to infeasible algorithms, the major hurdle
-of finding a feasible starting point is removed. 
-However, the practical performance is very sensitive to the initial
-iterate, so the use of arbitrary points is not recommended.
-In particular, two requirements become important: the centrality 
-of the point and the magnitude of the corresponding infeasibilities.
-\fb{
-Expand!
-}
-
-Mehrotra \cite{Mehrotra92} introduced a tool to find a starting point 
-that attempts to fulfil the above requirements. In this
-heuristic, we solve two least squares problems which aim to
-satisfy the primal and dual constraints:
-\begin{eqnarray*}
-  \min_x    \!\! & x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
-  \min_{y,s}\!\! & s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c.
-\end{eqnarray*}
-The corresponding solution $(\tilde x, \tilde y, \tilde s)$ is further 
-shifted inside the positive orthant, and the starting point is
-\[
-(x_0,y_0,s_0) = (\tilde x + \delta_x e,\, \tilde y,\, \tilde s + \delta_s e),
-\]
-where $\delta_x$ and $\delta_s$ are positive quantities. 
-Their values depend on the distance of $\tilde x$ and $\tilde s$
-to non-negativity, and an additional correction term to ensure
-strict positivity.
-
-The following variation is described in \cite{GondzioTerlaky}:
-\begin{eqnarray*} 
-  \min_x    \!\! & c^Tx + \rho x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
-  \min_{y,s}\!\! & b^Ty + \rho s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c,
-\end{eqnarray*}
-where the parameter $\rho$ is fixed to a predetermined value, in order
-to compensate for the contribution of the primal and dual objectives.
-
-A problem with Mehrotra's strategy is that it is scale dependent,
-it is affected by the presence of redundant constraints,
-and it does not guarantee to produce a well-centered iterate.
-
-The procedure of finding an appropriate starting point will be discussed
-again in Chapter~\ref{ch:Warmstart}, where a specialised technique for
-the case of stochastic linear programming problems will be analysed.
-
-\fb{
-Also check what is done by Lustig, Marsten and Shanno
-\cite{LustigMarstenShanno}.
-}
-
-%
-%
-\subsection{Termination criteria}
-
-Contrary to active set algorithms, interior point methods reach a
-solution only asymptotically. 
-Because of the presence of the barrier term that keeps the iterates
-away from the boundary, they can never produce an exact solution.
-When working in the context of limited precision of the
-floating point representation typical of computers, feasibility and
-complementarity can be attained only within a certain level
-of accuracy.
-
-For these reasons, some criteria have to be established according
-to which a decision in made about the termination of the algorithm.
-The common termination criteria used in practice are the
-following \cite{GondzioTerlaky}:
-\be  \label{eq:TerminationCriteria}
-\frac{\| Ax - b \|}{1 + \|x\|_\infty} \le10 ^{-p}, 
-\qquad
-\frac{\| A^Ty + s - c \|}{1 + \|s\|_\infty} \le10 ^{-p},
-\qquad
-\frac{| c^Tx - b^Ty |}{1 + | b^Ty |} \le10 ^{-p}.
-\ee
-
-The value of $p$ required depends on the specific application.
-In the literature, it is common to use the value $p = 8$.
-
-The third condition is usually the most important, as it is
-commonly attained only after the feasibility requirements are satisfied.
-
-\fb{
-Dependence on scaling.
-}
-
-Once a solution has been found within a prescribed 
-optimality tolerance, such a point can be projected onto a face 
-of the polyhedron in an efficient way.
-This can be done thanks to a strongly polynomial algorithm due
-to Megiddo \cite{Megiddo91}. This procedure goes under the name
-of {\em basis crossover}, 
-as given a complementary primal--dual solution it generates a basis 
-that is both primal and dual feasible.
-
-However, we should discuss what we mean by ``exact'' solution. In most
-cases we do not need the additional precision of being on a vertex (in
-this case, integer programming is the notable exception).
-Also, in case of multiple solutions, interior point methods terminate
-at the analytic center of the optimal face rather than at a vertex; 
-but note the arbitrariness of the simplex in the choice of the solution
-vertex.
-This difference has important consequences on the use of the solution
-for sensitivity analysis. 
-
-\fb{
-Find the correct citations! Have a look at Jansen's and Yildirim's phds.
-}

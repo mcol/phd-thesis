@@ -4,7 +4,7 @@
 % 2007
 %Jan: 16, 17, 22
 %Feb:  6,  9, 11, 22
-%Mar:  8, 20
+%Mar:  8, 20, 21
 
 %
 % Chapter: 
@@ -297,7 +297,7 @@ In their approach, Mehrotra and Li \cite{MehrotraLi}
 generate directions using a Krylov subspace mechanism.
 
 % This new approach for generating corrector directions uses an exact 
-% factorization from an earlier iteration to generate directions 
+% factorisation from an earlier iteration to generate directions 
 % via Krylov subspaces. 
 % Therefore, information obtained from an iterative scheme is used 
 % to improve the performance of an implementation based on direct 
@@ -606,7 +606,7 @@ where $\gamma = \delta_\alpha = 0.1$. What did HOPDM use to do?
 We present our results in terms of number of iterations and number 
 of backsolve operations. The rationale behind this decision is that 
 the multiple centrality correctors technique determines the number 
-of allowed correctors on the basis of the ratio between factorization 
+of allowed correctors on the basis of the ratio between factorisation 
 cost and backsolve cost. This ratio can be very different across 
 implementations, and is mainly influenced by the linear algebra 
 routines used. 
@@ -895,7 +895,7 @@ fome13 & 48568 & 97840 & 334984 & 1545.05 & 990.62 & -35.9\% \\
 % Normally, HOPDM automatically chooses between direct and iterative 
 % approaches for computing directions. A higher-order correcting scheme
 % makes much more sense with the direct approach when 
-% backsolve is significantly less expensive than the factorization.
+% backsolve is significantly less expensive than the factorisation.
 % In order to maintain consistency, we forced HOPDM to use a direct 
 % approach when 
 % solving this class of problems, rather than an iterative scheme.

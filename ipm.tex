@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
-%Mar:  8,  9, 13, 15, 16, 17, 19, 20
+%Mar:  8,  9, 13, 15, 16, 17, 19, 20, 21
 
 %
 % Chapter: Interior point methods
@@ -331,7 +331,6 @@ can be defined, but they usually are too demanding to compute
 \cite{Gonzaga92}. 
 
 \fb{
-See a chapter in Ye's book.
 Terlaky's  Klee-Minty example.
 }
 
@@ -775,10 +774,6 @@ with accuracy.
 The use of a self-dual formulation, however, comes with a price from a
 computational viewpoint, particularly because of the need of
 two extra backsolves at each iteration.
-\fb{
-It works only for linear programming.
-Stability issues?
-}
 
 It is possible to develop an algorithm which only requires 
 the $x$ and $s$ components to be strictly positive. 
@@ -867,14 +862,12 @@ established by Zhang \cite{Zhang94} to be $\bigO(n^2L)$.
 \section{Symmetric neighbourhood}
 \label{sec:SymNeighbourhood}
 
-The quality of centrality (understood in a simplified way as complementarity)
-for a practical implementation of an interior point algorithm
-is {\it not} well characterised by either of two neighbourhoods 
-$\Nhood_2$ or $\Nhood_{-\infty}$ commonly used in theoretical developments 
-of interior point methods.
-
-The $\Nhood_2$ neighbourhood is too restrictive, and the short-step methods
-based on it are too conservative and, ultimately, very slow.
+In Section~\ref{sec:Neighbourhoods} we discussed two neighbourhoods
+employed in the theory of interior point methods, 
+and illustrated their main features and drawbacks.
+The $\Nhood_2$ neighbourhood follows the central path very tightly, 
+and the short-step methods
+based on it are extremely conservative and, ultimately, very slow.
 The $\Nhood_{-\infty}$ provides a much better framework, as it allows to
 reduce the barrier parameter quickly. However, at it does not actively
 enforce an upper bound on the complementary products, it may allow the
@@ -896,6 +889,13 @@ proposed to use the ratio
 between the smallest and the largest complementarity pair as an 
 indication of the quality of a point.
 }
+
+We argue that the quality of centrality 
+(understood in a simplified way as complementarity)
+for a practical implementation of an interior point algorithm
+is {\it not} well characterised by either of two neighbourhoods 
+$\Nhood_2$ or $\Nhood_{-\infty}$ commonly used in theoretical developments 
+of interior point methods.
 
 Practical experience with the primal--dual algorithm in HOPDM \cite{HOPDM}
 suggests that one of the features responsible 
@@ -929,11 +929,15 @@ This neighbourhood was implicitly used in \cite{Gondzio96}
 to define an achievable target for multiple centrality correctors
 (we refer the reader to Section~\ref{sec:MultipleCC}).
 
+\fb{
+Can I invent an example to show this?
+}
+
 We define the symmetric neighbourhood to be the set
-\[
+\be  \label{eq:SymmetricNeighbourhood}
   \Nhood_s(\gamma)=\{(x,y,s)\in \mathcal{F}^0: 
   \gamma\mu\le x_is_i \le \frac{1}{\gamma}\mu, \; i=1,\ldots,n\},
-\]
+\ee
 where $\mathcal{F}^0$ 
 is the set of strictly feasible primal--dual points,
 $\mu = x^Ts/n$, and $\gamma \in (0,1)$.
@@ -947,7 +951,7 @@ neighbourhood $\Nhood_s$, on the other hand, promotes
 the decrease of complementarity pairs which are too large, thus taking 
 better care of centrality.
 
-An upper bound on the size of comlementary products
+An upper bound on the size of complementary products
 is implicit in the $\Nhood_{-\infty}$ neighbourhood. To find it,
 suppose that all but one complementarity products are at the lower bound
 $\gamma\mu$:
