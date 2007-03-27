@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
-%Mar:  8, 12, 13, 16, 17, 20, 21, 22
+%Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -248,28 +248,6 @@ While this is done on the grounds of computational efficiency, we may
 lose the global convergence property ensured by keeping the
 iterates in a neighbourhood of the central path.
 
-Upon discussing the choice for the centering term in his algorithm,
-Mehrotra \cite{Mehrotra92} makes this comment:
-\begin{quotation}%
-It is not clear if the central path (with
-equal weights) is the best path to follow, particularly since it
-is affected by the presence of redundant constraints. Furthermore,
-the points on (or near) the central path are only intermediate to
-solving the linear programming problem. It is only the limit point 
-on this path that is of interest to us.%
-\end{quotation}
-This statement represents a very pragmatic viewpoint of the interior
-point algorithm. It stresses the fact that while the central path
-is the reference trajectory for approaching the optimal set,
-in practice we should not worry too much if we stray from it.
-Also it raises a warning about trusting too much the concept
-of analytic center as it can be easily distorted by the presence
-of redundant constraints. He we mention the fact that presolve
-techniques are usually implemented to find and remove as many as
-possible of such constraints, but while they are based on successful
-heuristics, they are not optimal. In particular, they may find hard
-to detect implied constraints (see Cartis and Gould).
-
 %
 %
 \subsection{Termination criteria}
@@ -339,11 +317,14 @@ Both correcting techniques originate from the observation that
 (when direct methods of linear algebra are used) the computation 
 of the Newton direction requires two computationally intensive
 operations: 
-\begin{description}
-\item[Factorisation:] computation of the Cholesky factors of a sparse 
+
+\begin{itemize}
+\item The {\em factorisation}, that is the computation of the 
+Cholesky factors of a sparse 
 symmetric matrix; 
-\item[Backsolve:] use of the factors just computed to solve the system. 
-\end{description}
+\item The {\em backsolve}, which uses of the factors just computed 
+to solve the system. 
+\end{itemize}
 However, the cost of computing the factors is usually significantly 
 larger than that of backsolving: in some cases the ratio between 
 these two computational efforts may even exceed a hundred. 

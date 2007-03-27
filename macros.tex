@@ -108,3 +108,11 @@
 % Decrease the space above a caption
 %
 \addtolength{\abovecaptionskip}{-1.5ex}
+
+%
+% Add quotation marks around quotations
+%
+\renewenvironment{quotation}
+   {\begin{quote}\singlespace
+    ``\sl \ignorespaces}
+   {\unskip \rm '' \end{quote}}
