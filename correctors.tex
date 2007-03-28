@@ -4,7 +4,7 @@
 % 2007
 %Jan: 16, 17, 22
 %Feb:  6,  9, 11, 22
-%Mar:  8, 20, 21, 22, 27
+%Mar:  8, 20, 21, 22, 27, 28
 
 %
 % Chapter: 
@@ -50,6 +50,24 @@ to Vavasis and Ye \cite{VavasisYe}, is composed by $O(n^2)$ turns
 of a high degree and segments in which it is approximately straight. 
 Given the complexity of this curve, it is unrealistic to be able 
 to approximate it everywhere with a second-order curve.
+
+Upon discussing the choice for the centering term in his algorithm,
+Mehrotra \cite{Mehrotra92} makes this comment:
+\begin{quotation}
+It is not clear if the central path (with
+equal weights) is the best path to follow, particularly since it
+is affected by the presence of redundant constraints. Furthermore,
+the points on (or near) the central path are only intermediate to
+solving the linear programming problem. It is only the limit point 
+on this path that is of interest to us.
+\end{quotation}
+This statement represents a very pragmatic viewpoint of the interior
+point algorithm. It stresses the fact that while the central path
+is the reference trajectory for approaching the optimal set,
+in practice we should not worry too much if we stray from it.
+Also it raises a warning about trusting too much the concept
+of analytic center as it can be easily distorted by the presence
+of redundant constraints, as discussed in Section~\ref{sec:BarrierProblem}.
 
 \ignore{
 In particular, as was noted by
@@ -195,8 +213,16 @@ the system (\ref{eq:JarreWechsSystem}), then
 $\Delta w^*= w^*-w$ satisfies the 
 system (\ref{eq:JarreWechsSystem}) for the choice
 \be  \label{eq:OptimalTarget}
-  t^* = X\Delta s^* + S\Delta x^*.
+  t^* = S(x^*-x) + X(s^*-s) = S\Delta x^* + X\Delta s^*.
 \ee
+It is possible to write $t^*$ as a different expression. 
+Given that $X^*S^*e=0$, we have:
+\[
+  0 = (X+\Delta X^*)(S+\Delta S^*)e 
+    = XSe + X\Delta s^* +S\Delta x^* +\Delta X^*\Delta S^*e,
+\]
+from which, using (\ref{eq:OptimalTarget}), we obtain
+$t^* = -XSe - \Delta X^* \Delta S^*e$.
 Therefore, as $t^*$ would lead to the optimizer in one single iteration,
 it can be considered the optimal choice for the target $t$
 in (\ref{eq:JarreWechsSystem}).
@@ -208,14 +234,31 @@ However, a lower bound can be determined. Knowing that
 $x+\Delta x^* \ge 0$ and $s+\Delta s^* \ge 0$, we have 
 $\Delta x^* \ge -x$ and $\Delta s^* \ge -s$, from which we obtain
 \[
-t^*= X\Delta s^* + S\Delta x^* \ge -2XSe.
+  t^*= S\Delta x^* + X\Delta s^* \ge -2XSe.
 \]
 
-\fb{
+\ignore{
 It would be interesting to see if in practice this bound is useful. 
 We could check whether at any iteration it's violated, and if so just
 put the bound...
 }
+
+An upper bound is derived from a result by Vavasis and Ye 
+\cite[Lemma~16]{VavasisYe}, according to which for two 
+strictly feasible points $w$ and $\hat w$ exactly on the central path
+and $\mu > \hat\mu > 0$ we have
+\[
+  \hat x_i s_i + \hat s_i x_i \le n x_i s_i, \qquad i = 1, \ldots, n,
+\]
+which, summing up all terms, produces
+\be  \label{eq:UpperBound}
+  S\hat Xe + X \hat Se \le nXSe.
+\ee
+Therefore, thanks to (\ref{eq:UpperBound}) 
+we can rewrite (\ref{eq:OptimalTarget}) and derive the following upper bound:
+\[
+  t^*= S(x^*-x) + X(s^*-s) = SX^*e + XS^*e -2XSe \le (n-2) XSe.
+\]
 
 In general, it is not obvious how to find a good $t$.
 Jarre and Wechs \cite{JarreWechs} 
@@ -225,59 +268,13 @@ from some affinely independent targets $t_1,t_2,\ldots,t_k$.
 As the quality of a search direction can be measured by the length 
 of the stepsize and the reduction in complementarity gap, they aim 
 to find the combination 
-\[
+\be  \label{eq:JarreWechsDirection}
 \Delta w = \Delta w(\rho) 
          = \rho_1\Delta w_1 + \rho_2\Delta w_2 + \ldots + \rho_k\Delta w_k
-\]
-that maximizes these measures.
-This can be formulated as a small linear subproblem which can 
-be solved approximately. The solution of this subproblem 
-produces a search direction $\Delta w$ 
-that is generally better than Mehrotra's predictor--corrector direction.
-
-\fb{
-Present analysis from Jarre-Wechs \cite{JarreWechs}.
-}
-
-An upper bound is derived from a result by Vavasis and Ye 
-(Lemma~16 in \cite{VavasisYe}):
-\begin{quote}
-``Let $(x,y,s)$ and $(x',y',s')$ be two points on the central 
-path such that $0<\mu'<\mu$. Then, for any $i$:
-$s_i' \le ns_i$, and $x_i' \le nx_i$.''
-\end{quote}
-
-From this, immediately we obtain that if $(x,s)$ is on the 
-central path, then
-\[
-(\Delta x^*,\Delta s^*)\le(n-1)(x,s).
-\]
-Considering the final step of the proof in the cited Lemma:
-\[
-\frac{x_i'}{x_i} +\frac{s_i'}{s_i} \le n,
-\]
-we can obtain the equivalent expression 
-$s_ix_i' + x_is_i' \le nx_is_i$, and so
-\be  \label{eq:UpperBound}
-SX'e + XS'e \le nXSe.
 \ee
-Therefore, thanks to (\ref{eq:UpperBound}) 
-we can produce the following upper bound:
-\[
-t^*= X\Delta s^* +S\Delta x^* = X(s^*-s)+S(x^*-x) = 
-     XS^*e + SX^*e -2XSe \le (n-2) XSe.
-\]
-
-It is possible to write $t^*$ as a different expression. 
-Given that $X^*S^*e=0$, we have:
-\[
-0 = (X+\Delta X^*)(S+\Delta S^*)e = XSe + 
-    X\Delta s^* +S\Delta x^* +\Delta X^*\Delta S^*e,
-\]
-from which, using (\ref{eq:OptimalTarget}), we obtain
-$t^* = -XSe - \Delta X^* \Delta S^*e$.
-
-They consider how to use Mehrotra's corrector in an iterative 
+that maximizes these measures.
+To generate directions they consider how to use Mehrotra's corrector 
+in an iterative 
 fashion, and notice that a straightforward recursion of the type
 \begin{eqnarray*}
   A\Delta x^j &=& b-Ax \\
@@ -285,11 +282,17 @@ fashion, and notice that a straightforward recursion of the type
   X\Delta s^j + S\Delta x^j &=& \mu e  -XSe -\Delta X^{j-1}\Delta S^{j-1}e
 \end{eqnarray*}
 is usually divergent for general positive starting points.
-
-\fb{
 Therefore, they introduce a rescaling of Mehrotra's corrector 
 and other strategies to guarantee good convergence properties.
-}
+
+In order to find the best combination of weights in the direction 
+(\ref{eq:JarreWechsDirection}), Jarre and Wechs \cite{JarreWechs} 
+formulate a small linear subproblem that can 
+be solved approximately. The solution of this subproblem 
+produces a search direction $\Delta w$ 
+that is generally better than Mehrotra's predictor--corrector
+direction, as it takes into account and carefully weighs some
+additional higher-order directions.
 
 %
 %
@@ -379,7 +382,14 @@ K_j (J_k, \tilde J, \, \tilde \xi) =
 where $\xi_J = J_k^{-1} \tilde \xi$, and $G = I - J_k^{-1} \tilde J$. 
 Note that for stability reasons $\tilde J$ is preconditioned with $J_k$, 
 the factors of which have already been computed.
-The subspace thus generated contains $j$ linearly independent directions. 
+The subspace $K_j (J_k, \tilde J, \, \tilde \xi)$
+thus generated contains $j$ linearly independent directions. 
+
+At most $n$ linearly independent Krylov directions can be
+computed. However, for reasons of computational efficiency, 
+not all of them are actually generated. Instead a small number
+of search directions are considered, so that the linear subproblem 
+is of small dimensions.
 
 In the algorithm of \cite{MehrotraLi}, the affine-scaling
 direction $\Delta_a$, Mehrotra's corrector $\Delta_0$, 
@@ -400,10 +410,22 @@ upper bounds on the magnitude of the search direction,
 upper bounds on infeasibilities,
 decrease in the average complementarity gap,
 and closeness to the central path.
+Both the theoretical formulation and the computer implementation 
+allow for the independent choice of weights $\rho$ for the primal 
+and dual spaces, which is often a desirable property for
+practical algorithms.
 
-%Both the theoretical formulation and the computer implementation 
-%allow for the independent choice of weights $\rho$ for the primal 
-%and dual spaces.
+The computation of Krylov subspace directions in Mehrotra and Li's 
+approach does involve considerable computational cost, as
+the computation of each Krylov direction requires a backsolve operation. 
+This can be seen from the definition of the power basis matrix
+\[
+  G = I - J_k^{-1}\tilde J,
+\]
+which involves an inverse matrix. In fact, calling $u$ the starting vector 
+in the Krylov sequence, the computation of the vector $ J_k^{-1}\tilde Ju$ 
+requires first to compute $v = \tilde Ju$ (matrix--vector multiplication) 
+and then to determine $t=J_k^{-1}v$ (backsolve on the Cholesky factors).
 
 
 %
@@ -482,29 +504,39 @@ Below we formalise the weighted correctors algorithm.
   \caption{Weighted correctors algorithm}
     \begin{algorithmic}[0]  \label{alg:WeightedCorrectors}
       \REQUIRE An initial iterate $(x^0,y^0,s^0)$ such that $(x^0, s^0) > 0$;
+      \smallskip
       \REPEAT
         \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_1$
 	       (\ref{eq:PredictorRhs}) for a predictor direction $\Delta_a$.
+        \smallskip
         \STATE Set $\mu$ according to (\ref{eq:Mu}) and find Mehrotra's
                corrector direction $\Delta_c$ by solving system
                (\ref{eq:NewtonSystem}) with right-hand side
                (\ref{eq:MehrotraRhs}).
+        \smallskip
         \STATE Do a linesearch to find the optimal $\hat\omega$ that
                maximizes the stepsize $\alpha$ in
                $\Delta^\omega = \Delta_a +\omega\Delta_c$
+        \smallskip
 	\STATE Set $\Delta_p := \Delta_p +\hat\omega\Delta_m$. 
+        \smallskip
         \WHILE{the stepsize increases by at least a fraction of the aspiration 
                level $\delta$}
+           \smallskip
            \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side
                   $(0,0,t)$, $t$ given by (\ref{eq:Target}), for a centrality
                  corrector direction $\Delta_m$.
+           \smallskip
 	   \STATE Perform a linesearch to find the optimal $\hat\omega$ that
                   maximizes the stepsize $\alpha$ in
                   $\Delta^\omega = \Delta_p +\omega\Delta_m$.
+           \smallskip
            \STATE Set $\Delta_p := \Delta_p +\hat\omega\Delta_m$.
+           \smallskip
         \ENDWHILE
         \STATE Update the iterate $(x^{k+1},y^{k+1},s^{k+1}) = (x^k,y^k,s^k) +
                \alpha_k\Delta_p (x^k,y^k,s^k)$.
+        \smallskip
       \UNTIL The termination criteria (\ref{eq:TerminationCriteria}) are met
              for some predetermined value of $p$ and $q$.
   \end{algorithmic}
@@ -591,18 +623,9 @@ implementations, PCx and HOPDM, have different termination criteria
 in their default configurations, for the purpose of consistency 
 we decided to implement in HOPDM the criteria used in the study 
 performed by Mehrotra and Li \cite{MehrotraLi}.
-Therefore, optimal termination occurs when the following conditions
-are met:
-%
-\be \label{TermCriteria}
-\frac{\mu}{1+|c^T x|} \le 10^{-10}, \qquad
-\frac{\|b-Ax\|}{1+\|b\|} \le 10^{-8},  \qquad
-\frac{\|c-A^Ty-s\|}{1+\|c\|} \le 10^{-8}.
-\ee
-
-\fb{
-Criticize these criteria.
-}
+Therefore, optimal termination occurs when the conditions
+(\ref{eq:TerminationCriteriaPCx}) are met, with feasibility
+accuracy $p=8$ and complementarity accuracy $q = 10$.
 
 We use $\gamma = 0.1$ in the definition of symmetric 
 neighbourhood and define aspiration levels for the stepsizes using the rule
@@ -658,7 +681,8 @@ The last column presents the relative change between the two
 versions of HOPDM tested. 
 As a reference, we also report in this table the overall
 statistics of PCx (release 1.1) on these problems. Also for PCx we adopted
-the termination criteria (\ref{TermCriteria}).
+the termination criteria (\ref{eq:TerminationCriteriaPCx}),
+with $p = 8$ and $q = 10$.
 We found the number of backsolves by counting the number of calls 
 to the functions {\tt IRSOLV()} and {\tt EnhanceSolve()}, for HOPDM and
 PCx respectively.
@@ -724,26 +748,13 @@ in Section~\ref{BN-tests}.
 
 We were particularly interested in comparing the results produced by our 
 weighted correctors approach with those published in \cite{MehrotraLi}. 
+%
 %A full comparison is presented in Table~\ref{MLresults}.
 %In terms of the number of iterations, Mehrotra and Li's scheme is extremely 
 %promising. 
 % However, only 13 problems out of 101 showed a reduction 
 % in computing time when using 4 Krylov directions. 
 %
-The computation of Krylov subspace directions in Mehrotra and Li's 
-approach does involve considerable computational cost, as
-%While we recognise that the availability of different directions that
-%can be mixed together to form a better combined direction is effective,
-the computation of each Krylov direction requires a backsolve operation. 
-This can be seen from the definition of the power basis matrix
-\[
-G = I - H_k^{-1}\tilde H,
-\]
-which involves an inverse matrix. In fact, calling $u$ the starting vector 
-in the Krylov sequence, the computation of the vector $ H_k^{-1}\tilde Hu$ 
-requires first to compute $v = \tilde Hu$ (matrix--vector multiplication) 
-and then to determine $t=H_k^{-1}v$ (backsolve on the Cholesky factors).
-
 In the tables of results presented in \cite{MehrotraLi}, the best 
 performance in terms of iteration count is obtained by PCx4, which 
 uses 4 Krylov subspace vectors. These directions are combined with 
@@ -974,7 +985,6 @@ collection and medium scale quadratic programs.
 Monteiro, Adler and Resende \cite{MonteiroAdlerResende90} talk about
 corrector steps.
 }
-
 
 \fb{
 It would be good to try and implement using the search direction from

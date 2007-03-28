@@ -114,5 +114,10 @@
 %
 \renewenvironment{quotation}
    {\begin{quote}\singlespace
-    ``\sl \ignorespaces}
+    \makebox[0pt][r]{``}\sl \ignorespaces}
    {\unskip \rm '' \end{quote}}
+
+%
+% Parameters for the algorithmic environment
+%
+\algsetup{linenosize=\normalsize,linenodelimiter=.,indent=3em}

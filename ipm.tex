@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
-%Mar:  8,  9, 13, 15, 16, 17, 19, 20, 21, 22, 27
+%Mar:  8,  9, 13, 15, 16, 17, 19, 20, 21, 22, 27, 28
 
 %
 % Chapter: Interior point methods
@@ -96,7 +96,7 @@ Let $(x,y,s) \in \mathcal{F}$. Then $c^Tx \ge b^Ty$.
 Since $x \in \mathcal{P}$ and $(x,y) \in \mathcal{D}$, 
 the following holds:
 \[
-  c^Tx - b^Ty = c^Tx - x^TA^Ty = x^T(c - A^T y) = x^Ts \ge 0.
+  c^Tx - b^Ty = c^Tx - x^TA^Ty = x^T(c - A^T y) = x^Ts \ge 0. \qedhere
 \]
 \end{proof}
 
@@ -170,6 +170,7 @@ the algorithm to accept infeasible iterates
 %
 %
 \subsection{The barrier problem}
+\label{sec:BarrierProblem}
 
 Many algorithms used in mathematical programming can be interpreted 
 as path-following. Here we restrict our attention to the path described 
@@ -177,9 +178,8 @@ by the logarithmic barrier function in linear programming.
 Given the linear program in standard form $(P)$,
 it is possible to write the corresponding {\em barrier problem}:
 \[
-\begin{array}{cl}
- (P_\mu)\quad & \min\; c^Tx - \mu \sum_i \ln x_i, \quad x \in \mathcal{P}^0.
-\end{array}
+  (P_\mu) \quad \min\; c^Tx - \mu \displaystyle\sum_{i=1}^n \ln x_i,
+          \quad x \in \mathcal{P}^0.
 \]
 
 Problem $(P_\mu)$ denotes a family of problems parametrised by the 
@@ -330,7 +330,7 @@ find the point from which the central path departs.
 This corresponds to finding the point $\hat{x}$ 
 that minimizes the barrier function, that is
 \[
-\hat{x} = \arg \min_{x \in \mathcal{P}^0} \big(-\sum_i \ln x_i \big).
+  \hat{x} = \arg \min_{x \in \mathcal{P}^0} \big(-\sum_{i=1}^n \ln x_i \big).
 \]
 The point $\hat{x}$ is the {\em analytic center} of the feasible polytope, 
 and was first studied by Sonnevend \cite{Sonnevend86}.
@@ -344,32 +344,24 @@ of analytic center: the central path is affected by the presence of
 redundant constraints. 
 This happens because it is an exclusively analytic concept, which does
 not exploit geometric considerations.
+
+Such a drawback of the central path has been pushed to extreme
+consequences by Terlaky,
+who managed to replicate the behaviour of the simplex method
+on the Klee-Minty cube. This was obtained by adding an exponential
+number of redundant constraints on the faces of the cube, so
+that the central path gets distorted and visits all vertices
+of the cube.
+\fb{
+Find the right citation.
+}
+
 Other type of centers (center of gravity, center of the ellipsoid of 
 maximum volume that can be inscribed in $\mathcal{P}$, volumetric center) 
 can be defined, but they usually are too demanding to compute 
 \cite{Gonzaga92}. 
 
-\fb{
-Terlaky's  Klee-Minty example.
-}
-
-Upon discussing the choice for the centering term in his algorithm,
-Mehrotra \cite{Mehrotra92} makes this comment:
-\begin{quotation}
-It is not clear if the central path (with
-equal weights) is the best path to follow, particularly since it
-is affected by the presence of redundant constraints. Furthermore,
-the points on (or near) the central path are only intermediate to
-solving the linear programming problem. It is only the limit point 
-on this path that is of interest to us.
-\end{quotation}
-This statement represents a very pragmatic viewpoint of the interior
-point algorithm. It stresses the fact that while the central path
-is the reference trajectory for approaching the optimal set,
-in practice we should not worry too much if we stray from it.
-Also it raises a warning about trusting too much the concept
-of analytic center as it can be easily distorted by the presence
-of redundant constraints. Here we mention the fact that presolve
+Here we mention the fact that presolve
 techniques are usually implemented to find and remove as many as
 possible of such constraints, but while they are based on successful
 heuristics, they are not optimal. In particular, they may find hard
@@ -445,25 +437,6 @@ the centrality requirements needed for a practical algorithm.
 \ignore{
 $N_2(\beta) \subseteq N_\infty(\beta) (= \| XSe - \mu e\|_\infty) \subseteq N_{-\infty}(\beta)$
 }
-
-\hrulefill
-
-Many theoretical developments aim at lowering the upper bound on the number 
-of steps needed for convergence. The results provided by such worst-case 
-complexity analysis are informative but exceedingly pessimistic. 
-
-Theoretical proofs of complexity generally follow a common scheme.
-First they rely on a computable measure of the closeness to the central
-path: this is accomplished by the concept of neighbourhood. Second,
-they show that the direction computed by solving the Newton system
-(\ref{eq:NewtonSystem}) can be followed with a strictly positive step
-(and therefore some progress is made at every iteration) 
-and generates an iterate 
-that retains the property of being in some neighbourhood of the central 
-path (possibly larger than the one before). Finally, they require
-a decrease in the barrier parameter that allows to derive a polynomial upper
-bound on the number of iterations needed to reach the desired
-level of accuracy.
 
 
 %
@@ -939,7 +912,7 @@ from which it follows that in general
   x_i s_i \le (n (1-\gamma) + \gamma) \mu, \quad i = 1, \ldots, n.
 \ee
 We note the dependence on the problem dimension in the definition of the
-upper bound, hence its uneffectiveness for large-scale problems.
+upper bound, hence its ineffectiveness for large-scale problems.
 
 We now determine the value of $n$ for which the upper bound of
 the symmetric neighbourhood is tighter than the implicit upper bound
@@ -955,15 +928,31 @@ for
 
 %
 %
-\subsection{Analysis}
+\subsection{Theoretical analysis}
+
+Many theoretical developments aim at lowering the upper bound on the number 
+of steps needed for convergence. The results provided by such worst-case 
+complexity analysis are informative but exceedingly pessimistic. 
+
+Theoretical proofs of complexity generally follow a common scheme.
+First they rely on a computable measure of the closeness to the central
+path: this is accomplished by the concept of neighbourhood. Second,
+they show that the direction computed by solving the Newton system
+(\ref{eq:NewtonSystem}) can be followed with a strictly positive step
+(and therefore some progress is made at every iteration) 
+and generates an iterate 
+that retains the property of being in some neighbourhood of the central 
+path (possibly larger than the one before). Finally, they require
+a decrease in the barrier parameter that allows to derive a polynomial upper
+bound on the number of iterations needed to reach the desired
+level of accuracy.
 
 We analyse a long-step feasible path-following 
 algorithm based on the symmetric neighbourhood $\Nhood_s(\gamma)$, 
 where the search direction $(\Delta x, \Delta y, \Delta s)$ 
 is found by solving system (\ref{eq:NewtonSystem}) with 
 $r=(0,\; 0,-XSe+\sigma\mu e)^T$, $\sigma\in(0,1)$, $\mu=x^Ts/n$.
-%
-The exposition follows closely the presentation of 
+The exposition follows closely the presentation of Wright
 \cite[Chapter~5]{ipm:Wright97}. 
 
 First we need a technical result, the proof of which can be found 
