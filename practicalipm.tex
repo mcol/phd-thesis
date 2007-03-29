@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
-%Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28
+%Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -476,7 +476,7 @@ of the centering parameter $\sigma$. It is based on a simple
 heuristic that evaluates the quality of the predictor direction
 in order to judge the amount of centering term needed.
 %
-The length of the stepsizes $\alpha_P$ and $\alpha_D$ are used to 
+The length of the steps $\alpha_P$ and $\alpha_D$ are used to 
 predict the complementarity gap after such a step:
 \be \label{eq:PredictedGap}
   g_a = (x + \alpha_P \Delta_a x)^T(s + \alpha_D \Delta_a s).
@@ -602,22 +602,21 @@ Algorithm~\ref{alg:MehrotraPC}.
 \begin{algorithm}[ht]
   \caption{Mehrotra's predictor--corrector algorithm}
     \begin{algorithmic}[0]  \label{alg:MehrotraPC}
-      \REQUIRE An initial iterate $(x^0,y^0,s^0)$ such that $(x^0, s^0) > 0$;
+      \REQUIRE An initial iterate $w^0$ such that $(x^0, s^0) > 0$;
       \smallskip
       \REPEAT
         \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_1$
-	       (\ref{eq:PredictorRhs}) for a predictor direction $\Delta_a$.
+	       (\ref{eq:PredictorRhs}) for a predictor direction $\Delta_a w$.
         \smallskip
         \STATE Set $\mu$ according to (\ref{eq:Mu}) and find Mehrotra's
-               corrector direction $\Delta_c$ by solving system
+               corrector direction $\Delta_c w$ by solving system
                (\ref{eq:NewtonSystem}) with right-hand side
                (\ref{eq:MehrotraRhs}).
         \smallskip
         \STATE Evaluate the maximum feasible stepsize $\alpha_k$ in
-               $\Delta_M = \Delta_a + \Delta_c$.
+               $\Delta_M w = \Delta_a w + \Delta_c w$.
         \smallskip
-        \STATE Update the iterate $(x^{k+1},y^{k+1},s^{k+1}) = (x^k,y^k,s^k) +
-               \alpha_k\Delta (x^k,y^k,s^k)$.
+        \STATE Update the iterate $w^{k+1} = w^k + \alpha_k\Delta w$.
         \smallskip
       \UNTIL The termination criteria (\ref{eq:TerminationCriteria}) are met
              for some predetermined value of $p$ and $q$.
@@ -661,8 +660,7 @@ However, rewriting (\ref{eq:ComponentwiseAffineScaling}) as
 \]
 it is clear that 
 \[
-  \frac{\Delta_a x_i}{x_i} >-1 \quad \text{ and } \quad 
-  \frac{\Delta_a s_i}{s_i} >-1,
+  \Delta_a x_i > -x_i \quad \text{ and } \quad \Delta_a s_i > -s_i,
 \]
 that is, this is not a blocking component.
 
@@ -682,8 +680,9 @@ and using (\ref{eq:ComponentwiseAffineScaling}) we obtain
 \]
 which we can interpret as an increase in the weighted sum 
 of the search directions. Hence, it is possible that 
-$\Delta_M s_i > \Delta_a s_i$, which may lead to an increase in
-the stepsize.
+$\Delta_M s_i > \Delta_a s_i$, which would lead to an increase in
+the stepsize if this was a blocking component in the 
+affine-scaling direction
 
 As mentioned above, Mehrotra's way of assessing the value of $\sigma$
 and the computation of the second order term is an heuristic procedure: 
@@ -725,40 +724,38 @@ applied from highly infeasible and not well centered points.
 \fb{
 Is there a reference for that?
 Was it commented in \cite{Gondzio96}?
-
-Consider how Salahi et al. \cite{SalahiPengTerlaky} modify the centrality
-term in the corrector.
 }
 Finally, Mehrotra's corrector does not provide CPU time savings 
 when used recursively \cite{CarpenterLustigMulveyShanno}.
 
 Trying to provide a remedy to the above considerations, Gondzio 
-\cite{Gondzio96} introduced the multiple centrality corrector technique 
+\cite{Gondzio96} introduced the multiple centrality correctors technique 
 as an additional tool to complement those presented by Mehrotra. 
 The idea behind this technique is to ``force'' an increase in the 
-length of the stepsizes by correcting the centrality of Mehrotra's 
+length of the steps by correcting the centrality of Mehrotra's 
 iterate.
 Instead of attempting to correct for the whole second-order error,
 multiple centrality correctors 
 concentrate on improving the complementarity pairs which really seem 
-to hinder the progress of the algorithm, ie. the complementarity products 
+to hinder the progress of the algorithm, that is, the complementarity products 
 that are far from the average.
 
-We assume that a long-step path-following algorithm is used, 
-and we work with the symmetric neighbourhood $\mathcal{N}_s(\gamma)$
+In introducing the multiple centrality correctors technique,
+we assume that a long-step path-following algorithm is used, 
+and work with the symmetric neighbourhood $\mathcal{N}_s(\gamma)$
 of the central path as defined in Section~\ref{sec:SymNeighbourhood}.
 In the framework of multiple centrality correctors, we look for a 
-centrality corrector $\Delta_m$ for which larger
-steps are allowed in the composite direction $\Delta = \Delta_p + \Delta_m$.
+centrality corrector $\Delta_m w$ for which larger
+steps are allowed in the composite direction $\Delta w =\Delta_p w+\Delta_m w$.
 In this context,
 Mehrotra's predictor--corrector direction 
 (\ref{eq:CompositeDirection}) is considered to be a new predictor direction
-$\Delta_p$ to which one or more centrality correctors can be applied. 
+$\Delta_p w$ to which one or more centrality correctors can be applied. 
 Different choices for the first predictor direction are also possible and, 
 in certain special circumstances such as for example warm-starting, 
 may be justified.
 
-Assume that a predictor direction $\Delta_p$ is given and the corresponding
+Assume that a predictor direction $\Delta_p w$ is given and the corresponding
 feasible stepsizes $\alpha_{P}$ and $\alpha_{D}$ 
 in the primal and dual spaces are determined. 
 We want to enlarge the stepsizes to 
@@ -808,7 +805,7 @@ do not need to be changed.
 In other words, we attempt to move the iterate inside the symmetric
 neighbourhood of the central path.
 
-The corrector term $\Delta_m$ is computed by solving the usual 
+The corrector term $\Delta_m w$ is computed by solving the usual 
 system of equations (\ref{eq:NewtonSystem}) for a special right-hand side
 $(0, \,0,\, t)^T$, where the target $t$ is defined as follows:
 %
@@ -826,12 +823,12 @@ $(0, \,0,\, t)^T$, where the target $t$ is defined as follows:
 \end{eqnarray}
 We stress that the target point is not on the central path, 
 but in the symmetric neighbourhood and not all complementary
-products are being targeted. This makes the target (\ref{eq:Target})
+products are corrected. This makes the target (\ref{eq:Target})
 an achievable one.
 
 One important feature of multiple centrality correctors technique
 is that it can be applied recursively on the direction 
-$\Delta_p := \Delta_p + \Delta_m$.
+$\Delta_p w := \Delta_p w + \Delta_m w$.
 The maximum number of centrality correctors allowed is
 problem dependent. Such number is determined 
 heuristically, trying to balance the cost of additional backsolves to 
@@ -848,23 +845,22 @@ multiple centrality correctors technique.
 \begin{algorithm}[ht]
   \caption{Multiple centrality correctors}
     \begin{algorithmic}[0]  \label{alg:MultipleCC}
-      \REQUIRE An iterate $(x^k,y^k,s^k)$, a search direction $\Delta_p$,
+      \REQUIRE An iterate $w^k$, a search direction $\Delta_p w$,
                and the maximum number $l$ of correctors allowed;
         \smallskip
         \REPEAT
            \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side
                   $(0,0,t)$, $t$ given by (\ref{eq:Target}), for a centrality
-                 corrector direction $\Delta_m$.
+                 corrector direction $\Delta_m w$.
            \smallskip
-           \STATE Set $\Delta_p := \Delta_p + \Delta_m$.
+           \STATE Set $\Delta_p w := \Delta_p w + \Delta_m w$.
            \smallskip
-	   \STATE Evaluate the maximum the stepsize $\alpha_k$ in $\Delta_p$.
+	   \STATE Evaluate the maximum the stepsize $\alpha_k$ in $\Delta_p w$.
            \smallskip
         \UNTIL{the stepsize increases by at least a fraction of the aspiration 
                level $\delta$ and the number of correctors is less than $l$.}
         \smallskip
-        \STATE Update the iterate $(x^{k+1},y^{k+1},s^{k+1}) = (x^k,y^k,s^k) +
-               \alpha_k\Delta_p (x^k,y^k,s^k)$.
+        \STATE Update the iterate $w^{k+1} = w^k + \alpha_k\Delta_p w$.
   \end{algorithmic}
 \end{algorithm}
 
@@ -881,4 +877,3 @@ Virtually all existing interior point codes implement such technique
 Their use depends on the quality of the linear algebra implementation,
 particularly with respect of the Cholesky factorisation routines,
 as this affects the ratio between factorisation and backsolve costs.
-

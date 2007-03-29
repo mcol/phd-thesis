@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
-%Mar:  8, 12, 17, 19, 20, 21, 27, 28
+%Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29
 
 %
 % Chapter: Background and introduction.
@@ -343,7 +343,7 @@ nonlinear programming.
 %
 % Section
 %
-\section{Motivation of this thesis}
+\section{Motivation and scope of this thesis}
 
 Optimization algorithms are extremely important in real-life 
 applications. Theoretical advances are necessary for the 
@@ -394,14 +394,6 @@ of interior point methods for linear programming and contribute to
 it, our main drive is the development of implementable techniques
 for interior-point-based linear programming solvers.
 
-\fb{
-Connect better with the next section.
-}
-
-%
-%
-\subsection{Scope of this thesis}
-
 The approach that permeates this research and 
 the presentation of its results is markedly computationally oriented. 
 While we recognise the importance and validity of theoretical developments, 
@@ -415,9 +407,14 @@ First, we introduce and formalise the concept of
 {\em symmetric neighbourhood} as the
 driving tool for the analysis and understanding of the good behaviour
 of some practical algorithms. 
+The quality of centrality (understood in a simplified way 
+as complementarity) in a practical algorithm is not 
+conveniently characterised by either of two neighbourhoods 
+$\Nhood_2$ or $\Nhood_{-\infty}$ commonly employed in 
+theoretical developments of interior point methods.
 This neighbourhood is a variation on the more common
 $\Nhood_{-\infty}$ neighbourhood, in which the complementarity pairs
-are bounded above by a quantity independent on $n$.
+are bounded both from below and from above by a quantity independent on $n$.
 Therefore, the spread among complementarity pairs is kept
 under control and is reduced with the barrier parameter $\mu$.
 This has beneficial consequences on the quality of the search
@@ -449,12 +446,32 @@ to move the iterate to a more favourable position.
 From the computational point of view, we have to consider that
 a failed iteration comes with the high cost of having factorised
 the matrix for no real improvement.
-
-The algorithm we introduced has been implemented in an interior
-point code, and the performance has been studied in a thorough
-computational experience. The introduction of the weighting mechanism,
-and of some other algorithmic changes that it allowed,
-has produced considerable improvements, particularly for large-scale
+We argue that following a quadratic trajectory in generating a
+corrector direction is not always desirable. In particular, as the stepsizes 
+in the primal and dual spaces are often much smaller than 1,
+trying to correct for the whole linearisation error,
+as done to generate Mehrotra's second-order corrector, is too
+demanding and not always necessary.
+In generating a corrector direction, we propose to use 
+the difference between the achievable complementarity products 
+and a carefully chosen target vector of complementary products.
+Moreover, it is unrealistic to expect that a corrector direction $\Delta_c$
+can absorb the error made by a predictor direction $\Delta_p$;
+however, this direction can be used to find a new composite
+direction $\Delta^\omega = \Delta_p + \omega\Delta_c$, where
+$\omega \in [0,1]$.
+We propose to measure the quality of the composite direction
+by the length of the step that can be made along it, and choose
+the $\omega$ that maximizes such step.
+The introduction of the weighting mechanism, which determines
+the contribution of each corrector direction to the overall
+search direction, allows a more performing implementation
+of the targeting procedure of the multiple centrality correctors technique.
+We have implemented the weighted correctors strategy in the HOPDM
+interior point code, and have studied its performance in a thorough
+computational experience. 
+From this testing we see that such strategy 
+produces considerable improvements, particularly for large-scale
 problems.
 
 Our third contribution is in the context of generation of 
