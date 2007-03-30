@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
-%Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29
+%Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29, 30
 
 %
 % Chapter: Background and introduction.
@@ -145,11 +145,15 @@ Algorithm~\ref{alg:GenericOptimization}.
   \caption{Generic optimization algorithm}
     \begin{algorithmic}  \label{alg:GenericOptimization}
       \REQUIRE An initial iterate $w$;
+      \smallskip
       \REPEAT
          \STATE Determine a search direction $\Delta w$.
+         \smallskip
          \STATE Compute the distance $\alpha$ of how far to move along
 	        the search direction.
+         \smallskip
          \STATE Move to the next point $w + \alpha\Delta w$.
+         \smallskip
       \UNTIL Some termination criteria are met.
   \end{algorithmic}
 \end{algorithm}
@@ -349,7 +353,6 @@ Optimization algorithms are extremely important in real-life
 applications. Theoretical advances are necessary for the 
 understanding of the current state and the opening of new avenues 
 of research. 
-
 However, theory per se has rarely a direct impact on the lives 
 of those who use optimization as a tool to solve their problems.
 It is therefore necessary that the understanding gathered from
@@ -455,10 +458,10 @@ demanding and not always necessary.
 In generating a corrector direction, we propose to use 
 the difference between the achievable complementarity products 
 and a carefully chosen target vector of complementary products.
-Moreover, it is unrealistic to expect that a corrector direction $\Delta_c$
-can absorb the error made by a predictor direction $\Delta_p$;
+Moreover, it is unrealistic to expect that a corrector direction $\Delta_c w$
+can absorb the error made by a predictor direction $\Delta_p w$;
 however, this direction can be used to find a new composite
-direction $\Delta^\omega = \Delta_p + \omega\Delta_c$, where
+direction $\Delta^\omega w = \Delta_p w + \omega\Delta_c w$, where
 $\omega \in [0,1]$.
 We propose to measure the quality of the composite direction
 by the length of the step that can be made along it, and choose
@@ -467,7 +470,7 @@ The introduction of the weighting mechanism, which determines
 the contribution of each corrector direction to the overall
 search direction, allows a more performing implementation
 of the targeting procedure of the multiple centrality correctors technique.
-We have implemented the weighted correctors strategy in the HOPDM
+We have implemented the weighted correctors strategy in the \HOPDM\
 interior point code, and have studied its performance in a thorough
 computational experience. 
 From this testing we see that such strategy 
@@ -478,19 +481,29 @@ Our third contribution is in the context of generation of
 {\em warm-start iterates for stochastic linear programs}, 
 and the practical value of the 
 symmetric neighbourhood is appreciated also here.
-In this research we develop an
-efficient way of constructing a starting point for structured 
-large-scale stochastic linear programs.
-We show that it is possible to obtain a computationally viable
-warm-start point by solving a stochastic problem of much smaller
+In this setting we develop an efficient way of constructing 
+an advanced starting point which greatly reduces the computational
+effort of solving the problem instance.
+Large-scale stochastic linear programs are very structured problems
+that are generated from event trees which can be very big, particularly
+in the multistage case.
+We show that it is possible to exploit the inherent structure of 
+the stochastic programming problem and obtain a computationally viable
+warm-start point by solving a problem of much smaller
 dimension corresponding to a reduced event tree.
+We then expand the reduced-tree solution to the full size of
+the original problem, thus generating the warm-start point.
 The way we produce a reduced tree tries to capture the 
 important information in the scenario space while keeping 
-the dimension of the corresponding (reduced) deterministic equivalent. 
+the dimension of the corresponding (reduced) deterministic equivalent small.
 We present theoretical conditions that the warm-start iterate
 should satisfy to guarantee a successful warm-start of the complete 
 problem. 
-The implementation within the HOPDM and OOPS interior point solvers 
+We also show that from an iterate within the symmetric neighbourhood
+of the central path, we can produce and follow with full step 
+a corrector direction that absorbs the perturbation and 
+keeps the point inside a larger symmetric neighbourhood.
+The implementation within the \HOPDM\ and \OOPS\ interior point solvers 
 shows remarkable advantages on a series of problem instances.
 
 The original results presented in this thesis have been the base for two
@@ -500,13 +513,13 @@ Andreas Grothey \cite{ColomboGondzioGrothey06}.
 
 %
 %
-\subsection{Outline of this thesis}
+\subsection{Outline}
 
 In Chapter~\ref{ch:Ipm} we introduce and formalise some basic
 notions on linear programming and present the main theoretical results 
-that are at the base of most interior-point methods. 
+that are at the base of many interior-point methods. 
 We will concentrate on the path-following class of
-primal--dual interior point methods, as they are at the base of 
+primal--dual interior point methods, as they provide the framework for 
 most of practical implementations.
 Alongside reviewing the theoretical achievements known in the
 literature, we will introduce and analyse the concept of 
@@ -515,8 +528,8 @@ symmetric neighbourhood.
 Chapter~\ref{ch:PracticalIpm} is dedicated to presenting
 the main techniques adopted in computer implementations of
 interior point methods.
-We will discuss the details for which there is a divergence 
-between theoretical analysis and practical implementation,
+We will discuss the details for which 
+theoretical analysis and practical implementation diverge,
 paying particular attention to two important strategies used 
 in generating effective search directions: 
 Mehrotra's predictor--corrector algorithm and the
@@ -532,7 +545,11 @@ and drawbacks of both strategies will be discussed together with
 a rich computational study on the implementation of the
 weighted correctors technique.
 
-In Chapter~\ref{ch:Warmstart} we present a warm-start technique
+In Chapter~\ref{ch:Warmstart} we turn our attention to the field
+of stochastic programming, explain its relevance and introduce some
+basic concepts.
+We review the main results in the area of warm-start approaches
+for interior point methods, and present a warm-start technique
 that exploits the inherent structure of a stochastic linear programs.
 Alongside some theoretical results, we will show the computational
 experience on some standard test problems and larger instances coming

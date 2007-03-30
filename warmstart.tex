@@ -3,7 +3,7 @@
 %Sep:  7,  8, 13
 % 2007
 %Feb:  4
-%Mar:  8, 18, 19, 20, 28
+%Mar:  8, 18, 19, 20, 28, 30
 
 %
 % Chapter: Warm-start
@@ -364,7 +364,7 @@ to the chosen ordering of nodes.
 %
 While the different ordering of blocks whithin the matrix is not 
 relevant for general-purpose solvers, the
-structure-exploiting software OOPS \cite{GondzioSarkissian} can take 
+structure-exploiting software \OOPS\ \cite{GondzioSarkissian} can take 
 fully advantage of the nested structure.
 
 Clearly, (\ref{DetEquiv}) represents a structured linear program. Its 
@@ -734,7 +734,7 @@ Large or huge-scale problems, however, create more than one difficulty
 to general purpose solvers. Problems of these sizes can be solved by 
 exploiting the structure present in the matrix. A further advantage 
 comes from assigning the work to be done to more than one processing unit. 
-This is where structure-exploiting parallel solvers such as OOPS 
+This is where structure-exploiting parallel solvers such as \OOPS\ 
 \cite{GondzioSarkissian} excel. Moreover, structure-exploiting interior 
 point methods can be used not only for linear programming problems, 
 but also for quadratic and nonlinear problems \cite{GondzioGrothey04}.
@@ -807,13 +807,17 @@ Algorithm~\ref{alg:OverallAlgorithm}.
 %
 \begin{algorithm}[h]
   \caption{Reduced-tree warm-start algorithm}
-  \begin{algorithmic}[1]  \label{alg:OverallAlgorithm}
+  \begin{algorithmic}[0]  \label{alg:OverallAlgorithm}
     \REQUIRE The complete event tree $\Ctree$.
+    \smallskip
     \STATE Generate a reduced event tree $\Rtree$;
+    \smallskip
     \STATE Solve the corresponding deterministic equivalent with a loose 
            tolerance;
+    \smallskip
     \STATE Use this solution to generate a warm-start iterate for the 
     complete problem;
+    \smallskip
     \STATE Solve the complete problem to optimality.
   \end{algorithmic}
 \end{algorithm}
@@ -1282,11 +1286,11 @@ Q = X^{-1/2}S^{-1/2} \left[ I - X^{1/2}S^{-1/2}A^T(AXS^{-1}A^T)^{-1}AX^{1/2}S^{-
 \]
 where the term in square brackets is an orthogonal projection on the null
 space of $AX^{1/2}S^{-1/2}$, so its Euclidean norm is 1.
-Hence
+As desired, we obtain
 \[
-  \| Q \|_2 = \| X^{-1/2}S^{-1/2} \|_2 \| X^{1/2}S^{1/2} \|_2 \le 1/\gamma,
+  \| Q \|_2 = \| X^{-1/2}S^{-1/2} \|_2 \| X^{1/2}S^{1/2} \|_2 \le 1/\gamma.
+  \qedhere
 \]
-as desired.
 \end{proof}
 
 In the next Lemma we state sufficient conditions for the perturbations
@@ -1561,10 +1565,11 @@ we obtain
 	  \! \frac{\delta^i}{\delta_R^k} \\
   & \le \Big( \|q^{l} - q^{r(l)}\| 
         + \|W^{l} - W^{r(l)}\|
-        + \sum_{k\in \mathcal{D}_{r(l)}^R}
-	  \big( 1 - \frac{\delta^k}{\delta_R^k} \big) \varepsilon \Big) B 
-   \le \varepsilon B\times 
+        + \!\!\! \sum_{k\in \mathcal{D}_{r(l)}^R} \!\!\!
+	  \big( 1 - \frac{\delta^k}{\delta_R^k} \big) \varepsilon \Big) B \\
+  & \le \varepsilon B\times 
         \max_{l} |\mathcal{D}_{l}^R| (1 - \frac{\delta^k}{\delta^k_R}).
+        \qedhere
 \end{split}
 \]
 %
@@ -1629,7 +1634,7 @@ number of interior point iterations required to solve the complete problem.
 \label{sec:Results}
 
 We first implemented the strategy of generating a reduced tree and 
-the corresponding warm-start iterate within the HOPDM \cite{Gondzio96} 
+the corresponding warm-start iterate within the \HOPDM\ \cite{Gondzio96} 
 solver. We tested a series of publicly available stochastic problems in 
 the SMPS format \cite{SMPS} coming from the POSTS collection 
 available from:
@@ -1693,7 +1698,7 @@ storm1000    &  2 & 1000 & 107 &1498.3 & 45 & 831.5 \\ \hline
 % stocfor2     &  2 &   64 &  19 &   0.9 & 18 &   1.1 \\
 % stocfor3     &  7 &  512 &  29 &   4.0 & 24 &   4.2 \\ \hline
     \end{tabular}
-    \caption{Results obtained with HOPDM, 2 scenarios in the reduced tree.}
+    \caption{Results obtained with \HOPDM, 2 scenarios in the reduced tree.}
     \label{table:hopdm}
   \end{center} \vspace{-3ex}
 \end{table}
@@ -1703,14 +1708,14 @@ storm1000    &  2 & 1000 & 107 &1498.3 & 45 & 831.5 \\ \hline
 \subsection{Telecommunication problems}
 
 Given the favourable results, we implemented the same approach 
-in OOPS \cite{GondzioSarkissian,GondzioGrothey04}, where we were 
+in \OOPS\ \cite{GondzioSarkissian,GondzioGrothey04}, where we were 
 able to test larger instances. 
-Since OOPS does not have features such as presolve and scaling,
+Since \OOPS\ does not have features such as presolve and scaling,
 % or freedom in the choice of the pivot elements. 
 the accuracy requested in the solution has to be smaller. We set it to
 $5.0 \times 10^{-4}$ which is more than enough for telecommunication
 applications anyway.
-On the other hand, OOPS makes an effective use of its structure-exploiting
+On the other hand, \OOPS\ makes an effective use of its structure-exploiting
 capabilities \cite{GondzioSarkissian,GondzioGrothey04},
 allowing the solver to tackle large-scale problems 
 and provides access to parallel computing techniques.
@@ -1806,7 +1811,7 @@ respectively, where $\#{\cal A}$ is the number of arcs, $\#{\cal D}$
 the number of demands, and $\#{\cal P}$ the total number of paths.
 
 In the second and third column of Table~\ref{table:oops} 
-we report the solution statistics for OOPS.
+we report the solution statistics for \OOPS.
 Computations were performed on a Linux PC with 3.0GHz Intel Pentium
 processor and 2GB of RAM.
 % We report the number of iterations and 
@@ -1847,7 +1852,7 @@ mgntB-200     &   25 &  909.4 &    8 &  332.4 &  25 &  284.2 &   8 &  140.5 \\
 mgntB-400     &   29 & 2154.5 &    7 &  538.1 &  29 &  605.5 &   7 &  211.6 \\
 \hline
     \end{tabular}
-    \caption{Efficiency of the warm-start strategy in OOPS in the serial
+    \caption{Efficiency of the warm-start strategy in \OOPS\ in the serial
              case (2 scenarios in the reduced tree) and in the parallel case
 	     (4 processors and 4 scenarios in the reduced tree).}
     \label{table:oops}
@@ -1859,18 +1864,18 @@ We have also solved the smallest instances of these problems
 with Cplex~9.0 Barrier Solver. The problems 
 {\tt mnx-100}, {\tt jlg-100}, {\tt mgntA-100} and {\tt mgntB-100} 
 were solved in 1.1s, 7.1s, 4379.9s and 9030.4s, respectively.
-This means that Cplex was about 4 and 2 times faster than OOPS 
+This means that Cplex was about 4 and 2 times faster than \OOPS\
 on {\tt mnx-100} and {\tt jlg-100} problems, respectively 
-but it was about 28 times slower than OOPS on more difficult
+but it was about 28 times slower than \OOPS\ on more difficult
 {\tt mgntA-100} and {\tt mgntB-100} problems.
 
 In the fourth and fifth columns of Table~\ref{table:oops} 
 we report the parallel performance 
-of OOPS on a cluster of four machines with a 3.0GHz Intel Pentium 
+of \OOPS\ on a cluster of four machines with a 3.0GHz Intel Pentium 
 processor and 2GB of RAM each.
 In this case, we choose the size of the reduced tree to be equal 
 to the number of processors employed for two complementary reasons: 
-first, it is preferable to assign to OOPS a balanced number of blocks 
+first, it is preferable to assign to \OOPS\ a balanced number of blocks 
 on each processor, so we needed to guarantee that each processor 
 gets at least one block; second, we obtain a more refined 
 starting solution at no additional computational cost. 
