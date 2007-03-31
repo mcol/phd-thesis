@@ -4,14 +4,14 @@
 % 2007
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
-%Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29, 30
+%Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29, 30, 31
 
 %
 % Chapter: Background and introduction.
 %
 \label{ch:Introduction}
 
-In this chapter we present the background and motivations for
+In this chapter we present the background and scope of
 this research. In particular we introduce the field of linear programming,
 discuss its relevance, and compare some solution methods, in particular
 with regard to their computational complexity.
@@ -32,13 +32,13 @@ The realisation of its usefulness came together with the development
 of a solution method, the simplex method;
 the introduction of the first computer calculators was crucial to
 the blossoming and increase of this newly born area of study. 
-
 Historical accounts on the birth and development of linear programming 
 can be found in many sources, such as \cite[ch.~2]{Dantzig63} and 
 \cite{Schrijver86}. Dantzig's personal recollection are also
 in \cite{Dantzig02}.
 
-A definition of Linear programming has been given by Dantzig \cite{Dantzig02}:
+A broad definition of linear programming has been given by 
+Dantzig \cite{Dantzig02}:
 \begin{quotation}
 Linear programming can be viewed as part of the great revolutionary 
 development which has given mankind the ability to state general goals
@@ -55,17 +55,17 @@ detailed mathematical terms (models), techniques for solving the models
 (computers and software).
 \end{quotation}
 
-An {\em optimization problem} can be described in terms of a set of variables, 
-some constraints, and an objective function. 
+An {\em optimization problem} can be described in terms of decision variables, 
+a set of constraints, and an objective function. 
 The investigation of optimization problems stems from the natural
 desire to solve a problem in the ``best possible way''.
-It is interesting to note that while the need of an objective function 
-is obvious to us, it was not when the first problems were modelled: the 
+It is interesting to note that while the need for an objective function 
+is obvious now, it was not when the first problems were modelled: the 
 set of feasible solution used to be investigated with some ad-hoc criteria, 
 instead of being guided by the optimization of some quantity as 
 objective \cite{Dantzig02}.
 
-A {\em linear programming problem} is an optimization problem for which
+A {\em linear programming problem} is an optimization problem in which
 the objective function and the constraints are linear. 
 Linear programming problems arise directly (for example in economics,
 networks, scheduling or other applications), or as approximations to
@@ -106,18 +106,25 @@ manipulating (\ref{eq:NumberVertices}):
 \]
 
 This observation gives rise to the need of defining an algorithm
-that discovers an optimal vertex among the multitude of non-optimal ones.
+that discovers in an intelligent way an optimal vertex 
+among the multitude of non-optimal ones.
 
 An important feature of any algorithm is its efficiency, that is 
 how much effort is needed for the algorithm to provide an answer
 given some input.
-The {\em computational complexity} of an algorithm can be used as a measure
+The concept of {\em computational complexity} has been introduced in the 70s,
+as the availability of computing machines required a deeper insight
+on the computational performance of different algorithms.
+The computational complexity of an algorithm can be used as a measure
 of the growth in the computational effort required by the algorithm
 as a function of the size of the problem. Therefore, it provides 
 a worst-case measure.
-The concept of computational complexity has been introduced in the 70s,
-as the availability of computing machines required a deeper insight
-on the computational performance of different algorithms.
+The formal notion of {\em efficiency} is that a problem has an 
+algorithm running in time proportional to a polynomial function 
+of its input size. That is, we consider an algorithm efficient
+ if it runs in time $\bigO(n^k)$ on any input of size $n$, 
+for some constant $k>0$.
+
 An exhaustive presentation of this topic exceeds the aims of this thesis:
 we refer the reader to available introductions on the area, 
 \cite[ch.~2]{Schrijver86} among others.
@@ -131,11 +138,12 @@ simplifications:
 
 Computational complexity is measured by the number of elementary operations
 required to perform the algorithmic steps until termination. It often depends 
-on the size of the binary representation of the input ($L$).
+on the size of the binary representation of the input,
+usually denoted by $L$.
 
 Many algorithms have been proposed to solve a variety of optimization
 problems. However, despite their diversity, they are based on the same 
-general framework summarised in the scheme of 
+general framework summarised in the steps of 
 Algorithm~\ref{alg:GenericOptimization}.
 
 \renewcommand{\algorithmicrequire}{\textbf{Given:}}
@@ -160,8 +168,7 @@ Algorithm~\ref{alg:GenericOptimization}.
 
 Each element of this generic framework
 (starting point, search direction, stepsize, termination criteria)
-has to be specialised
-to the specific algorithm we are talking about.
+has to be accurately specialised in order to define a specific algorithm.
 In what follows, we will introduce the main ideas behind three 
 different solution methods for linear programming: the simplex method,
 the ellipsoid method, and the class of interior point methods.
@@ -170,23 +177,21 @@ the ellipsoid method, and the class of interior point methods.
 %
 \subsection{The simplex method}
 
-The simplex method was introduced by George Dantzig in 1947.
-We should note that the
+The simplex method was introduced in 1947 by George Dantzig 
+\cite{Dantzig63}. The
 introduction of the simplex method happened simultaneously with
 the realisation of linear programming as an efficient modelling tool
 for practical decision making. 
 
 The simplex method exploits the insight provided by the fundamental 
-theorem of linear programming (\ref{th:FundamentalLP}).
-The simplex method reaches a solution by visiting a sequence of 
+theorem of linear programming (\ref{th:FundamentalLP}):
+the optimal solution, if it exists, is at one of the vertices
+of the feasible polytope.
+Thus it reaches a solution by visiting a sequence of 
 vertices of the polyhedron, moving from one vertex to an adjacent 
 one characterised by a better objective function value
 (in the non-degenerate case). 
-
 Since the number of vertices is finite, then termination is guaranteed.
-While it is possible that all of them get visited, in real-life problems, 
-this situation never arises, and only a fraction of the vertices are
-actually traversed.
 
 Moreover, given the monotonic
 way of choosing the next vertex, in the non-degenerate case the set 
@@ -203,7 +208,7 @@ function value.
 %the vertex).
 
 For the practical efficiency, the simplex algorithm has been considered
-for a long time the undiscussed method for solving linear programming
+for a long time the undisputed method for solving linear programming
 problems.
 However, the simplex method has exponential complexity: it is possible that all
 the vertices of the feasible polyhedron have to be visited
@@ -216,7 +221,9 @@ The same example does not cause this pathological behaviour if different
 pivoting rules are implemented (see \cite[ch.~4]{lp:Chvatal}).
 
 However, no cases of exponential number of iterations have been encountered 
-in real-life situations. Moreover, in most cases the simplex algorithm shows 
+in real-life situations, and usually only a fraction of the vertices
+are actually traversed before reaching the optimal one. 
+Moreover, in most cases the simplex algorithm shows 
 to have a polynomial behaviour, being linear in $m$ and sublinear in $n$
 \cite[p.94]{FangPuthenpura93}.
 A survey on the efficiency of the simplex method is done by Shamir 
@@ -225,15 +232,20 @@ worst-case analysis) is presented.
 
 The gap between the observed and the theoretical worst-case performance
 of the simplex method is still unexplained.
-Given this theoretical drawback, there have been efforts to find an
+Given this theoretical drawback, a great deal of effort 
+has been put in finding an
 algorithm for linear programming characterised by a polynomial-time bound.
+
+%
+%
+\subsection{The ellipsoid method}
 
 In 1979 Khachiyan showed how to adapt the ellipsoid method for convex
 programming to the linear programming case.
 In Khachiyan's ellipsoid method, the feasible polyhedron is inscribed in 
 a sequence of ellipsoids of decreasing size. 
-The first ellipsoid has to be large enough to include a solution to the
-system of inequalities $Ax < b$; the volume of the successive ellipsoids 
+The first ellipsoid has to be large enough to include a feasible 
+solution to the constraints; the volume of the successive ellipsoids 
 shrinks geometrically. Therefore it generates improving iterates
 in the sense that the region in which the solution lies is 
 reduced at each iteration in a monotonic fashion.
@@ -304,7 +316,7 @@ as reported in \cite{MWright92}).
 A variant of Karmarkar's original algorithm was then proposed and 
 implemented by Adler, Resende, Veiga and Karmarkar 
 \cite{AdlerResendeVeigaKarmarkar89}.
-Since then the theoretical understanding has considerably improved,
+Since then, the theoretical understanding has considerably improved,
 and many algorithmic variants have been proposed, and several of
 them have shown to be a computationally viable alternative to the
 simplex method.
@@ -313,10 +325,10 @@ For details on Karmarkar's algorithm, we refer to
 
 Over the last 20 years, an impressive wealth of theoretical research
 has been published, and computational developments have brought life
-to a field, that of Linear Programming, that seemed not to attract much
+to a field, that of linear programming, that seemed not to attract much
 attention anymore.
-Among the positive consequences brought by the renewed interest in linear
-programming, let us remind the improvements in the implementations of 
+Among the positive consequences sparkled by the renewed interest in linear
+programming, we remind the improvements in the implementations of 
 simplex-based solvers \cite{Bixby94,Bixby02}.
 
 There are classes of problems that are best solved with the simplex
@@ -329,7 +341,7 @@ However, this does not hold in the hyper-sparse case, where the
 simplex method is virtually unbeatable \cite{Bixby02,HallMcKinnon05}, 
 and for network problems,
 where the specialised network simplex method can exploit the
-structure in an extremely efficient manner.
+structure in an extremely efficient manner \cite{ip:NemhauserWolsey88}.
 
 Interior point methods are well-suited to solving very
 large scale optimization problems. Their theory is well understood
@@ -340,8 +352,9 @@ are documented in extensive literature (see, for example,
 and the references therein).
 They can be applied to a wider range of situations with no need
 of major changes. In particular, they have been successfully applied to
-complementarity problems, quadratic programming and convex 
-nonlinear programming.
+complementarity problems, quadratic programming,
+convex nonlinear programming, second-order cone programming and
+semidefinite programming.
 
 
 %
@@ -358,7 +371,7 @@ of those who use optimization as a tool to solve their problems.
 It is therefore necessary that the understanding gathered from
 theoretical studies is then transformed into effective practical
 tools. This usually requires the implementation of computer programs
-with the aims of accuracy, speed and reliability.
+with the aims of accuracy, speed, and reliability.
 
 The process of creating computationally efficient methods from
 theoretical studies is not as direct as it might sound, but is somewhat
@@ -388,21 +401,20 @@ analysis for the following reasons:
 \item Finite precision of floating-point arithmetic;
 \item Dependence on the numerical inputs;
 \item Heuristic algorithmic choices;
-\item 
 \end{itemize}
 
-For these reasons, we will take a very pragmatic approach to the
-field of optimization. While we will discuss the theoretical foundations
-of interior point methods for linear programming and contribute to
-it, our main drive is the development of implementable techniques
-for interior-point-based linear programming solvers.
-
+For these reasons, we will take a very pragmatic view to the
+field of optimization. 
 The approach that permeates this research and 
 the presentation of its results is markedly computationally oriented. 
-While we recognise the importance and validity of theoretical developments, 
-and we appreciate the insights that such results provide, 
-we are keen on improving existing computer implementations of 
-interior point methods.
+We recognise the importance and validity of theoretical developments, 
+and we appreciate the insights that such results provide.
+Hence, we will discuss the theoretical foundations of 
+interior point methods for linear programming and contribute to it.
+However, as we are keen on improving existing computer implementations of 
+interior point methods, 
+our main drive will be the development of implementable techniques
+for interior-point-based linear programming solvers.
 
 The contributions of this research are threefold.
 
@@ -415,18 +427,22 @@ as complementarity) in a practical algorithm is not
 conveniently characterised by either of two neighbourhoods 
 $\Nhood_2$ or $\Nhood_{-\infty}$ commonly employed in 
 theoretical developments of interior point methods.
-This neighbourhood is a variation on the more common
-$\Nhood_{-\infty}$ neighbourhood, in which the complementarity pairs
-are bounded both from below and from above by a quantity independent on $n$.
-Therefore, the spread among complementarity pairs is kept
+The symmetric neighbourhood $\Nhood_s$ is a variation on the more common
+$\Nhood_{-\infty}$ neighbourhood in which the complementarity pairs
+are bounded both from below and from above by a quantity 
+that depends on the barrier parameter $\mu$ but does
+not depend directly on $n$.
+Within this neighbourhood, the spread among complementarity pairs is kept
 under control and is reduced with the barrier parameter $\mu$.
 This has beneficial consequences on the quality of the search
 directions generated by Newton's method. Moreover, we show that
 a long-step feasible algorithm based on the symmetric neighbourhood
+is globally linearly convergent and
 has the same computational complexity as an algorithm based
-on the wide $\Nhood_{-\infty}$ neighbourhood.
+on the wide $\Nhood_{-\infty}$ neighbourhood, as it
+converges in $\bigO(nL)$ iterations.
 Also, the symmetric neighbourhood plays a central role in the development 
-of the two techniques that we introduce and study in this work.
+of the two computational techniques that we introduce and study in this work.
 
 The most evident use of the concept of symmetric neighbourhood
 happens in the {\em weighted correctors technique},
@@ -435,8 +451,6 @@ The weighting mechanism, which is an adaptive technique to judge the
 most effective way of including a corrector into the search direction, 
 works particularly well in conjunction with multiple centrality
 correctors.
-%The use of the symmetric neighbourhood lets us simplify the presentation
-%of the multiple centrality correctors technique \cite{Gondzio96}.
 The main objective of this research is to analyse the efficiency of
 corrector directions in the light of the theoretical studies of Cartis
 \cite{Cartis04,Cartis05}. It concentrates on ensuring that a corrector
@@ -491,11 +505,21 @@ We show that it is possible to exploit the inherent structure of
 the stochastic programming problem and obtain a computationally viable
 warm-start point by solving a problem of much smaller
 dimension corresponding to a reduced event tree.
-We then expand the reduced-tree solution to the full size of
-the original problem, thus generating the warm-start point.
 The way we produce a reduced tree tries to capture the 
 important information in the scenario space while keeping 
 the dimension of the corresponding (reduced) deterministic equivalent small.
+It is essential for the effectiveness of an interior point algorithm
+that the iterates do not approach the boundary of the
+feasible region too early.
+This is particularly important in reoptimization, 
+as the warm-start iterate should be able to absorb quickly
+the perturbations in the problem data.
+This suggests solving the reduced problem with low accuracy.
+As the size of the reduced problem is generally very small,
+this phase of the algorithm is relatively inexpensive.
+Once an approximate reduced-tree solution is found,
+we then expand it to the full size of
+the original problem, thus generating the warm-start point.
 We present theoretical conditions that the warm-start iterate
 should satisfy to guarantee a successful warm-start of the complete 
 problem. 

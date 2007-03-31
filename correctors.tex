@@ -4,7 +4,7 @@
 % 2007
 %Jan: 16, 17, 22
 %Feb:  6,  9, 11, 22
-%Mar:  8, 20, 21, 22, 27, 28, 29, 30
+%Mar:  8, 20, 21, 22, 27, 28, 29, 30, 31
 
 %
 % Chapter: 
@@ -47,6 +47,7 @@ produced through Krylov sequences.
 %
 %
 \subsection{Jarre and Wechs's directions}
+\label{sec:JarreWechs}
 
 Jarre and Wechs \cite{JarreWechs} % took a more pragmatic view and
 present an implementable technique for generating efficient 
@@ -166,6 +167,7 @@ additional higher-order directions.
 %
 %
 \subsection{Krylov subspace searches}
+\label{sec:MehrotraLi}
 
 Mehrotra and Li \cite{MehrotraLi} propose a different 
 scheme in which a collection of linearly 
@@ -286,7 +288,7 @@ and then to determine $t=J_k^{-1}v$ (backsolve on the Cholesky factors).
 \section{Weighting the corrector directions}
 
 As seen in Section~\ref{sec:PathFollowingAlgorithms},
-Newton's method applied to the primal--dual path-following algorithm 
+Newton's method employed in primal--dual path-following algorithms 
 provides a first-order approximation of the central path, in which
 the nonlinear perturbed KKT system (\ref{eq:PerturbedKKT}) 
 is linearised around the current primal--dual point $w^k$. Consistently with 
@@ -353,7 +355,7 @@ by running \HOPDM.
 
 \begin{table}[ht]
   \centering
-  \begin{minipage}[t]{0.36\textwidth}
+  \begin{minipage}[t]{0.4\textwidth}
     \begin{tabular}{|l|r|r|}\hline
       Problem  & No $\Delta_M$ & Only $\Delta_a$ \\ \hline
       cre-a    &  2  &  1 \\
@@ -363,8 +365,8 @@ by running \HOPDM.
       ganges   &  1  &  1 \\
       greenbea &  9  &  3 \\ \hline
     \end{tabular}
-  \end{minipage} \quad
-  \begin{minipage}[t]{0.36\textwidth}
+  \end{minipage} \hspace{1em}
+  \begin{minipage}[t]{0.4\textwidth}
     \begin{tabular}{|l|r|r|}\hline
       Problem  & No $\Delta_M$ & Only $\Delta_a$ \\ \hline
       ken-13   &  1  &  0 \\
@@ -528,12 +530,12 @@ Algorithm~\ref{alg:WeightedCorrectors}.
       \REQUIRE An initial iterate $w^0$ such that $(x^0, s^0) > 0$;
       \smallskip
       \REPEAT
-        \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_1$
+        \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_a$
 	       (\ref{eq:PredictorRhs}) for a predictor direction $\Delta_a w$.
         \smallskip
         \STATE Set $\mu$ according to (\ref{eq:Mu}) and find Mehrotra's
                corrector direction $\Delta_c w$ by solving system
-               (\ref{eq:NewtonSystem}) with right-hand side
+               (\ref{eq:NewtonSystem}) with right-hand side $r_c$
                (\ref{eq:MehrotraRhs}).
         \smallskip
         \STATE Do a linesearch to find the optimal $\hat\omega$ that
@@ -856,7 +858,7 @@ stochastic problems and quadratic programming problems.
 
 We used a collection of medium to large problems taken from different
 sources: problems {\tt CH} through {\tt CO9}
-are MARKAL (Market Allocation) models; {\tt mod2} through {\tt worldl} are
+are MARKAL (market allocation) models; {\tt mod2} through {\tt worldl} are
 agricultural models used earlier in \cite{Gondzio96}; problems {\tt route}
 through {\tt rlfdual} can be retrieved from 
 \begin{center}

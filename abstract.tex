@@ -1,18 +1,29 @@
 %Started on Wednesday, 9th August 2006
 % 2007
 %Feb: 12
-%Mar: 12, 20, 30
+%Mar: 12, 20, 30, 31
 
 %
 % Abstract
 %
 
-This research studies two techniques that improve
-the practical performance of existing computational implementations 
+This research studies two computational techniques that improve
+the practical performance of existing implementations 
 of interior point methods for linear programming.
 Both are based on the concept of symmetric neighbourhood 
 as the driving tool for the analysis and understanding of the good 
 performance of some practical algorithms. 
+
+The symmetric neighbourhood adds explicit upper bounds
+on the complementarity pairs, besides the lower bound already
+present in the common $\Nhood_{-\infty}$ neighbourhood.
+This allows to keep under control the spread among 
+complementarity pairs and reduce it with the barrier parameter $\mu$.
+This setting better describes the quality of centrality 
+in a practical algorithm.
+We show that a long-step feasible algorithm based on 
+this neighbourhood is globally convergent and
+converges in $\bigO(nL)$ iterations.
 
 The use of the symmetric neighbourhood and the recent
 theoretical understanding of the behaviour of Mehrotra's

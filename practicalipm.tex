@@ -4,7 +4,7 @@
 % 2007
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
-%Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30
+%Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -24,21 +24,7 @@ and the references therein.
 %
 % Section
 %
-\section{A practical algorithm}
-
-Interior point methods require the computation of the Newton 
-direction (\ref{eq:NewtonSystem})
-for the associated barrier problem and make a step along 
-this direction, thus usually reducing infeasibilities 
-and complementarity gap.
-The computation of the Cholesky factors
-dominates the cost of each iteration: in general this procedure
-requires $\bigO(n^3)$ operations.
-As this is usually a major computational task, 
-the efforts in the theory and practice of 
-interior point methods concentrate on reducing 
-the number of times the Newton system matrix (\ref{eq:NewtonSystem}) 
-has to be factorised.
+\section{Considerations for practical algorithms}
 
 In Sections~\ref{sec:FeasibleMethods} and \ref{sec:InfeasibleMethods}
 we presented the theoretical
@@ -86,12 +72,15 @@ For these additional topics we refer the reader to the references in
 \subsection{Mehrotra's starting point heuristic}
 \label{sec:StartingPoint}
 
-\ignore{
 The initialisation of an interior point method consists of two
-logically independent phases: the presolve (find duplicate rows or
-columns, fixed variables, redundant constraints, bound tightening),
+logically independent steps: the presolve phase (in which some
+heuristic strategies are employed in finding duplicate rows or
+columns, fixed variables, removing redundant constraints 
+and tightening the bounds),
 and the process of finding an initial iterate.
-}
+Here we discuss only the latter, and refer the reader 
+elsewhere
+for a treatment of the important topic of presolve techniques.
 
 The choice of an initial iterate for interior point methods is a
 critical one. It challenges both the feasible and infeasible
@@ -147,13 +136,14 @@ Also check what is done by Lustig, Marsten and Shanno
 %
 %
 \subsection{Solving the Newton system}
+\label{sec:SolvingNewtonSystem}
 
 The solution of system (\ref{eq:NewtonSystem}) is the computationally
 dominant step in each iteration of an interior point algorithm.
 Throughout this thesis, we will 
 restrict our attention to using a direct approach in solving these
 equations.
-We should note, however, that a wealth of research explored the use
+We remark, however, that a wealth of research explored the use
 of iterative methods in the computation of the search direction
 \cite{BergamaschiGondzioZilli,OliveiraSorensen05}.
 
@@ -223,7 +213,8 @@ speeding up the restoration of feasibility. According to
 to a reduction in number of iterations of 10\% on the Netlib
 set of tests.
 
-In order to ensure that $(x,s)$ remain positive after moving along the
+In order to ensure that the $(x,s)$ components of the iterate
+remain positive after moving along the
 $\Delta w$ direction, we need to employ a linesearch procedure 
 and find the maximum feasible stepsizes $\alpha_P$ and $\alpha_D$ 
 such that
@@ -301,16 +292,12 @@ that is both primal and dual feasible.
 %
 \subsection{Correcting techniques}
 
-Two techniques have proved particularly successful in reducing 
-the number of iterations within practical algorithms:
-Mehrotra's predictor--corrector algorithm \cite{Mehrotra92} 
-and multiple centrality correctors \cite{Gondzio96}. 
-
-Both correcting techniques originate from the observation that 
-(when direct methods of linear algebra are used) the computation 
+Interior point methods require the solution of the Newton 
+system (\ref{eq:NewtonSystem}) in order to determine
+the search direction.
+When direct methods of linear algebra are used, the computation 
 of the Newton direction requires two computationally intensive
 operations: 
-
 \begin{itemize}
 \item The {\em factorisation}, that is the computation of the 
 Cholesky factors of a sparse 
@@ -318,17 +305,30 @@ symmetric matrix;
 \item The {\em backsolve}, which uses of the factors just computed 
 to solve the system. 
 \end{itemize}
-However, the cost of computing the factors is usually significantly 
-larger than that of backsolving: in some cases the ratio between 
-these two computational efforts may even exceed a hundred. 
+However, it is the computation of the Cholesky factors that
+dominates the cost of each iteration.
+As this is usually a major computational task, 
+the efforts in the theory and practice of 
+interior point methods concentrate on reducing 
+the number of times the Newton system matrix (\ref{eq:NewtonSystem}) 
+has to be factorised.
 
 \fb{
 Present a small table that shows the cost of factoring and of backsolving
 for HOPDM (and PC-x?).
 }
 
+The cost of computing the factors is usually significantly 
+larger than that of backsolving: in general this procedure
+requires $\bigO(n^3)$ operations, while the backsolve,
+with $\bigO(n^2)$ complexity, is one order of magnitude cheaper.
 Consequently, it is worth adding more (cheap) 
 backsolves if this reduces the number of (expensive) factorisations. 
+Two techniques have proved particularly successful in reducing 
+the number of iterations within practical algorithms:
+Mehrotra's predictor--corrector algorithm \cite{Mehrotra92} 
+and multiple centrality correctors \cite{Gondzio96}. 
+
 Mehrotra's predictor--corrector technique \cite{Mehrotra92} uses two 
 backsolves per factorisation; the multiple centrality correctors technique
 \cite{Gondzio96} allows recursive corrections: a larger number 
@@ -359,41 +359,49 @@ These two strategies will be the focus of the next sections.
 \section{Mehrotra's predictor--corrector algorithm}
 \label{sec:MehrotraPC}
 
-Practical implementations usually follow Mehrotra's predictor--corrector 
-algorithm \cite{Mehrotra92}. In such a framework, we first generate a 
+In Mehrotra's predictor--corrector algorithm \cite{Mehrotra92}, 
+we first generate a 
 predictor direction to make progress towards optimality, and then we 
 compute a corrector to remedy for some of the error made by the predictor
 and move the point closer to the central path.
 
-A number of advantages can be obtained by splitting the computation 
-of the Newton direction into two steps, corresponding to solving the linear
-system (\ref{eq:NewtonSystem}) independently for the two right-hand 
-sides 
-\be \label{eq:PredictorRhs}
-r_1 =\left[ 
+A number of advantages can be obtained by exploiting the
+linearity in the Newton system (\ref{eq:NewtonSystem}) and
+thus considering the right-hand as
+\[
+ \left[ 
+  \begin{array}{c}
+    b-Ax \\ c-A^Ty-s \\ -XSe + \sigma\mu e
+  \end{array} \right]
+ = \left[ 
   \begin{array}{c}
     b-Ax \\ c-A^Ty-s \\ -XSe
-  \end{array} \right] \quad \mbox{and} \quad
-r_2 =\left[ 
+  \end{array} \right]
+ + \left[ 
   \begin{array}{c}
     0 \\ 0 \\ \sigma\mu e
-  \end{array} \right].
-\ee
+  \end{array} \right],
+\]
+thus splitting the computation 
+of the Newton direction into two steps, corresponding to solving the linear
+system (\ref{eq:NewtonSystem}) independently for the two right-hand 
+sides. 
 
 First, we can postpone the choice of the centering parameter 
 $\sigma$ and base it on the assessment of the quality of the 
-pure Newton direction computed with right-hand side $r_1$;
+pure Newton direction computed with the first part of the right-hand side;
 second, the error made by this direction may be 
 taken into account and
 corrected. Mehrotra's predictor--corrector technique \cite{Mehrotra92}
 translates these observations into a powerful computational method.
 
 Mehrotra's predictor--corrector algorithm 
-is extremely efficient in practice \cite{Mehrotra92,LustigMarstenShanno}. 
+is extremely efficient in practice \cite{LustigMarstenShanno,Mehrotra92}. 
 Since its introduction, it has 
 been considered the method of choice for practical implementations 
 because it is usually very fast and reliable. Moreover, it has a 
-convincing interpretation in terms of second order approximations.
+convincing interpretation in terms of second order approximations
+to the central path.
 
 %
 %
@@ -401,8 +409,13 @@ convincing interpretation in terms of second order approximations.
 
 The {\em predictor direction} 
 $\Delta_a w = (\Delta_a x, \Delta_a y, \Delta_a s)$ is obtained by solving 
-system (\ref{eq:NewtonSystem}) with right-hand side $r_1$ defined 
-in (\ref{eq:PredictorRhs}).
+system (\ref{eq:NewtonSystem}) with right-hand side 
+\be  \label{eq:PredictorRhs}
+ r_a = \left[ 
+  \begin{array}{c}
+    b-Ax \\ c-A^Ty-s \\ -XSe
+  \end{array} \right].
+\ee
 This corresponds to computing the pure Newton direction for the
 original KKT system (\ref{eq:KKT}), and for this reason is often
 called {\em affine-scaling} direction. This 
@@ -477,12 +490,17 @@ In \cite{Mehrotra92} the following choice of the new barrier parameter
 is suggested
 %
 \be \label{eq:Mu}
-  \mu = \left( \frac{g_a}{x^{T}s} \right)^{\! 2} \, \frac{g_a}{n}
+  \left( \frac{g_a}{x^{T}s} \right)^{\! 2} \, \frac{g_a}{n}
            = \left( \frac{g_a}{x^{T}s} \right)^{\! 3} \, \frac{x^{T}s}{n},
 \ee
 %
 corresponding to the choice of $\sigma = (g_a / x^Ts)^3$ 
 for the centering parameter. 
+If the predictor provides a good improvement, a small $\sigma$ 
+is chosen, and therefore very little centering will be used. When, 
+on the other hand, the affine-scaling direction produces very small stepsizes 
+and so very little improvement can be achieved, $\sigma$ will be 
+close to one, and so a stronger recentering will occur.
 
 The centering parameter, more generally could be chosen as
 \[
@@ -496,12 +514,6 @@ Also Lustig et al. \cite{LustigMarstenShanno} commented on the
 weak dependence of the computational performance on the choice 
 of the exponent, and settled for the value $p=2$.
 
-If the predictor provides a good improvement, a small $\sigma$ 
-is chosen, and therefore very little centering will be used. When, 
-on the other hand, the affine-scaling direction produces very small stepsizes 
-and so very little improvement can be achieved, $\sigma$ will be 
-close to one, and so a stronger recentering will occur.
-
 A further important contribution by Mehrotra consists in the 
 introduction of a second-order direction. 
 As said above, the affine-scaling direction 
@@ -512,14 +524,12 @@ however, produces an error which can be determined analytically.
 %
 Assuming that a full step in the affine-scaling direction is made, 
 the new complementarity products are equal to
-%
-\begin{eqnarray*}
+\[
   (X + \Delta_a X) (S + \Delta_a S) e 
    \;=\; XSe + (S \Delta_a x + X \Delta_a s) + \Delta_a X \Delta_a S e
    \;=\; \Delta_a X \Delta_a S e,
-\end{eqnarray*}
-%
-as the third equation in the Newton system satisfies 
+\]
+as the third equation in the Newton system (\ref{eq:NewtonSystem}) satisfies 
 $S \Delta_a x + X \Delta_a s = -XSe.$
 %
 The term $\Delta_a X \Delta_a S e$ corresponds to the error introduced
@@ -540,12 +550,11 @@ the linearisation error made by the affine-scaling direction is exactly
 the $\Delta X\Delta Se$ term that is missing in the right-hand side
 of the last equation of (\ref{eq:NewtonSystem}).
 
-Mehrotra introduced a second-order correction in which the 
-linearisation error is taken into account. Therefore, 
-Mehrotra's corrector term is obtained by solving the Newton system 
+Mehrotra's corrector term takes into account the linearisation error.
+Hence, a second-order correction is computed by solving the Newton system 
 (\ref{eq:NewtonSystem}) with right-hand side
 \be \label{eq:MehrotraRhs}
-r =\left[ \begin{array}{c}
+r_c =\left[ \begin{array}{c}
     0 \\ 0 \\ -\Delta_a X\Delta_a Se + \sigma \mu e
   \end{array} \right],
 \ee
@@ -589,12 +598,12 @@ Algorithm~\ref{alg:MehrotraPC}.
       \REQUIRE An initial iterate $w^0$ such that $(x^0, s^0) > 0$;
       \smallskip
       \REPEAT
-        \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_1$
+        \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side $r_a$
 	       (\ref{eq:PredictorRhs}) for a predictor direction $\Delta_a w$.
         \smallskip
         \STATE Set $\mu$ according to (\ref{eq:Mu}) and find Mehrotra's
                corrector direction $\Delta_c w$ by solving system
-               (\ref{eq:NewtonSystem}) with right-hand side
+               (\ref{eq:NewtonSystem}) with right-hand side $r_c$
                (\ref{eq:MehrotraRhs}).
         \smallskip
         \STATE Evaluate the maximum feasible stepsize $\alpha_k$ in
@@ -855,5 +864,5 @@ cost.
 Virtually all existing interior point codes implement such technique 
 \cite[Appendix B]{ipm:Wright97}.
 Their use depends on the quality of the linear algebra implementation,
-particularly with respect of the Cholesky factorisation routines,
+particularly with respect to the Cholesky factorisation routines,
 as this affects the ratio between factorisation and backsolve costs.
