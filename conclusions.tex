@@ -1,5 +1,6 @@
 %Started on 5 February 2007
 %Mar: 31
+%Apr:  1
 
 %
 % Chapter: Conclusions
@@ -8,17 +9,35 @@
 
 The relative youth of interior point methods means that there is still
 a lot to learn and try, particularly in practical implementations.
+We present here some observations derived from the experience
+gathered during this research.
 
 As we have seen in Chapter~\ref{ch:Correctors}, many attempts
 have been made to find new and original search directions.
 We believe that the direction generated from the Newton system,
 possibly complemented by Mehrotra's second-order correction,
 are only one of the possibility of exploring the solution space.
+
+From the study of subspace searches explored in
+Section~\ref{sec:SubspaceSearches}, it is clear that the more 
+directions we consider, the better the final search direction 
+we get. Therefore, if we had a cheap way of generating search
+directions (rather than from solving a system of linear equations),
+then these should be employed.
+In this respect, Mehrotra and Li \cite{MehrotraLi} 
+mention employing previous search directions alongside the usual ones. 
+The use of these incurs an increased memory usage 
+in order to store them, but no additional computational cost.
+However, it does not seem that they were actually employed in
+their implementation.
+This opens some questions on what constitutes a valid
+previous direction (only affine scaling, the final composite direction
+or something else).
+
 The analysis of Jarre and Wechs discussed in Section~\ref{sec:JarreWechs}
 makes it very clear that the choice of the target $t$ in
 the right-hand side of the Newton system is the driving
 tool in finding effective search directions.
-
 In our reimplementation of multiple centrality correctors, we
 have pushed the target vector of complementary points further
 in the infeasible space with the aim to generate a better

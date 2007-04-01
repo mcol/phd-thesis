@@ -5,6 +5,7 @@
 %Jan: 15, 22, 26, 29, 31
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
 %Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29, 30, 31
+%Apr:  1
 
 %
 % Chapter: Background and introduction.
@@ -33,7 +34,7 @@ of a solution method, the simplex method;
 the introduction of the first computer calculators was crucial to
 the blossoming and increase of this newly born area of study. 
 Historical accounts on the birth and development of linear programming 
-can be found in many sources, such as \cite[ch.~2]{Dantzig63} and 
+can be found in many sources, such as \cite[Chapter~2]{Dantzig63} and 
 \cite{Schrijver86}. Dantzig's personal recollection are also
 in \cite{Dantzig02}.
 
@@ -127,7 +128,7 @@ for some constant $k>0$.
 
 An exhaustive presentation of this topic exceeds the aims of this thesis:
 we refer the reader to available introductions on the area, 
-\cite[ch.~2]{Schrijver86} among others.
+\cite[Chapter~2]{Schrijver86} among others.
 
 Complexity proofs rely on two assumptions that are necessary 
 simplifications:
@@ -218,7 +219,7 @@ of bad behaviour of the simplex method (when Dantzig's pivoting rule
 is used). In this example of $n$ variables and $2n$ inequalities,
 the simplex method visits each of the $2^n$ vertices.
 The same example does not cause this pathological behaviour if different
-pivoting rules are implemented (see \cite[ch.~4]{lp:Chvatal}).
+pivoting rules are implemented (see \cite[Chapter~4]{lp:Chvatal}).
 
 However, no cases of exponential number of iterations have been encountered 
 in real-life situations, and usually only a fraction of the vertices
@@ -252,7 +253,7 @@ reduced at each iteration in a monotonic fashion.
 The algorithm either finds a solution, as the centres of the ellipsoids
 converge to the optimal point, or states that no solution exists.
 More details on the ellipsoid method can be found for example in 
-\cite[ch.~13]{Schrijver86} and \cite[ch.~I.6]{ip:NemhauserWolsey88}.
+\cite[Chapter~13]{Schrijver86} and \cite[Chapter~I.6]{ip:NemhauserWolsey88}.
 
 The exciting property of the ellipsoid method is that it finds a 
 solution in $\bigO(n^2L)$ iterations, thus has polynomial complexity. 
@@ -321,7 +322,7 @@ and many algorithmic variants have been proposed, and several of
 them have shown to be a computationally viable alternative to the
 simplex method.
 For details on Karmarkar's algorithm, we refer to
-\cite[ch.6]{FangPuthenpura93}.
+\cite[Chapter~6]{FangPuthenpura93}.
 
 Over the last 20 years, an impressive wealth of theoretical research
 has been published, and computational developments have brought life
@@ -422,7 +423,10 @@ First, we introduce and formalise the concept of
 {\em symmetric neighbourhood} as the
 driving tool for the analysis and understanding of the good behaviour
 of some practical algorithms. 
-The quality of centrality (understood in a simplified way 
+The practical success of an interior point code is negatively
+affected by the presence of unbalanced complementary products.
+In this sense, 
+the quality of centrality (understood in a simplified way 
 as complementarity) in a practical algorithm is not 
 conveniently characterised by either of two neighbourhoods 
 $\Nhood_2$ or $\Nhood_{-\infty}$ commonly employed in 
@@ -444,7 +448,7 @@ converges in $\bigO(nL)$ iterations.
 Also, the symmetric neighbourhood plays a central role in the development 
 of the two computational techniques that we introduce and study in this work.
 
-The most evident use of the concept of symmetric neighbourhood
+The most evident use of the notion of symmetric neighbourhood
 happens in the {\em weighted correctors technique},
 which is our second contribution.
 The weighting mechanism, which is an adaptive technique to judge the

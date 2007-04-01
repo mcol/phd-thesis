@@ -5,6 +5,7 @@
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
+%Apr:  1
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -32,7 +33,7 @@ results on the order of convergence of some interior point algorithms.
 In practice, convergence is much faster than stated by those results:
 optimality is usually reached in a number of iterations 
 proportional to the logarithm of the problem dimension. 
-This was also shown by Ye \cite[ch.~6]{Ye97} through an
+This was also shown by Ye \cite[Chapter~6]{Ye97} through an
 average-case and probabilistic analysis.
 As it happens with the analysis of the simplex method, we see a large
 gap between the predicted and the observed performance that is still to
@@ -796,7 +797,13 @@ neighbourhood of the central path.
 
 The corrector term $\Delta_m w$ is computed by solving the usual 
 system of equations (\ref{eq:NewtonSystem}) for a special right-hand side
-$(0, \,0,\, t)^T$, where the target $t$ is defined as follows:
+\be  \label{eq:MCCRhs}
+  r_m = \left[
+   \begin{array}{c}
+     0 \\ 0 \\ t
+   \end{array} \right],
+\ee
+where the target $t$ is defined as follows:
 %
 \begin{eqnarray} \label{eq:Target}
   t_i = \left\{
@@ -839,7 +846,7 @@ multiple centrality correctors technique.
         \smallskip
         \REPEAT
            \STATE Solve system (\ref{eq:NewtonSystem}) with right-hand side
-                  $(0,0,t)$, $t$ given by (\ref{eq:Target}), for a centrality
+                  $r_m$, $t$ (\ref{eq:MCCRhs}), for a centrality
                  corrector direction $\Delta_m w$.
            \smallskip
            \STATE Set $\Delta_p w := \Delta_p w + \Delta_m w$.
