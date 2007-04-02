@@ -1,11 +1,52 @@
 %Started on 5 February 2007
 %Mar: 31
-%Apr:  1
+%Apr:  1,  2
 
 %
 % Chapter: Conclusions
 %
 \label{ch:Conclusions}
+
+
+In Chapter~\ref{ch:Correctors} we have revisited the 
+technique of multiple centrality correctors \cite{Gondzio96} 
+and added a new degree of freedom to it. 
+Instead of computing the corrected direction from 
+$\Delta w = \Delta_p w + \Delta_c w$ where 
+$\Delta_p w$ and $\Delta_c w$ are the predictor and corrector terms, 
+we allow a choice of weight 
+$\omega \in (0,1]$ for the corrector term and compute 
+$\Delta w = \Delta_p w + \omega \Delta_c w$.
+We combined this modification with the use of a symmetric neighbourhood
+of the central path. 
+
+The extensive computational results presented for different 
+classes of problems demonstrate the potential of the new scheme. 
+We have compared our algorithm against the recently introduced 
+Krylov subspace scheme \cite{MehrotraLi}.
+The two approaches have similarities: they look for a set of attractive 
+independent terms from which the final direction is constructed. 
+Mehrotra and Li's approach uses the first few elements from the basis
+of the Krylov space; the weighted correctors technique
+generates direction terms using 
+centrality correctors of \cite{Gondzio96}. Mehrotra and Li's approach 
+solves an auxiliary linear program to find an optimal combination 
+of all available direction terms; our approach repeatedly chooses 
+the best weight for each newly constructed corrector term (and switches 
+off if the use of the corrector does not offer sufficient improvement). 
+Eventually, after adding $k$ corrector terms, 
+the directions used in our approach have form
+\[
+  \Delta w = \Delta_a w + \omega_1\Delta_1 w + \ldots + \omega_k\Delta_k w,
+\]
+and the affine-scaling term $\Delta_a$ contributes to it without any
+reduction. Hence, the larger the stepsize, the more progress we make
+towards the optimizer.
+
+The comparison presented in Section~\ref{ML-tests} shows a clear advantage 
+of our scheme over that of \cite{MehrotraLi}. Indeed, with the same 
+number of direction terms allowed, our scheme outperforms Krylov subspace 
+correctors by a wide margin.
 
 The relative youth of interior point methods means that there is still
 a lot to learn and try, particularly in practical implementations.
@@ -42,6 +83,27 @@ In our reimplementation of multiple centrality correctors, we
 have pushed the target vector of complementary points further
 in the infeasible space with the aim to generate a better
 correction to the current iterate.
+
+In Chapter~\ref{ch:Warmstart}
+we have introduced a technique that exploits the near-optimal solution
+to a stochastic linear program corresponding to a 
+reduced scenario tree to warm-start a much larger problem 
+that encompasses the complete scenario tree.
+Our way of reducing the dimension of the scenario tree 
+is based on the assumption that we have no knowledge 
+of the underlying stochastic process. 
+Therefore we developed an ad-hoc measure of distance 
+between the scenarios, and we proposed to select for the 
+reduced tree those that minimize the distance to 
+a selection of representative scenarios. 
+Other possibilities can be devised, and may be 
+the subject of future research.
+
+We observed that the iterate generated from the reduced problem
+provides an advanced starting point for the solution of the complete problem,
+in general resulting in a decrease of the number of iterations needed.
+As the computational cost of generating such an iterate is negligible,
+this produces consistent savings in computational time.
 
 A big avenue of research, according to the author, is the development
 of specialised techniques to exploit the problem structure.

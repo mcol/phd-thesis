@@ -2,6 +2,7 @@
 % 2007
 %Feb: 12
 %Mar: 12, 20, 30, 31
+%Apr:  2
 
 %
 % Abstract
@@ -19,8 +20,10 @@ on the complementarity pairs, besides the lower bound already
 present in the common $\Nhood_{-\infty}$ neighbourhood.
 This allows to keep under control the spread among 
 complementarity pairs and reduce it with the barrier parameter $\mu$.
+\ignore{
 This setting better describes the quality of centrality 
 in a practical algorithm.
+}
 We show that a long-step feasible algorithm based on 
 this neighbourhood is globally convergent and
 converges in $\bigO(nL)$ iterations.
@@ -31,16 +34,14 @@ corrector direction motivate the introduction of a weighting
 mechanism that can be applied to any corrector direction,
 whether originating from Mehrotra's predictor--corrector algorithm
 or as part of the multiple centrality correctors technique.
-Such modification on the way a corrector direction is applied
+Such modification on the way a correction is applied
 concentrates on ensuring that any computed search direction can positively
 contribute to a successful iteration by increasing the overall
-stepsize. Also, it tries to use the information from a corrector
-direction even when otherwise it would be rejected because it
-produces a short stepsize. 
+stepsize, thus avoiding the case that a corrector is rejected.
 The usefulness of the weighting strategy is documented through
 a complete numerical experience on various sets of publicly
 available test problems.
-The implementation within the \HOPDM\ interior point code
+The implementation within the \HOPDM interior point code
 shows remarkable time savings for large-scale linear programming problems.
 
 The second technique develops an efficient way of 
@@ -56,8 +57,7 @@ size of the problem instance, and used to initialise the
 interior point algorithm.
 We present theoretical conditions that the warm-start iterate
 has to satisfy in order to be successful.
-We implemented this technique in both the \HOPDM\ and the \OOPS\
-frameworks.
-The performance of this warm-start strategy is verified through 
+We implemented this technique in both the \HOPDM and the \OOPS
+frameworks, and its performance is verified through 
 a series of tests on problem instances coming from various stochastic
 programming sources.

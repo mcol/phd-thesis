@@ -5,7 +5,7 @@
 %Jan: 16, 17, 22
 %Feb:  6,  9, 11, 22
 %Mar:  8, 20, 21, 22, 27, 28, 29, 30, 31
-%Apr:  1
+%Apr:  1,  2
 
 %
 % Chapter: 
@@ -13,14 +13,14 @@
 \label{ch:Correctors}
 
 In this chapter we first discuss subspace searches as a way 
-to determine good search directions for interior point methods
+to determine search directions for interior point methods
 for linear programming.
 Then we illustrate the theoretical understanding of 
 the cases of failure of Mehrotra's corrector direction,
-drawing particularly from \cite{Cartis04,Cartis05}.
-We introduce a computationally competitive way
+drawing particularly from \cite{Cartis04,Cartis05}, 
+and introduce a computationally competitive way
 to improve the performance of multiple centrality correctors.
-We present the implementation of such a strategy in the \HOPDM\ solver,
+We present the implementation of such a strategy in the \HOPDM solver,
 along with an extensive computational experience, in which
 we also compare our approach with one of the most promising
 subspace-search strategies.
@@ -81,7 +81,7 @@ would produce a good search direction.
 
 If $w$ is the current iterate and 
 $w^*$ is an optimal primal--dual solution to 
-the system (\ref{eq:JarreWechsSystem}), then 
+problem (\ref{eq:PrimalDualPair}), then 
 $\Delta w^*= w^*-w$ satisfies the 
 system (\ref{eq:JarreWechsSystem}) for the choice
 \be  \label{eq:OptimalTarget}
@@ -99,12 +99,13 @@ Therefore, as $t^*$ would lead to the optimizer in one single iteration,
 it can be considered the optimal choice for the target $t$
 in (\ref{eq:JarreWechsSystem}).
 
-Obviously, as we do not know what the solution may be,
+Clearly, as we do not know what the solution may be,
 when the system (\ref{eq:JarreWechsSystem}) is set up, 
 we have no knowledge of $t^*$. 
-However, a lower bound can be determined. Knowing that 
+However, some bounds can be determined. Knowing that 
 $x+\Delta x^* \ge 0$ and $s+\Delta s^* \ge 0$, we have 
 $\Delta x^* \ge -x$ and $\Delta s^* \ge -s$, from which we obtain
+the lower bound
 \[
   t^*= S\Delta x^* + X\Delta s^* \ge -2XSe.
 \]
@@ -433,7 +434,7 @@ this proposal allows for better convergence results.
 Present some results.
 }
 
-In a similar way, Salahi et al. \cite{SalahiPengTerlaky} propose finding 
+In a similar way, Salahi \etal \cite{SalahiPengTerlaky} propose finding 
 the corrector by weighting the term $\Delta_a X \Delta_a S e$ in 
 (\ref{eq:MehrotraRhs}) by the allowed stepsize for the affine-scaling 
 direction.
@@ -487,7 +488,7 @@ stepsize; on the other hand,
 the choice $\hat\omega=1$ yields the full Mehrotra corrector of
 the standard implementations. 
 %  On the other hand, $\omega=\alpha$ produces the algorithm 
-%  suggested by Salahi~{\em et al.} \cite{SalahiPengTerlaky}.
+%  suggested by Salahi \etal \cite{SalahiPengTerlaky}.
 
 \fb{
 Discuss the difficulties related to the choice of $\omega$.
@@ -640,7 +641,7 @@ in the primal and dual spaces.
 \section{Numerical results}
 \label{NumRes}
 
-We have implemented our proposal within the \HOPDM\ interior point solver 
+We have implemented our proposal within the \HOPDM interior point solver 
 \cite{HOPDM}. 
 %
 %Unlike Mehrotra and Li's approach, which generates Krylov directions and
@@ -649,12 +650,12 @@ We have implemented our proposal within the \HOPDM\ interior point solver
 %
 We tested our implementation in a series of computational 
 experiments, using test problems from different collections. 
-As a comparison, we present the results obtained by \PCx\ \cite{PCx}, 
+As a comparison, we present the results obtained by \PCx \cite{PCx}, 
 a reference implementation of interior point methods. Since the two 
-implementations, \PCx\ and \HOPDM, have different termination criteria 
+implementations, \PCx and \HOPDM, have different termination criteria 
 in their default configurations, for the purpose of consistency,
 in the results shown, 
-we decided to implement in \HOPDM\ the criteria used in the study 
+we decided to implement in \HOPDM the criteria used in the study 
 performed by Mehrotra and Li \cite{MehrotraLi}.
 Therefore, for all solvers optimal termination occurs when the conditions
 (\ref{eq:TerminationCriteriaPCx}) are met, with feasibility
@@ -690,12 +691,12 @@ of allowed correctors on the basis of the ratio between factorisation
 cost and backsolve cost. This ratio can be very different across 
 implementations, and is mainly influenced by the linear algebra 
 routines used. 
-\HOPDM\ comes with an in-house linear algebra implementation, while
-\PCx\ relies on the more sophisticated sparse Cholesky solver
-of Ng and Peyton. Therefore, the \PCx\ code tends to use less 
+\HOPDM comes with an in-house linear algebra implementation, while
+\PCx relies on the more sophisticated sparse Cholesky solver
+of Ng and Peyton. Therefore, the \PCx code tends to use less 
 correctors per iteration.
 In all other respects, the correction scheme follows closely the one
-of \HOPDM\ and the paper \cite{Gondzio96}.
+of \HOPDM and the paper \cite{Gondzio96}.
 
 %
 %
@@ -713,14 +714,14 @@ by the previous implementation, while column d\HO\ reports
 the results obtained by the current implementation of weighted
 correctors with a default choice of the number of centrality correctors. 
 The last column presents the relative change between the two 
-versions of \HOPDM\ tested. 
+versions of \HOPDM tested. 
 As a reference, we also report in this table the overall
-statistics of \PCx\ (release 1.1) on these problems. Also for \PCx\ we adopted
+statistics of \PCx (release 1.1) on these problems. Also for \PCx we adopted
 the termination criteria (\ref{eq:TerminationCriteriaPCx}),
 with $p = 8$ and $q = 10$.
 We found the number of backsolves by counting the number of calls 
-to the functions {\tt IRSOLV()} and {\tt EnhanceSolve()}, for \HOPDM\ and
-\PCx\ respectively.
+to the functions {\tt IRSOLV()} and {\tt EnhanceSolve()}, for \HOPDM and
+\PCx respectively.
 %
 \begin{table}[ht]
   \centering
@@ -736,7 +737,7 @@ to the functions {\tt IRSOLV()} and {\tt EnhanceSolve()}, for \HOPDM\ and
 %
 \\From Table~\ref{MLtotals} we first observe the very small number 
 of backsolves per iteration needed by \PCx. This is due to the fact 
-that \PCx\ allows the use of Gondzio's multiple centrality correctors 
+that \PCx allows the use of Gondzio's multiple centrality correctors 
 only in 4 problems: {\tt dfl001}, {\tt maros-r7}, {\tt pds-10} and 
 {\tt pds-20}.
 %
@@ -761,7 +762,7 @@ in Section~\ref{BN-tests}.
   \centering
   \begin{minipage}[t]{0.36\textwidth}
     \begin{tabular}{|l|r|r|}\hline
-      Problem & \multicolumn{1}{c|}{\HO} & d\HO \\ \hline
+      Problem & \multicolumn{1}{c|}{\HO} & \multicolumn{1}{c|}{d\HO} \\ \hline
       bnl1    &   0.36 &   0.25 \\
       d{f}l001& 150.63 & 114.80 \\
       maros-r7&   7.76 &   7.52 \\
@@ -770,7 +771,7 @@ in Section~\ref{BN-tests}.
   \end{minipage}
   \begin{minipage}[t]{0.36\textwidth}
     \begin{tabular}{|l|r|r|}\hline
-      Problem & \multicolumn{1}{c|}{\HO} & d\HO\\ \hline
+      Problem & \multicolumn{1}{c|}{\HO} & \multicolumn{1}{c|}{d\HO} \\ \hline
       pilot87 &  12.62 &  11.88 \\ 
       pds-06  &  24.59 &  21.31 \\
       pds-10  &  96.57 &  79.29 \\
@@ -809,7 +810,7 @@ another to compute Mehrotra's corrector; \PCx 2 and \PCx 4 compute
 two and four additional Krylov vectors, hence they use
 4 and 6 backsolves per iteration, respectively.
 In columns \HO-0, \HO-2 and \HO-4, we present 
-the results obtained by \HOPDM\ when forcing the use of 0, 2 and 4 
+the results obtained by \HOPDM when forcing the use of 0, 2 and 4 
 multiple centrality correctors. 
 In the column called \HO\raisebox{.7pt}{-$\infty$} we report the results 
 obtained when an unlimited number of correctors is allowed
@@ -819,7 +820,7 @@ by the default way of choosing the number of correctors allowed.
 
 Consequently, up to 2, 4 and 6 backsolves per iteration are allowed
 in \PCx 0, \PCx 2 and \PCx 4 and in \HO-0, \HO-2 and \HO-4 runs, respectively.
-The number of backsolves reported for \HOPDM\ includes two needed by 
+The number of backsolves reported for \HOPDM includes two needed by 
 the initialisation procedure: the number of backsolves 
 should not exceed $2 \times {\rm {Its}} + 2$, 
 $4 \times {\rm {Its}} + 2$ and $6 \times {\rm {Its}} + 2$ respectively
@@ -890,17 +891,17 @@ programming problems and quadratic problems can be found in
 
 \begin{small}
 \begin{longtable}{|l|rrr|r|r|r|} \hline 
-  \multicolumn{1}{|c|}{Problem}
-& \multicolumn{1}{c}{Rows}
-& \multicolumn{1}{c}{Cols}
-& \multicolumn{1}{c|}{Nonzeros}
-& \multicolumn{1}{c|}{\HO}
-& \multicolumn{1}{c|}{d\HO}
-& \multicolumn{1}{c|}{Change}\\ \hline
+  \multicolumn{1}{|c|}{\normalsize Problem}
+& \multicolumn{1}{c}{\normalsize Rows}
+& \multicolumn{1}{c}{\normalsize Cols}
+& \multicolumn{1}{c|}{\normalsize Nonzeros}
+& \multicolumn{1}{c|}{\normalsize \HO}
+& \multicolumn{1}{c|}{\normalsize d\HO}
+& \multicolumn{1}{c|}{\normalsize Change}\\ \hline
 \endhead
 \hline
-\multicolumn{7}{c}{\raisebox{-1ex}{Table~\ref{TimeBN}: Time comparison on 
-other large problems (times are in seconds).}}
+\multicolumn{7}{c}{\normalsize \raisebox{-1ex}{Table~\ref{TimeBN}: 
+Time comparison on larger problems (times are in seconds).}}
 \endfoot
 \label{TimeBN}
 CH & 3852 & 5062 & 42910 & 1.03 & 1.23 & 19.4\% \\
@@ -987,49 +988,6 @@ within 1.3 times of the best.
 % In order to maintain consistency, we forced HOPDM to use a direct 
 % approach when 
 % solving this class of problems, rather than an iterative scheme.
-
-%
-% Section
-%
-\subsection{Conclusions}
-\label{Conclusions}
-
-In this paper we have revisited the technique of multiple centrality 
-correctors \cite{Gondzio96} and added a new degree of freedom to it. 
-Instead of computing the corrected direction from 
-$\Delta w = \Delta_p w + \Delta_c w$ where $\Delta_p w$ and $\Delta_c w$ are 
-the predictor and corrector terms, we allow a choice of weight 
-$\omega \in (0,1]$ for the corrector term and compute 
-$\Delta w = \Delta_p w + \omega \Delta_c w$.
-We combined this modification with the use of a symmetric neighbourhood
-of the central path. 
-
-The computational results presented for different classes of problems 
-demonstrate the potential of the new scheme. We have compared our algorithm 
-against the recently introduced Krylov subspace scheme \cite{MehrotraLi}.
-The two approaches have similarities: they look for a set of attractive 
-independent terms from which the final direction is constructed. 
-Mehrotra and Li's approach uses the first few elements from the basis
-of the Krylov space; the weighted correctors technique
-generates direction terms using 
-centrality correctors of \cite{Gondzio96}. Mehrotra and Li's approach 
-solves an auxiliary linear program to find an optimal combination 
-of all available direction terms; our approach repeatedly chooses 
-the best weight for each newly constructed corrector term (and switches 
-off if the use of the corrector does not offer sufficient improvement). 
-Eventually, after adding $k$ corrector terms, 
-the directions used in our approach have form
-\[
-  \Delta w = \Delta_a w + \omega_1\Delta_1 w + \ldots + \omega_k\Delta_k w,
-\]
-and the affine-scaling term $\Delta_a$ contributes to it without any
-reduction. Hence, the larger the stepsize, the more progress we make
-towards the optimizer.
-
-The comparison presented in Section~\ref{ML-tests} shows a clear advantage 
-of our scheme over that of \cite{MehrotraLi}. Indeed, with the same 
-number of direction terms allowed, our scheme outperforms Krylov subspace 
-correctors by a wide margin.
 
 \ignore{
 Multiple centrality correctors show 
