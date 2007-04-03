@@ -4,7 +4,7 @@
 % 2007
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
-%Apr:  2
+%Apr:  2,  3
 
 %
 % Chapter: Warm-start
@@ -115,6 +115,10 @@ The easier access to powerful parallel machines leads to a
 further advantage coming from assigning the computational work 
 to more than one processing unit through the parallelisation of 
 the linear algebra.
+This is where structure-exploiting parallel solvers such as \OOPS 
+\cite{GondzioSarkissian} excel. Moreover, structure-exploiting interior 
+point methods can be used not only for linear programming problems, 
+but also for quadratic and nonlinear problems \cite{GondzioGrothey04}.
 
 %
 %
@@ -448,7 +452,7 @@ vertex or, in other words, is very far from the central path
 of the perturbed instance. 
 
 As presented in Chapter~\ref{ch:Ipm}, interior point methods approach 
-the solution to the KKT system of optimality conditions by relaxing 
+the solution to the \KKT system of optimality conditions by relaxing 
 the complementarity requirements and obtaining the perturbed
 system (\ref{eq:PerturbedKKT}).
 As moving towards a vertex can be interpreted as making 
@@ -707,7 +711,6 @@ a primal--dual penalty approach.
 While standard penalty techniques are effective only in one space, 
 the introduction of penalty parameters in both the primal and the 
 dual problems allows to capture perturbations in both spaces.
-%
 For example, an $l_1$ penalty can deal with changes in the right-hand
 side of the constraints (primal changes), but has virtually no effect
 in perturbations of the objective coefficients (dual changes).
@@ -723,20 +726,8 @@ especially in the first few iterations, when the perturbation needs
 to be absorbed.
 This is of particular importance in reoptimization, as the optimal
 solution of the previous problem is necessarily close to a boundary.
-%
 Benson and Shanno \cite{BensonShanno} also provide some computational
 evidence of the effectiveness of their strategy.
-
-\hrulefill
-
-Large or huge-scale problems, however, create more than one difficulty 
-to general purpose solvers. Problems of these sizes can be solved by 
-exploiting the structure present in the matrix. A further advantage 
-comes from assigning the work to be done to more than one processing unit. 
-This is where structure-exploiting parallel solvers such as \OOPS 
-\cite{GondzioSarkissian} excel. Moreover, structure-exploiting interior 
-point methods can be used not only for linear programming problems, 
-but also for quadratic and nonlinear problems \cite{GondzioGrothey04}.
 
 
 %

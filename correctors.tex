@@ -5,7 +5,7 @@
 %Jan: 16, 17, 22
 %Feb:  6,  9, 11, 22
 %Mar:  8, 20, 21, 22, 27, 28, 29, 30, 31
-%Apr:  1,  2
+%Apr:  1,  2,  3
 
 %
 % Chapter: 
@@ -396,10 +396,51 @@ same situation may arise again in the following iteration.
 The issue of failures of Mehrotra's corrector
 has recently been analysed by Cartis \cite{Cartis04}, 
 who provided an example in which the second-order corrector does 
-not behave well. Cartis's analysis is based on an algorithm 
-that combines a standard primal--dual path-following method with 
+not behave well. 
+
+\begin{example}[Cartis \cite{Cartis04}]  \label{ex:Coralia}
+Consider the following primal--dual pair:
+\[
+  \begin{array}{rlp{2em}rl}
+    \min        & x_1 + 8 x_2    & & \max  & 2 y \\
+    \mbox{s.t.} & x_2 + x_3 = 2, & & \mbox{s.t.} & s_1 = 1,\quad
+                                                   y + s_2 = 8,\quad
+						   y + s_3 = 0, \\
+                & x \geq 0;      & &             & s \geq 0,
+  \end{array}
+\]
+and the starting point:
+\[
+  x^0 = (8,\, 1.95,\, 0.05), \quad y^0 = -0.1, \quad s^0 = (1,\, 8.1,\, 0.1).
+\]
+\end{example}
+
+The first observation we make is about centrality: the vector of
+complementary pairs is
+\[
+  X^0S^0e = \left[ \begin{array}{c}
+            8 \\ 15.795 \\ 0.005
+            \end{array} \right],
+\]
+with an average $\mu^0 = 7.933$. There is a big spread among the
+complementarity products: while the first is almost centered, the second
+about twice the average, and the third is very close to zero. 
+The ratio (\ref{eq:JansenRatio}) between the smallest and the largest pair is
+\[
+  \varrho(X^0S^0e) \approx 3 \times 10^{-4}.
+\]
+
+Studying this starting point in terms of symmetric neighbourhood,
+we can see that in the pair $x^0_2s^0_2 \in \Nhood_s(0.5)$, but 
+such neighbourhood does not accommodate $x^0_3s^0_3$:
+indeed, this pair belongs to the much larger $\Nhood_s(0.0006)$.
+
+Cartis's analysis is based on the \PDC algorithm,
+which combines a standard primal--dual path-following method with 
 a second-order correction. Despite not being exactly Mehrotra's 
-predictor--corrector algorithm, both are very close in spirit.
+predictor--corrector algorithm, both are very close in spirit,
+but the \PDC algorithm is more amenable to theoretical analysis.
+
 Cartis's example \cite{Cartis04} shows that for certain 
 starting points the corrector direction $\Delta_c w$
 is always orders of magnitude larger than the predictor $\Delta_a w$, in both 
@@ -417,10 +458,6 @@ are extremely short.
 
 \fb{
 Where does this misbehaviour come from?
-
-Coralia's starting point is badly centered.
-Maybe we could try other points and see if a better centred point fixes
-the issue of the large magnitude of the corrector.
 }
 
 The solution outlined by Cartis in \cite{Cartis04}, and then further 
