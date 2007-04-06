@@ -4,7 +4,7 @@
 % 2007
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
-%Apr:  2,  3,  4
+%Apr:  2,  3,  4,  5
 
 %
 % Chapter: Warm-start
@@ -41,8 +41,8 @@ solution to a problem that could have been solved more coarsely by
 using a much smaller tree. This observation suggests a
 warm-start technique that can be applied in the context of interior 
 point methods. A warm-start solution is obtained by solving the 
-stochastic optimization problem for a reduced event tree, whose 
-dimension is much smaller than that of the complete one. The solution 
+stochastic optimization problem for a reduced event tree, the dimension
+of which is much smaller than that of the complete one. The solution 
 to the reduced problem is used to construct an advanced iterate for 
 the complete formulation. We provide evidence that this novel way 
 of exploiting the problem structure to generate an initial point 
@@ -79,9 +79,9 @@ programming is the discipline that
 studies the methods and provides the tools for modelling uncertainty.
 
 Stochastic programming models uncertainty through the analysis 
-of possible future outcomes (scenarios). The 
-robustness of the decisions taken increases with the detail of the 
-description, which requires generating very large scenario trees.
+of possible future outcomes (scenarios). 
+As the robustness of the decisions taken increases with the detail of the 
+description, this encourages the generation of very large scenario trees.
 Stochastic programming aims to take all possible future scenarios 
 into account, weighting them
 with their respective probabilities. Its strength lies in the
@@ -1286,10 +1286,10 @@ to guarantee a full Newton step.
 \begin{lemma}  \label{th:FullNewtonStep}
 Let $w \in N_s(\gamma)$ be the current primal--dual iterate 
 and define the scaled residuals 
-\be
+\be  \label{eq:ScaledResiduals}
   \tilde \xi_b = X^{-1} A^T (A A^T)^{-1} \xi_b 
   \quad \mbox{ and } \quad 
-  \tilde \xi_c = S^{-1} \xi_c.     \label{RelPerturbs}
+  \tilde \xi_c = S^{-1} \xi_c.
 \ee
 If for $\beta < 1$ we have
 \[
@@ -1302,7 +1302,7 @@ the current point is feasible.
 %
 \begin{proof}
 Using the definitions of the matrix $Q$ and of the relative residual 
-vectors (\ref{RelPerturbs}),
+vectors (\ref{eq:ScaledResiduals}),
 the relations (\ref{eq:Directions}) simplify to
 \[
    X^{-1}\Delta x = -Q \tilde{\xi}_c + (I-Q) \tilde{\xi}_b = -S^{-1}\Delta s,
@@ -1344,16 +1344,16 @@ Under the conditions of Lemma~\ref{th:FullNewtonStep},
 %The full Newton step in the direction $(\Delta x, \Delta y, \Delta s)$
 %is feasible and 
 the new point
-$\bar w = (x + \Delta x, y + \Delta y, s + \Delta s)
+$\tilde w = (x + \Delta x, y + \Delta y, s + \Delta s)
 \in \mathcal{N}_s(\frac{1-\beta^2}{1+\beta^2}\gamma)$.
 \end{theorem}
 
 \begin{proof}
-At the new point $(\bar x, \bar y, \bar s)$ the barrier parameter is
+At the new point $\tilde w$ the barrier parameter is
 \be  \label{eq:NewBarrier}
-  n \bar\mu = \sum_{i=1}^n \bar x_i \bar s_i 
-            = \sum_{i=1}^n (x_i +\Delta x_i)(s_i +\Delta s_i)
-            = \sum_{i=1}^n (x_is_i + \Delta x_i\Delta s_i).
+  n \tilde\mu = \sum_{i=1}^n \tilde x_i \tilde s_i 
+              = \sum_{i=1}^n (x_i +\Delta x_i)(s_i +\Delta s_i)
+              = \sum_{i=1}^n (x_is_i + \Delta x_i\Delta s_i).
 \ee
 %
 Using (\ref{eq:FullNewtonStep}) from Lemma~\ref{th:FullNewtonStep}, 
@@ -1370,21 +1370,23 @@ by summing up all products we obtain
 which, by adding $n\mu = \sum_i x_i s_i$ to all terms and using 
 (\ref{eq:NewBarrier}), leads to
 \be  \label{eq:BoundsNewBarrier}
-(1-\beta^2) n\mu \le n \bar \mu \le (1+\beta^2) n\mu.
+  (1-\beta^2) n\mu \le n \tilde \mu \le (1+\beta^2) n\mu.
 \ee
 
 We now study whether the new iterate is still in (some) symmetric
 neighbourhood of the central path by checking the pairwise
 complementary products
 \[
-\bar x_i \bar s_i = x_is_i + \Delta x_i\Delta s_i
-                  = \left(1 +\frac{\Delta x_i\Delta s_i}{x_is_i} \right)x_is_i.
+\tilde x_i \tilde s_i = x_is_i + \Delta x_i\Delta s_i
+                      = \Big(1 +\frac{\Delta x_i\Delta s_i}{x_is_i}\Big)x_is_i.
 \]
 Using (\ref{eq:BoundsDeltaxDeltas}) and (\ref{eq:BoundsNewBarrier}) 
 we obtain
 \begin{eqnarray*}
-\bar x_i \bar s_i \ge (1-\beta^2)\gamma\mu \ge \frac{1-\beta^2}{1+\beta^2}\gamma\bar\mu, \\
-\bar x_i \bar s_i \le (1+\beta^2)\frac{\mu}{\gamma} \le \frac{1+\beta^2}{1-\beta^2}\frac{1}{\gamma}\bar\mu,
+\tilde x_i \tilde s_i \ge (1-\beta^2)\gamma\mu 
+                      \ge \frac{1-\beta^2}{1+\beta^2}\gamma\tilde\mu, \\
+\tilde x_i \tilde s_i \le (1+\beta^2)\frac{\mu}{\gamma} 
+                      \le \frac{1+\beta^2}{1-\beta^2}\frac{1}{\gamma}\tilde\mu,
 \end{eqnarray*}
 which proves the statement of the theorem.
 \end{proof}
@@ -1428,16 +1430,13 @@ The reduced problem solution is in a neighbourhood of the central path
 for the reduced problem. In particular, this is the case if additional 
 centering steps are computed once the desired tolerance level has been 
 attained \cite{Gondzio98}. 
-Since parts of this solution are copied to create the 
-complete warm-start iterate, this will be centered as well.
 Using the feasibility result of Theorem~\ref{th:FeasibleExpandedSolution},
 the residuals for the complete problem at the warm-start point 
 $(\hat{x}, \hat{y}, \hat{s})$ are:
 \[
-\begin{array}{lllll}
- \xi_b \!\!\! &=\; b-A\hat{x} \!\!&=&\!\! (b-\hat{b})-(A-\hat{A})\hat{x},\\
- \xi_c \!\!\! &=\; c -A^T\hat{y}-\hat{s}\!\! &=&\!\! (c-\hat{c})-(A-\hat{A})^T\hat{y},\\ 
- \xi_\mu\!\!\!&=\; \mu e - \hat{X}\hat{S}  & \approx & 0.
+\begin{array}{rll}
+  \xi_b \!\!&=\; b-A\hat x           \!\!&=\: (b-\hat b)-(A-\hat A)\hat x,  \\
+  \xi_c \!\!&=\; c -A^T\hat y-\hat s \!\!&=\: (c-\hat c)-(A-\hat A)^T\hat y.\\ 
 \end{array}
 \]
 %
@@ -1454,7 +1453,8 @@ in the reduced tree were chosen according to (\ref{repScenario})
 in order to minimize the distance 
 from the average case, we expect the perturbations to be small. 
 
-We can now state the following result.
+We can now state the following result, in which we obtain some bounds
+on the size of the primal and dual perturbations.
 %
 \begin{lemma}  \label{th:BoundResiduals}
 Let the reduced tree be chosen in such a way that for every node 
@@ -1463,7 +1463,8 @@ $d(r(i), i) < \varepsilon$, for an $\varepsilon > 0$.
 If the reduced problem solution is primal and dual feasible  
 and satisfies (\ref{xysBound}), then
 $\| \xi_b \|_{\infty} \leq \varepsilon B$
-and  $\| \xi_c \|_{\infty} \leq \varepsilon B$.
+and  $\| \xi_c \|_{\infty} \leq \varepsilon B|\Rtree|$, where
+$|\Rtree|$ is the number of nodes in the reduced tree.
 \end{lemma} 
 %
 \begin{proof}
@@ -1554,9 +1555,9 @@ we obtain
   & \le \Big( \|q^{l} - q^{r(l)}\| 
         + \|W^{l} - W^{r(l)}\|
         + \!\!\! \sum_{k\in \mathcal{D}_{r(l)}^R} \!\!\!
-	  \big( 1 - \frac{\delta^k}{\delta_R^k} \big) \varepsilon \Big) B \\
-  & \le \varepsilon B\times 
-        \max_{l} |\mathcal{D}_{l}^R| (1 - \frac{\delta^k}{\delta^k_R}).
+	  \big( 1 - \frac{\delta^k}{\delta_R^k} \big) \varepsilon \Big) B
+    \le \varepsilon B |\Rtree|.
+%        \max_{l} |\mathcal{D}_{l}^R| (1 - \frac{\delta^k}{\delta^k_R}).
         \qedhere
 \end{split}
 \]
@@ -1570,8 +1571,8 @@ and \ref{th:BoundResiduals}.
 \begin{theorem}  \label{th:Final}
 Let the assumptions of Lemma~\ref{th:BoundResiduals} be satisfied and 
 \[
-\varepsilon B^2 \max\{\|A\|_\infty\|(AA^T)^{-1}\|_\infty, \; 1\} 
-   \le \beta \frac{1}{2} \left(1+\sqrt{n} / \gamma \right)^{-1}.
+\varepsilon B^2 \max\{\|A\|_\infty\|(AA^T)^{-1}\|_\infty, \; |\Rtree|\} 
+   \le \frac{1}{2} \beta \left(1+\sqrt{n} / \gamma \right)^{-1}.
 \]
 Then the full Newton step (\ref{eq:NewtonSystem2})
 from the warm-start iterate is feasible 
@@ -1579,14 +1580,20 @@ and it restores primal and dual feasibility.
 \end{theorem}
 %
 \begin{proof}
-Using the definition of $\tilde{\xi}_b$, we get
+Using the definition of $\tilde{\xi}_b$ from (\ref{eq:ScaledResiduals}),
+the bounds (\ref{xysBound}), and Lemma~\ref{th:BoundResiduals}, we get
 \[
 \| \tilde{\xi}_b \|_{\infty} = \| X^{-1} A^T (AA^T)^{-1} \xi_b \|_{\infty} 
     \le
     \varepsilon B^2 \|A\|_{\infty} \|(AA^T)^{-1}\|_{\infty} 
-    \le \beta \frac{1}{2} \left(1+\sqrt{n} / \gamma \right)^{-1},
+    \le \frac{1}{2} \beta \left(1+\sqrt{n} / \gamma \right)^{-1},
 \]
-and similarly for $\|\tilde{\xi}_c\|_{\infty}$.
+In a similar way, we obtain
+\[
+  \| \tilde{\xi}_c \|_{\infty} = \| S^{-1} \xi_c \|_\infty
+                  \le \varepsilon B^2 |\Rtree|
+                  \le \frac{1}{2} \beta \left(1+\sqrt{n} / \gamma \right)^{-1}.
+ \]
 Now the result follows from  Lemma~\ref{th:FullNewtonStep}. 
 \end{proof}
 
