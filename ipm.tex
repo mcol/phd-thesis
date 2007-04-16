@@ -5,7 +5,7 @@
 %Jan: 15, 16, 17, 22, 26, 29, 30
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
 %Mar:  8,  9, 13, 15, 16, 17, 19, 20, 21, 22, 27, 28, 29, 30, 31
-%Apr:  1,  2,  3
+%Apr:  1,  2,  3, 16
 
 %
 % Chapter: Interior point methods
@@ -100,7 +100,7 @@ Let $w \in \mathcal{F}$. Then $c^Tx \ge b^Ty$.
 \end{lemma}
 %
 \begin{proof}
-Since $x \in \mathcal{P}$ and $(x,y) \in \mathcal{D}$, 
+Since $x \in \mathcal{P}$ and $(y,s) \in \mathcal{D}$, 
 the following holds:
 \[
   c^Tx - b^Ty = c^Tx - x^TA^Ty = x^T(c - A^T y) = x^Ts \ge 0. \qedhere
@@ -109,23 +109,23 @@ the following holds:
 
 The weak duality property states that the primal and dual objective
 values bound each other.
-The difference $c^Tx - b^Ty$ is called {\em duality gap}.
-When the objective in both problems achieve their respective bounds,
-that is when the duality gap is zero, the primal--dual solution has
+The difference $c^Tx - b^Ty$ is called the {\em duality gap}.
+When the objectives in both problems achieve their respective bounds,
+that is, when the duality gap is zero, the primal--dual solution has
 to be optimal. This can be formalised
 in the following lemma.
 
 \begin{lemma}[Strong duality]  \label{th:StrongDuality}
 A point $x \in \mathcal{P}$ is an optimal solution if and only if
-there exists a pair $(x,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
+there exists a pair $(y,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
 \end{lemma}
 
 Problem $(P)$ has a solution if and only if $\mathcal{P} \ne \emptyset$;
 if also $\mathcal{D} \ne \emptyset$, then both problems admit an
 optimal solution $w^* = (x^*, y^*, s^*)$, and by Lemma~\ref{th:StrongDuality}
 the objective function 
-values of both problems at that point coincide. 
-If instead one of the sets $\mathcal{P}$ or $\mathcal{D}$ is empty, 
+values of both problems coincide at that point. 
+Otherwise, if one of the sets $\mathcal{P}$ or $\mathcal{D}$ is empty, 
 then the other is either unbounded or empty as well. 
 In such cases, an optimal
 solution for problem (\ref{eq:PrimalDualPair}) does not exist.
@@ -156,9 +156,9 @@ iterate to optimality:
 \be  \label{eq:DualityComplementarityGap}
   c^Tx - b^T y = x^T s.
 \ee
-The quantity $x^T s$ is called {\em complementarity gap}:
-when it is driven to zero, then a feasible solution is also optimal. 
-It should be noted that the equality between duality gap and
+The quantity $x^T s$ is called the {\em complementarity gap}.
+When it is driven to zero, then a feasible solution is also optimal. 
+It should be noted that the equality between the duality gap and the
 complementarity gap of equation (\ref{eq:DualityComplementarityGap})
 holds only for a feasible point.
 
@@ -190,19 +190,19 @@ it is possible to write the corresponding {\em barrier problem}:
 \]
 
 Problem $(P_\mu)$ denotes a family of problems parametrised by the 
-quantity $\mu>0$ (typically small), called {\em barrier parameter} 
+quantity $\mu>0$ (typically small), which is called the {\em barrier parameter}
 in the interior point literature. 
 
 The presence of the logarithmic barrier in the objective function
 of $(P_\mu)$ forces the iterates 
 to stay in the interior of the feasible region, as this term heavily penalises 
-the points that are too close to the boundary. However, the influence exerted
+points that are too close to the boundary. However, the influence exerted
 by the logarithmic barrier can be controlled through the penalty
 parameter $\mu$.
 The weight on the barrier regulates the distance from the iterates to 
 the boundary: as $\mu$ tends to zero, problem $(P_\mu)$ resembles
-more and more problem $(P)$.
-It is worth noting that such approach is 
+problem $(P)$ more and more closely.
+It is worth noting that such an approach is 
 viable only if it is actually possible to find a point that 
 strictly satisfies the constraints, that is, if $\mathcal{P}^0 \ne \emptyset$.
 If the feasible domain $\mathcal{P}$ is bounded, 
@@ -243,12 +243,12 @@ solution for every $\mu>0$.
 
 If the perturbed \KKT conditions (\ref{eq:PerturbedKKT}) have a solution for 
 a particular $\hat \mu>0$, then it has solution for every $\mu>0$.
-Therefore, system (\ref{eq:PerturbedKKT}) it determines 
+Therefore, system (\ref{eq:PerturbedKKT}) determines 
 a unique continuous smooth curve 
 $w(\mu) = (x(\mu),y(\mu),s(\mu))$ toward the optimal set as $\mu\to 0$. 
 In interior-point 
 terminology, this curve is called the {\em central path}.
-The study of the primal--dual properties of central path was pioneered by
+The study of the primal--dual properties of the central path was pioneered by
 Megiddo \cite{Megiddo} and Bayer and Lagarias \cite{BayerLagarias}.
 
 %Moreover, if $A$ has full rank, then the value of $y$ is 
@@ -257,12 +257,12 @@ Megiddo \cite{Megiddo} and Bayer and Lagarias \cite{BayerLagarias}.
 
 Under the assumptions that for a particular $\mu > 0$ the point
 $w(\mu)$ is primal and dual feasible, we can state
-a similar result to what is expressed by 
+a similar result to the one expressed by 
 (\ref{eq:DualityComplementarityGap}):
 \[
-  g(\mu) = c^Tx(\mu) - b^T y(\mu) = x(\mu)^T s(\mu),
+  g(\mu) := c^Tx(\mu) - b^T y(\mu) = x(\mu)^T s(\mu).
 \]
-that is, the duality gap corresponds to the complementarity gap.
+That is, the duality gap corresponds to the complementarity gap.
 Hence reducing either of them is identical.
 Moreover, as $XSe - \mu e = 0$ implies $x_is_i = \mu$, $i = 1, \ldots, n$, 
 we have
@@ -290,7 +290,7 @@ the optimal solution of the problem (\ref{eq:PrimalDualPair}).
 Therefore, the central path can be used as a guideline to
 reach the optimal set.
 Algorithms that rely on the central path for finding the solution
-are called path-following: we will introduce them 
+are called path-following. We will introduce them 
 in Section~\ref{sec:PathFollowingAlgorithms}.
 
 The solution reached by following the central path is 
@@ -322,7 +322,7 @@ This partition is well-defined in the sense that a
 strictly complementary solution satisfies both 
 $\mathcal{B} \cap \mathcal{M} = \emptyset$ and 
 $\mathcal{B} \cup \mathcal{M} = \{1,\ldots,n \}$. 
-A proof of the latter result, also known as Goldman-Tucker theorem, 
+A proof of the latter result, also known as the Goldman-Tucker theorem, 
 can be found in \cite{ipm:Wright97}.
 The notions of strict complementarity and optimal partition are
 recurrent motifs in the analysis of interior point methods.
@@ -383,7 +383,8 @@ redundant constraints.
 This happens because it is an exclusively analytic concept, which does
 not exploit geometric considerations.
 
-Such a drawback of the central path has been pushed to extreme
+Such a drawback of the central path has been shown to 
+have the potential for extreme
 consequences by Deza \etal \cite{DezaNematollahiPeyghamiTerlaky},
 who managed to replicate the behaviour of the simplex method
 on the Klee-Minty cube within an interior point context. 
@@ -394,9 +395,9 @@ an arbitrarily small neighbourhood of all vertices of the cube.
 
 Here we mention the fact that presolve
 techniques are usually implemented to find and remove as many as
-possible of such constraints, but while they are based on successful
-heuristics, they are not optimal. In particular, they may find hard
-to detect implied constraints (see Cartis and Gould).
+possible of these constraints, but while they are based on successful
+heuristics, they are not optimal. In particular, they may find 
+implied constraints hard to detect (see Cartis and Gould).
 
 To overcome this disadvantage,
 other types of centers (center of gravity, center of the ellipsoid of 
@@ -432,29 +433,29 @@ to as the {\em tight neighbourhood}:
                          \| XSe - \mu e \|_2 \le \theta\mu \},
 \]
 where $\theta \in (0,1)$.
-This neighbourhood defines points which lie very close to the central path:
-search directions generated from points in this neighbourhood can be 
-followed with full step, and the barrier parameter can be decreased
+This neighbourhood defines points which lie very close to the central path.
+Search directions generated from points in this neighbourhood can be 
+followed with a full step, and the barrier parameter can be decreased
 by a small amount at each iteration (giving rise to the name
 of {\em short-step algorithms} to the algorithms that are based on
 this neighbourhood). 
 The closeness to the central path that the tight neighbourhood
-imposes and maintains allows to produce the best convergence result
+imposes and maintains produces the best convergence result
 for linear programming: short-step algorithms converge in 
 $\bigO(\sqrt{n}L)$ iterations \cite{KojimaMizunoYoshise89b,MonteiroAdler89a}.
 However, since the reduction in the barrier parameter at each iteration 
 is very small, the practical value of short-step algorithms is limited.
 
-The other commonly used neighbourhood is instead based 
+The other commonly used neighbourhood is based 
 on the one-sided infinity norm, 
-and it is often called {\em wide neighbourhood}:
+and it is often called the {\em wide neighbourhood}:
 \[
 \Nhood_{-\infty}(\gamma) = \{ w \in \mathcal{F}^0 :
                          x_is_i \ge \gamma\mu, \; i = 1, \ldots, n \},
 \]
 where $\gamma \in (0,1).$
 Algorithms based on such a neighbourhood are allowed to generate
-iterates that follow more loosely the central path. The iterates 
+iterates that follow the central path more loosely. The iterates 
 have more freedom of movement as they can get closer to the boundary
 of the feasible set.
 However, the Newton direction computed from points in the wide 
@@ -504,11 +505,11 @@ of the barrier parameter is given by
 \]
 With the progress of iterations 
 we would like the perturbed \KKT conditions (\ref{eq:PerturbedKKT}) 
-to approximate better and better
+to better and better approximate
 the system (\ref{eq:KKT}) of optimality conditions for the original
 problem.
 Hence, at each iteration, $\mu$ is monotonically decreased by the quantity
-$\sigma \in (0,1)$, called {\em centering parameter} for reasons that
+$\sigma \in (0,1)$, called the {\em centering parameter} for reasons that
 will become clear later on.
 The choice of the centering parameter $\sigma$ 
 is algorithm-dependent. We provide theoretical insights on some
@@ -600,7 +601,8 @@ primal--dual path-following algorithm.
         \STATE Solve system (\ref{eq:NewtonSystem}) with a specified $\sigma$
 	       for a search direction $\Delta w$.
         \smallskip
-        \STATE Evaluate the maximum feasible stepsize $\alpha_k$ in $\Delta w$.
+        \STATE Evaluate the maximum feasible stepsize $\alpha_k$ in 
+	       direction $\Delta w$.
         \smallskip
         \STATE Update the iterate $w^{k+1} = w^k + \alpha_k\Delta w$.
         \smallskip
@@ -636,7 +638,7 @@ throughout the algorithm:
   \end{split}
 \]
 
-As the progress in optimization is concerned,
+As far as the progress in optimization is concerned,
 we can evaluate the complementarity gap that we would
 obtain when taking a step of length $\alpha$ in the direction $\Delta w$
 \[
@@ -657,7 +659,7 @@ the search direction
 $\Delta w$ computed from (\ref{eq:NewtonSystem})
 measures the reduction in complementarity gap: 
 the longer the step, the bigger the reduction. This motivates
-the attempts to enlarge the stepsize by the use of correctors
+the attempts to enlarge the stepsize by the use of corrector
 techniques (see Sections~\ref{sec:MehrotraPC} and
 \ref{sec:MultipleCC} and Chapter~\ref{ch:Correctors}).
 
@@ -668,8 +670,8 @@ corresponds to solving the \KKT conditions (\ref{eq:KKT}) which
 describe the optimality conditions for the linear program
 (\ref{eq:PrimalDualPair}). The choice of $\sigma = 1$, instead,
 leaves the complementarity gap unchanged. While this does not
-produce a progress towards optimality, it tends to move the iterate
-closer to the central path. A step done in a direction computed
+produce progress towards optimality, it tends to move the iterate
+closer to the central path. A step taken in a direction computed
 with $\sigma = 1$ is often called a {\em pure centering step}.
 It is therefore essential to choose $\sigma$ appropriately, trying
 to balance the often conflicting aims of optimality and centrality.
@@ -693,7 +695,7 @@ property of convergence in $\bigO(nL)$ iterations.
 
 This result was then refined by the same group \cite{KojimaMizunoYoshise89b} 
 and by Monteiro and Adler \cite{MonteiroAdler89a},
-which both presented a primal--dual algorithm for linear programming 
+who both presented a primal--dual algorithm for linear programming 
 based on the tight $\Nhood_2$ neighbourhood
 with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
 This is still the best complexity result for interior point methods
@@ -712,12 +714,12 @@ on maintaining centrality rather than advancing towards optimality.
 The slight reduction of the barrier parameter at
 each iteration guarantees that one iteration of Newton's
 method can keep the point in the tight neighbourhood of the central path.
-The choice of (\ref{eq:ShortStepSigma}) allows to prove convergence
-in $\bigO(\sqrt{n}L)$ iterations.
+The choice of (\ref{eq:ShortStepSigma}) allows convergence
+in $\bigO(\sqrt{n}L)$ iterations to be proved.
 However, this is a worst-case analysis, and in practice the same would happen
-even for a bigger update of the barrier parameter. This brings to
-study ways of allowing a more substantial reduction of the barrier
-parameter, at least in some iterations. 
+even with a bigger update of the barrier parameter. This suggests that
+studying ways of allowing a more substantial reduction of the barrier
+parameter, at least in some iterations, would be worthwhile. 
 
 One important result in this direction was obtained by 
 Mizuno, Todd and Ye \cite{MizunoToddYe}, who introduced a short-step 
@@ -734,8 +736,8 @@ the predictor direction gains optimality, possibly at the expense of
 worsening centrality, keeping the iterate in a larger neighbourhood
 $\Nhood_2(\theta)$ of the central path. 
 Then, a pure re-centering step is performed, by setting $\sigma = 1$,
-leaving the duality gap unchanged but moves the iterate back into a 
-tighter $\Nhood_2(\theta^2)$ neighbourhood. Hence, every second step the 
+leaving the duality gap unchanged but moving the iterate back into a 
+tighter $\Nhood_2(\theta^2)$ neighbourhood. Hence, on every second step the 
 algorithm produces a point in $\Nhood_2(\theta^2)$.
 
 The Mizuno-Todd-Ye predictor--corrector algorithm \cite{MizunoToddYe},
@@ -746,11 +748,11 @@ feasible method, with the only
 difference that the value of the barrier parameter is reduced over
 two iterations.
 
-An important contribution of this technique, is the idea 
+An important contribution that this technique makes, is the idea 
 of targeting optimality and centrality independently. 
 The use of the very restrictive $\Nhood_2$ neighbourhood 
-makes the Mizuno-Todd-Ye algorithm unattractive for practical applications.
-However, it provides a scheme 
+makes the Mizuno-Todd-Ye algorithm unattractive for practical applications,
+but it provides a scheme 
 upon which more computationally attractive methods can be constructed,
 as we will discuss in Chapter~\ref{ch:PracticalIpm}.
 
@@ -760,29 +762,29 @@ as we will discuss in Chapter~\ref{ch:PracticalIpm}.
 \label{sec:InfeasibleMethods}
 
 The results presented up to here concentrated on feasible methods. 
-For these methods we assume to have a strictly feasible starting point
+For these methods we assume that a strictly feasible starting point is
 readily available.
 However, finding a strictly feasible starting point is, 
 in general, a nontrivial task.
 Solving the feasibility problem is an optimization problem in its
 own right, and is as difficult as solving the original problem
 to optimality.
-Moreover, the feasible region may have empty interior,
+Moreover, the feasible region may have an empty interior,
 in which case the theory developed above does not apply.
 Allowing an infeasible starting point is particularly important
 for the algorithms implemented in practical interior point solvers.
 For these reasons, a need exists for developing techniques
-that dispense from the requirement of feasibility of the 
+that do not require feasibility of the 
 starting iterate.
 
-A way to recover a strictly feasible starting point involves 
+A way to find a strictly feasible starting point involves 
 solving an artificial Phase~I subproblem by using 
 the big-$M$ method. However, the performance is dependent on 
 the choice of the values given to the weights, and the use
 of very large values, while theoretically satisfying,
 causes numerical instabilities \cite{Lustig91}.
 This is worsened 
-by the presence of dense columns that compromises the 
+by the presence of dense columns that compromise the 
 computational efficiency. 
 
 A very different approach is based on the homogeneous 
@@ -794,11 +796,11 @@ of slightly larger dimension, but for which a strictly feasible solution
 is known from the start.
 Therefore, once embedded in the homogeneous self-dual form,
 the problem can be solved with a feasible algorithm.
-Also, this formulation has the very
+This formulation also has the very
 appealing property of being able to detect infeasibility
 with accuracy.
 The use of a self-dual formulation, however, comes with a price from a
-computational viewpoint, particularly because of the need of
+computational viewpoint, particularly because of the need for
 two extra backsolves at each iteration.
 
 It is possible to develop an algorithm which only requires 
@@ -895,8 +897,8 @@ The $\Nhood_2$ neighbourhood follows the central path very tightly,
 and the short-step methods
 based on it are extremely conservative and, ultimately, very slow.
 The $\Nhood_{-\infty}$ provides a much better framework 
-for practical algorithms, as it allows to
-reduce the barrier parameter quickly. However, at it does not actively
+for practical algorithms, as it allows 
+the barrier parameter to reduce quickly. However, as it does not actively
 enforce an upper bound on the complementary products, it may allow the
 iterates to produce very unbalanced products.
 
@@ -949,8 +951,8 @@ of the two neighbourhoods $\Nhood_2$ or $\Nhood_{-\infty}$ commonly used
 in theoretical developments of interior point methods.
 To overcome this disadvantage, here we formalise a variation 
 on the usual $\Nhood_{-\infty}(\gamma)$ neighbourhood, 
-in which we introduce an upper bound on the complementary pairs. 
-We propose to use a symmetric neighbourhood $\Nhood_s(\gamma)$,
+in which we introduce an upper bound on the complementarity pairs. 
+We propose using a symmetric neighbourhood $\Nhood_s(\gamma)$,
 in which complementarity pairs have to satisfy 
 $\gamma \mu \leq x_i s_i \leq \gamma^{-1} \mu$, where $\gamma \in (0,1)$, 
 for a strictly feasible iterate $w \in \mathcal{F}^0$.
@@ -981,7 +983,7 @@ better care of centrality.
 
 An upper bound on the size of complementary products
 is implicit in the $\Nhood_{-\infty}$ neighbourhood. To find it,
-suppose that all but one complementarity products are at the lower bound
+suppose that all but one of the complementarity products are at the lower bound
 $\gamma\mu$:
 \[
   n\mu = x_1s_1 + \sum_{i=2}^n x_is_i = x_1 s_1 + (n-1)\gamma\mu,
@@ -1018,14 +1020,15 @@ complexity analysis are informative but exceedingly pessimistic.
 
 Theoretical proofs of complexity generally follow a common scheme.
 First they rely on a computable measure of the closeness to the central
-path: this is accomplished by the concept of neighbourhood. Second,
+path, accomplished by the concept of neighbourhood. Second,
 they show that the direction computed by solving the Newton system
 (\ref{eq:NewtonSystem}) can be followed with a strictly positive step
 (and therefore some progress is made at every iteration) 
 and generates an iterate 
 that retains the property of being in some neighbourhood of the central 
 path (possibly larger than the one before). Finally, they require
-a decrease in the barrier parameter that allows to derive a polynomial upper
+a decrease in the barrier parameter that allows derivation 
+of a polynomial upper
 bound on the number of iterations needed to reach the desired
 level of accuracy.
 
@@ -1034,7 +1037,7 @@ algorithm based on the symmetric neighbourhood $\Nhood_s(\gamma)$,
 where the search direction $\Delta w$ 
 is found by solving system (\ref{eq:NewtonSystem}) with 
 $r=(0,\; 0,-XSe+\sigma\mu e)^T$, $\sigma\in(0,1)$, $\mu=x^Ts/n$.
-The exposition follows closely the presentation of Wright
+The exposition closely follows the presentation of Wright
 \cite[Chapter~5]{ipm:Wright97}. 
 
 Our main results are presented in Theorem~\ref{th:SymNeighbourhood}
@@ -1121,9 +1124,9 @@ we satisfy both bounds of the symmetric neighbourhood.
 
 To conclude our proof we need to show that the 
 $w(\alpha)$ iterate is still strictly feasible.
-Feasibility is trivially maintained, for the same argument shown 
+Feasibility is trivially maintained, shown by the same argument as
 in Section~\ref{sec:FeasibleMethods}.
-About positivity, we have that
+For positivity, we have that
 \[
   x_i(\alpha)s_i(\alpha) \ge \gamma \mu(\alpha) 
                          = \gamma(1 - \alpha(1-\sigma))\mu > 0,
@@ -1153,7 +1156,7 @@ we have
                      \frac{1-\gamma}{1+\gamma}\sigma(1-\sigma) \right] \mu^k.
 \]
 The term $\sigma(1-\sigma)$ is concave and assumes strictly positive values 
-in the interval $(0,\,1)$: its minimum is attained at one of the 
+in the interval $(0,\,1)$, with its minimum attained at one of the 
 endpoints of the interval. Therefore, we prove our claim by setting
 \[
   \delta = 2^{3/2}\gamma\frac{1-\gamma}{1+\gamma}
@@ -1173,7 +1176,7 @@ In fact, the following theorem holds.
 For a starting point $w^0 \in \Nhood_s(\gamma)$, $\gamma \in (0,\, 1)$,
 such that $\mu^0 \le 1/\epsilon^\tau$,
 where $\epsilon > 0$ is the convergence tolerance and $\tau > 0$,
-there is an index $K = \bigO(n \ln 1/\epsilon)$ for which
+there is an index $K = \bigO(n \ln \frac{1}{\epsilon})$ for which
 \[
   \mu^k \le \epsilon
 \]
@@ -1181,8 +1184,8 @@ for all iterations $k \ge K$.
 \end{theorem}
 %
 \begin{proof}
-This proof reworks \cite[Theorem~3.2]{ipm:Wright97} to our case.
-Iterating on (\ref{eq:MuConvergence}) we obtain
+This proof reworks Theorem~3.2 from \cite{ipm:Wright97} in our case.
+Iterating from (\ref{eq:MuConvergence}) we obtain
 \[
   \mu^k \le \left( 1 -\frac{\delta}{n} \right)^k \mu^0.
 \]
@@ -1207,8 +1210,8 @@ which holds for
 \]
 \end{proof}
 
-Therefore, the additional upper bounds on the complementary pairs
-introduced with the symmetric neighbourhood do not produc any losses
+Therefore, the additional upper bounds on the complementarity pairs
+introduced with the symmetric neighbourhood do not produce any losses
 in the theoretical results proved for the $\Nhood_{-\infty}$, but 
 contribute to providing a better practical environment.
 This understanding provides some additional 
