@@ -4,7 +4,7 @@
 % 2007
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
-%Apr:  2,  3,  4,  5
+%Apr:  2,  3,  4,  5, 18
 
 %
 % Chapter: Warm-start
@@ -209,7 +209,8 @@ be made before the information is revealed. Later-stage decisions
 are allowed to adapt to the information that has become available 
 up to that point.
 
-The discrete stochastic process can be represented as an event tree,
+The discrete stochastic process can be represented as an 
+{\em event tree} $\Ctree$,
 where each node denotes a stage when a realisation 
 of the random process becomes known and a subsequent decision is taken.
 A path from the root to a leaf node of the event tree represents a 
@@ -374,361 +375,11 @@ Clearly, (\ref{DetEquiv}) represents a structured linear program. Its
 structure should be exploited in the solution algorithm.
 Several solution methods for stochastic linear programs have been 
 presented in the literature. These often rely on some decomposition
-approach \cite{Birge85,MulveyRuszczynski,LinderothWright03}, among others.
+approach \cite{Birge85,LinderothWright03,MulveyRuszczynski}, among others.
 Kall and Mayer \cite{KallMayer} provided a comparison of different
 solution algorithms for stochastic linear programming problems.
 In what follows, instead, we consider solving the deterministic equivalent
 problem directly through an interior point method.
-
-%
-% Section
-%
-\section{Warm-start with interior point methods}
-\label{sec:WarmStart}
-
-Consider the linear programming problem in standard form
-\be  \label{eq:CompleteProblem}
-\min\;  c^T x \;\quad \mbox{s.t. }\; Ax = b, \;\; x \ge 0,
-\ee
-where $A \in \R^{m \times n}$ is full rank, 
-$x, c \in \R^{n}$ and $b \in \R^{m}$. 
-For the purposes of this paper, problem (\ref{eq:CompleteProblem})
-corresponds to the deterministic equivalent generated from a
-given event tree $\Ctree$, and we will refer to it as the 
-{\em complete problem}.
-
-As discussed in Section~\ref{sec:StartingPoint}, the problem of 
-finding a starting point is usually solved by using 
-Mehrotra's starting point heuristic \cite{Mehrotra92}, which is 
-considered to be computationally effective for generic problems.
-
-However, many practical applications rely on solving a sequence 
-of closely related problems, where the instances differ by some 
-perturbation. This happens within algorithms that are sequential 
-in their nature, such as sequential linear programming or
-sequential quadratic programming.
-It is also very common in (mixed) integer programming, when the
-problems are solved by relaxing the integrality constraints and
-introducing some branching strategy, such as in branch-and-bound,
-branch-and-cut, branch-and-price.
-Similarly, sequential problems appear in the context of solution 
-methods based on cutting planes.
-
-In these situations, we expect the solution of an instance to be 
-close to the solution of the next one, in the sense that some of
-the information gathered in the solution process may still be valid. 
-Therefore, starting the 
-optimization of one problem from the solution of the previous instance
-should reduce the computational effort of solving the perturbed instance.
-The strategies that exploit and advanced starting point are called
-{\em warm-start strategies}.
-
-Warm-start techniques are very successful 
-when implemented with a simplex solver (see, for example, 
-\cite{Bixby02}). 
-
-\fb{
-More on the simplex.
-}
-
-However, in the context of interior point methods, it 
-is much more difficult to implement successfully, for the reasons
-we outline below.
-
-%
-%
-\subsection{Difficulties}
-\label{sec:WarmStartDifficulties}
-
-The optimal solution of a linear programming problem found with 
-a path-following interior point methods is very close to a vertex of 
-the feasible polytope or, in the more common case of multiple solutions, 
-corresponds in the analytic center of the optimal set of solutions.
-When the polytope changes (due, for example,
-to the addition of cutting planes or other changes in the 
-problem data), the optimal solution changes as well.
-In such a case the previous solution is very close to a non optimal
-vertex or, in other words, is very far from the central path
-of the perturbed instance. 
-
-As presented in Chapter~\ref{ch:Ipm}, interior point methods approach 
-the solution to the \KKT system of optimality conditions by relaxing 
-the complementarity requirements and obtaining the perturbed
-system (\ref{eq:PerturbedKKT}).
-As moving towards a vertex can be interpreted as making 
-a decision on the optimal partitioning, considering the 
-system (\ref{eq:PerturbedKKT}) is equivalent to postponing 
-the choice of the optimal partitioning.
-If the vertex is not an 
-optimal one, then the central path will not approach it.
-
-The effectiveness of an interior point algorithm degrades when an 
-iterate gets too close to a boundary before optimality is reached,
-or, equivalently, when the iterate gets far from the central path.
-In these situations the algorithm may spend many iterations in recovering
-centrality, during which small steps are usually generated and thus
-very slow progress is achieved.
-
-Hipolito \cite{Hipolito} considered the issue of robustness of 
-search directions in interior point methods in these situations.
-While his analysis concerns the dual affine-scaling algorithm, 
-it seems to provide an interesting insight on the misbehaviour
-of the search directions computed from non-central points also
-for primal--dual algorithms.
-In his analysis, Hipolito showed that if the iterate is close 
-to a boundary, the affine-scaling direction may be parallel to 
-the nearby constraints. In such cases, the corrector direction 
-may also display the same behaviour, and short stepsizes are 
-obtained for the resulting combined search direction.
-
-The required features for a good warm-start candidate for an
-interior point algorithm are somewhat contradictory.
-The point should not be too close to the boundary of the feasible 
-region in order to be able to absorb larger perturbations in the 
-problem data. 
-Also, it should be sufficiently advanced to provide 
-computational savings over a cold-start iterate.
-These considerations lead to the idea of storing an approximate
-$\mu$-center well before reaching optimality 
-\cite{Gondzio98,GondzioGrothey03,GondzioVial,YildirimWright}.
-
-The theory and practice of warm-start techniques for interior point 
-methods is a relatively new and still open field of study.
-In the remainder of this section we present a review of some 
-of the warm-start approaches proposed in the interior point literature.
-
-%
-%
-\subsection{Changes in the problem size}
-
-Mitchell \cite{phd:Mitchell} and Mitchell and Todd \cite{MitchellTodd}
-analyse the potential reduction interior point method within
-a cutting plane algorithm. They exploit the fact that
-the primal feasible point can be constructed after a set of new
-columns is added to the problem. They use this strategy with success
-in column generation scheme and more generally in the solution 
-of combinatorial optimization problems.
-
-Gondzio \cite{Gondzio98} presents a warm-start procedure for 
-primal--dual interior point methods in the context of a cutting 
-plane method. The interior 
-point method is used to solve a sequence of restricted master 
-problems, which differ by one or more cutting planes.
-%
-% Therefore, by construction the solution to one problem violates 
-% some of the newly added constraints.
-% The optimal solution to a problem is necessarily very close 
-% to the boundary, thus is an unattractive starting point 
-% for a perturbed problem. Therefore, an alternative warm-start 
-% iterate needs to be defined.
-%
-The idea proposed in \cite{Gondzio98} is to store a nearly optimal 
-point (3--4 digits of accuracy) to be employed as a warm-start point.
-%
-% Because of the cutting plane setting, the problem is then solved 
-% to optimality (7--8 digits of accuracy) in order to generate 
-% appropriate cuts.
-%
-As one requirement for a good iterate is centrality, it is of interest 
-to perform a few centering steps on the stored iterate, the cost of 
-which is marginal, as a factorisation is already available. The 
-recentering steps proposed are based on
-centrality correctors \cite{Gondzio96}.
-An auxiliary feasibility recovery procedure may be needed as, due to 
-the addition of cuts, large infeasibilities are often produced.
-
-The role of interior point methods in integer and combinatorial 
-optimization has been comprehensively surveyed in \cite{Mitchell96} 
-and \cite{MitchellPardalosResende98}. This is relevant as these classes
-of optimization problems are generally solved by formulating a sequence
-of linear relaxations, where the problem instances differ by the
-addition of cutting planes and facet-inducing constraints.
-
-%
-%
-\subsection{Perturbations that do not affect the problem size}
-
-Hipolito \cite{Hipolito} studies an alternative centering direction 
-in the context of the dual affine-scaling algorithm. Such a 
-direction is designed to move the iterate away from the boundary, 
-overcoming the risk of moving parallel to it that was mentioned 
-in Section~\ref{sec:WarmStartDifficulties}. 
-By considering a weighted least squares formulation, Hipolito 
-develops the dual affine-scaling and the corresponding Newton 
-centering directions. 
-This study has an immediate interest for warm-starting approaches,
-as the resulting direction points towards the interior of the 
-feasible region, thus providing the algorithm with the necessary 
-space to make fast progress. 
-Unfortunately, it is developed only for the dual affine-scaling 
-algorithm, and to the best of our knowledge there have been no 
-studies on how to obtain a similar search direction in the 
-primal--dual context.
-
-The warm-start approach proposed in \cite{Gondzio98} is extended
-in \cite{GondzioVial} to the case of solving a sequence of problems 
-with the same dimensions but changing problem data (the objective 
-function or the right-hand side). Such situations arise 
-in the context of decomposition approaches for large structured 
-linear programs. 
-In the case of Dantzig--Wolfe decomposition, successive subproblems 
-differ only in the objective function, while in the case 
-of Benders decomposition they differ only in the right-hand sides.
-Following \cite{Gondzio98}, nearly optimal points are saved and used 
-to warm start the solution of subsequent subproblems \cite{GondzioVial}.
-
-% An advanced application of this technique is studied in 
-% \cite{GondzioVial}, where a decomposition approach for large 
-% structured linear programs is implemented within an interior point 
-% framework. In this setting, a sequence of linear problems is generated 
-% by adding cutting planes to provide a polyhedral approximation of a 
-% non-differentiable convex function, and a warm-start strategy is 
-% applied when solving each subproblem.
-
-\yildirim and Wright \cite{YildirimWright} consider again the case 
-of solving a sequence of problems in fixed dimensions, and
-analyse the number of iterations required to converge to a 
-solution of the perturbed instance from the warm-start point and 
-obtain worst-case estimates.
-They show that these estimates depend on the size of the perturbation 
-as well as on the conditioning %and other properties 
-of the problem 
-instances. Thus they obtain conditions under which the complexity 
-of the warm-start approach is better than for the cold start case.
-
-The strategy proposed in \cite{YildirimWright} aims at absorbing the 
-primal and dual infeasibilities introduced by the perturbation in just 
-one step.
-% relying on the centrality of the iterate from one instance
-% to provide enough centrality for the starting point of the next instance.
-This strategy requires to backtrack to an iterate for which $\mu$ is 
-large enough to allow a full step for the correction direction they produce. 
-The amount of necessary backtracking depends on the magnitude 
-of the perturbation (as measured by the change in the problem data):
-this is intuitively justified considering that a large perturbation 
-will produce a large adjustment, and it is essential to guarantee that 
-a full step will not compromise the positivity requirements of the 
-iterate.
-%
-To ensure the availability of an approximate $\mu$-center from which 
-the perturbation can be absorbed in one step, a subset of 
-iterates for different values of $\mu$ is stored.
-When the size of the perturbation becomes known, the closest $\mu$ 
-available is retrieved, and the corresponding iterate is used as a 
-warm-start point for the next problem in the sequence.
-%
-In \cite{YildirimWright}, two different corrections for the perturbation
-are studied: one is based on least squares, the other on a Newton step 
-correction.
-A detailed computational comparison of these strategies has been 
-carried out by John and \yildirim \cite{JohnYildirim}.
-
-Gondzio and Grothey \cite{GondzioGrothey03} propose a different 
-reoptimization technique for interior point methods.
-As in \cite{YildirimWright}, they aim at obtaining conditions for 
-perturbations that can be absorbed in one Newton step.
-However, they measure perturbations by a relative measure of implied
-primal and dual infeasibilities, and analyse recovery steps in
-the primal and the dual spaces independently.
-
-%They derive the directions for absorbing primal and dual 
-%infeasibilities from the system
-%\[
-%\left[ \begin{array}{ccc}
-%    A & 0 & 0 \\ 0 &A^T & I \\ S & 0 & X
-%  \end{array} \right]
-%\left[ \begin{array}{c}
-%    \Delta x \\ \Delta \lambda \\ \Delta s
-%  \end{array} \right] = 
-%\left[ \begin{array}{c}
-%    -r_b \\ -r_c \\ 0
-%  \end{array} \right].
-%\]
-%This formulation aims at restoring feasibility, while the requirement 
-%for a well-centred iterate is considered separately. 
-
-This reoptimization procedure is based on two phases: first, an attempt 
-is made to absorb the infeasibilities caused by the perturbation with a full 
-Newton step; second, the centrality of the iterate is improved. Another 
-key feature of \yildirim and Wright's approach is that the primal search 
-direction is governed only by the primal perturbation, and similarly 
-for the dual space. This corresponds to solving the Newton system 
-(\ref{eq:NewtonSystem}) for the two right-hand sides independently
-%
-\[
-\left[ \begin{array}{ccc}
-    A & 0 & 0 \\ 0 &A^T & I \\ S & 0 & X
-  \end{array} \right]
-\left[ \begin{array}{c}
-    \Delta x \\ \Delta y \\ \Delta s
-  \end{array} \right] = 
-\left[ \begin{array}{c}
-    \xi_b \\ 0 \\ 0
-  \end{array} \right] +
-\left[ \begin{array}{c}
-    0 \\ \xi_c \\ 0
-  \end{array} \right].
-\]
-%
-They produce bounds on the magnitude of primal perturbation $\xi_b$ 
-and dual perturbation $\xi_c$ that can be absorbed in a single 
-Newton step. As opposed to the results of \cite{YildirimWright}, 
-the bounds of \cite{GondzioGrothey03} are easy to compute and 
-thus can be used in practice.
-
-If the perturbation is bounded above by some quantity depending 
-on $n$ and $\theta$, a full Newton step can be taken in the dual space. 
-This happens for both the $\mathcal{N}_2$ and $\mathcal{N}_\infty$ 
-neighbourhoods. Similarly, a full Newton step can be taken in the 
-primal feasibility restoration direction. These conditions may not 
-be satisfied in practice. In such case, a different iterate further 
-away from optimality may be more likely to allow for a full Newton step.
-
-A practical implementation is developed within an infeasible interior 
-point method. In this context, a stronger emphasis may be put on 
-reducing the infeasibilities. This is accomplished with additional 
-centering steps.
-An approximate $\mu$-center is stored for a tolerance level that 
-depends on the magnitude of the expected perturbation. This does not 
-exclude the possibility of storing a sequence of iterates, as proposed 
-in \cite{YildirimWright}, thus postponing the choice of the one to 
-use.
-As the problem size does not change, an approximate $\mu$-center 
-can immediately be used as an iterate for the next problem.
-If only one iterate is stored, then the absorption of infeasibilities 
-may be spread across a few iterations whenever the stepsizes fall 
-below a predefined level.
-As this strategy does not make assumptions upon the centrality of the 
-warm-start iterate,
-it can be initialised with any iterate.
-Gondzio and Grothey \cite{GondzioGrothey03} apply this warm-start 
-strategy successfully to structured problems for crash-start points that 
-come from a cross-decomposition scheme, and thus may lack centrality.
-
-A different approach has been studied by Benson and Shanno 
-\cite{BensonShanno}. They investigate how to improve the efficiency 
-of interior point methods in a reoptimization context by the use of 
-a primal--dual penalty approach.
-While standard penalty techniques are effective only in one space, 
-the introduction of penalty parameters in both the primal and the 
-dual problems allows to capture perturbations in both spaces.
-For example, an $l_1$ penalty can deal with changes in the right-hand
-side of the constraints (primal changes), but has virtually no effect
-in perturbations of the objective coefficients (dual changes).
-
-The strategy relaxes the non-negativity constraints for the decision
-variables, penalising the violation in the objective, for both
-the primal and dual problems.
-The penalised problem allows the variables to become negative: 
-this provides more freedom of movement for the variables, with
-the immediate advantage of accepting larger stepsizes along 
-the computed search direction. This favours a faster progress
-especially in the first few iterations, when the perturbation needs
-to be absorbed.
-This is of particular importance in reoptimization, as the optimal
-solution of the previous problem is necessarily close to a boundary.
-Benson and Shanno \cite{BensonShanno} also provide some computational
-evidence of the effectiveness of their strategy.
 
 
 %
@@ -737,7 +388,8 @@ evidence of the effectiveness of their strategy.
 \section{A reduced-tree warm-start iterate}
 \label{sec:ReducedTree}
 
-While the strategies mentioned in the previous section apply to
+We already surveyed warm-start strategies in Section~\ref{sec:WarmStart}.
+While those strategies apply to
 general linear problems, we introduce an approach tailored to
 stochastic programming. In particular, we propose to exploit the structure
 inherent to a stochastic programming problem to generate a good 
@@ -981,7 +633,19 @@ to updating the path probabilities $p^i$ as such:
 \subsection{Construction of the warm-start iterate}
 \label{sec:Construction}
 
-From the reduced tree we build the reduced deterministic 
+Consider the linear programming problem in standard form
+\be  \label{eq:CompleteProblem}
+\min\;  c^T x \;\quad \mbox{s.t. }\; Ax = b, \;\; x \ge 0,
+\ee
+where $A \in \R^{m \times n}$ is full rank, 
+$x, c \in \R^{n}$ and $b \in \R^{m}$. 
+Problem (\ref{eq:CompleteProblem})
+corresponds to the deterministic equivalent \eqref{DetEquiv} generated from a
+given event tree $\Ctree$. We will refer to it as the 
+{\em complete problem}.
+
+From the reduced tree, which we denote by $\Rtree$, 
+we build the reduced deterministic 
 equivalent problem
 \be \label{eq:ReducedProblem}
 \min\; c_R^T x_R \;\quad \mbox{s.t. }\; A_R x_R = b_R, \; x_R \ge 0,
@@ -990,6 +654,7 @@ with $A_R \in \R^{m_R\times n_R}$, $x_R \in
 \R^{n_R}$ and $b_R \in \R^{m_R}$. This problem is 
 much smaller than the complete formulation, and hence we expect it to 
 be much easier to solve.
+We call problem \eqref{eq:ReducedProblem} the {\em reduced problem}.
 
 We solve problem (\ref{eq:ReducedProblem}) with an interior point method. 
 For the reasons presented in Section~\ref{sec:WarmStart}, we do not 
@@ -1792,7 +1457,7 @@ average number of arcs in each path.
       mgntA     &    53 &  158 &   1378  &  3574 & 6.7 \\
       mgntB     &    70 &  210 &   2346  &  6137 & 6.4 \\ \hline
     \end{tabular}
-    \caption{Characteristics of the telecommunication problems.}
+    \caption{Characteristics of the telecommunication networks.}
     \label{table:ProblemData}
   \end{center} \vspace{-3ex}
 \end{table}
@@ -1805,6 +1470,35 @@ n = 1 + \#{\cal A} + N \times (\#{\cal A} + \#{\cal D} + \#{\cal P}),
 \]
 respectively, where $\#{\cal A}$ is the number of arcs, $\#{\cal D}$ 
 the number of demands, and $\#{\cal P}$ the total number of paths.
+The dimensions of the problems we generated and solved are
+collected in Table~\ref{table:ProblemSizes}.
+
+\begin{table}[ht]
+  \begin{center}
+    \begin{tabular}{|l||r|r|r||l|r|r|r|} \hline
+      Name      & Rows  &  Cols & Nonzeros 
+    & Name      & Rows  &  Cols & Nonzeros \\ \hline\hline
+      mnx-100   &    11 &    30 &   
+    & jlg-100   &    34 &   104 & \\
+      mnx-200   &    23 &    61 & 
+    & jlg-200   &    69 &   209 & \\
+      mnx-400   &    46 &   122 & 
+    & jlg-400   &   139 &   418 & \\
+      mnx-800   &    92 &   244 & 
+    & jlg-800   &   278 &   836 & \\
+      mnx-1600  &   185 &   488 & 
+    & jlg-1600  &   556 & 1,672 & \\ \hline
+      mgntA-100 &   153 &   511 & 
+    & mgntB-100 &   255 &   869 & \\
+      mgntA-200 &   307 & 1,022 & 
+    & mgntB-200 &   511 & 1,738 & \\
+      mgntA-400 &   614 & 2,044 & 
+    & mgntB-400 & 1,022 & 3,477 & \\ \hline
+    \end{tabular}
+    \caption{Approximate size of the problems in thousands.}
+    \label{table:ProblemSizes}
+  \end{center} \vspace{-3ex}
+\end{table}
 
 In the second and third column of Table~\ref{table:oops} 
 we report the solution statistics for \OOPS.
@@ -1920,11 +1614,6 @@ already avoid duplication without using those constraints.
 Nonanticipativity means that the decisions taken at any stage 
 do not depend on future realizations of the random parameter or 
 on future decisions, but only on the history.
-
-\item Mention that if the iterate produced by a reduced tree 
-is not good enough (according to what criteria?), another one 
-can be produced by generating a modified reduced tree (more 
-bushy for example).
 \end{itemize}
 
 In our approach, the size of the problem changes in both 

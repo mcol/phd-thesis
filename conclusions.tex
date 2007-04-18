@@ -1,6 +1,6 @@
 %Started on 5 February 2007
 %Mar: 31
-%Apr:  1,  2
+%Apr:  1,  2, 18
 
 %
 % Chapter: Conclusions
@@ -43,10 +43,26 @@ and the affine-scaling term $\Delta_a$ contributes to it without any
 reduction. Hence, the larger the stepsize, the more progress we make
 towards the optimizer.
 
-The comparison presented in Section~\ref{ML-tests} shows a clear advantage 
+The computational comparison presented in Section~\ref{ML-tests} 
+shows some advantage
 of our scheme over that of \cite{MehrotraLi}. Indeed, with the same 
 number of direction terms allowed, our scheme outperforms Krylov subspace 
 correctors by a wide margin.
+
+Besides, our scheme follows the usual predictor--corrector framework,
+and thus we expect it to be easier to implement in other 
+interior point software.
+However, we realise that using a small linear programming subproblem
+to produce the optimal weighting of search directions can only improve
+our results in terms of stepsizes and number of iterations.
+It was suggested by Nick Gould to implement a mixed strategy;
+by the multiple centrality correctors heuristic we can dynamically
+find the number of correctors needed at each iteration; then we find
+the weights by solving a subproblem.
+This suggestion leads to another possibility: in the scheme of
+Mehrotra and Li, they should have a heuristic way to decide how many
+Krylov vectors they want to produce, rather than always generating
+a fixed number of them.
 
 The relative youth of interior point methods means that there is still
 a lot to learn and try, particularly in practical implementations.
@@ -104,6 +120,11 @@ provides an advanced starting point for the solution of the complete problem,
 in general resulting in a decrease of the number of iterations needed.
 As the computational cost of generating such an iterate is negligible,
 this produces consistent savings in computational time.
+
+Mention that if the iterate produced by a reduced tree 
+is not good enough (according to what criteria?), another one 
+can be produced by generating a modified reduced tree (more 
+bushy for example).
 
 A big avenue of research, according to the author, is the development
 of specialised techniques to exploit the problem structure.
