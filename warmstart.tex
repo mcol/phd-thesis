@@ -4,7 +4,7 @@
 % 2007
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
-%Apr:  2,  3,  4,  5, 18
+%Apr:  2,  3,  4,  5, 18, 21
 
 %
 % Chapter: Warm-start
@@ -45,8 +45,8 @@ stochastic optimization problem for a reduced event tree, the dimension
 of which is much smaller than that of the complete one. The solution 
 to the reduced problem is used to construct an advanced iterate for 
 the complete formulation. We provide evidence that this novel way 
-of exploiting the problem structure to generate an initial point 
-provides a better iterate (in terms of centrality, feasibility, 
+of exploiting the problem structure to generate an initial iterate
+provides a better starting point (in terms of centrality, feasibility, 
 and closeness to optimality) than the one produced by a generic 
 strategy.
 }
@@ -118,7 +118,7 @@ the linear algebra.
 This is where structure-exploiting parallel solvers such as \OOPS 
 \cite{GondzioSarkissian} excel. Moreover, structure-exploiting interior 
 point methods can be used not only for linear programming problems, 
-but also for quadratic and nonlinear problems \cite{GondzioGrothey04}.
+but also for quadratic and nonlinear problems \cite{GondzioGrothey07}.
 
 %
 %
@@ -175,7 +175,7 @@ continuous process $\xi$ is usually further approximated by a discrete
 distribution, $\xi \in \{\xi_1, \ldots,\xi_n\}$, $p(\xi=\xi_i) = p_i$,
 in order to obtain a computationally amenable description. 
 %
-In such a case, the most common technique generates a 
+In such a case, the most common techniques generate a 
 finite, but usually very large, number of scenarios that represent an 
 approximate description of the possible outcomes.
 
@@ -306,40 +306,37 @@ to the initial stage and end with leaf nodes corresponding
 to the last stage. In this case, the constraint matrix displays
 a nested dual-block angular structure.
 
-Let $t = 1,2,\ldots,T$ denote the stage and $l_t$ be the index of a 
-node at stage $t$.
-Let $L_t$ denote the last node at stage $t$. Hence 
-the nodes that belong to stage $t > 1$ have indices 
-$l_t = L_{t-1} \! + \! 1, L_{t-1} \! + \! 2, \dots, L_t$. 
-For any node in the tree at stage $t$ there is only one immediate
-ancestor at stage $t-1$ and a finite number of descendants at $t+1$.
-With $a(l_t)$ we denote the direct ancestor of node $l_t$ (which is a 
-node that belongs to stage $t-1$).
-All decision variables $x$ are superscripted with the node number 
-$l_t$.
+Let $t = 1,2,\ldots,T$ denote the stage and let $\mathcal{L}_t$ 
+be the set of nodes at stage $t$.
+With $a(l)$ we denote the direct ancestor of node $l\in\mathcal{L}_t$ 
+(which is a node that belongs to stage $t-1$), and with
+$\mathcal{D}_l\subset\mathcal{L}_{t+1}$ the set of children of node $l$.
+The decision variables are superscripted with the node number $l$;
+similar notation is used for the corresponding matrix and vector blocks.
+The total number of scenarios is $N$.
 
 The main constraint that describes the dynamics of the system has the form 
 \[
-  T^{l_t}x^{a(l_t)} +W^{l_t}x^{l_t} =h^{l_t}, \qquad l_t =L_{t-1}+1,\dots,L_t,
+  T^{l}x^{a(l)} +W^{l}x^{l} =h^{l}, \qquad l \in\mathcal{L}_t, t=2,\ldots,T,
 \]
 %
-where $T^{l_t}$ is the technology matrix that varies 
-with the node in the event tree, and $W^{l_t}$ is the recourse
+where $T^{l}$ is the technology matrix that varies 
+with the node in the event tree, and $W^{l}$ is the recourse
 matrix that, in general, depends on realisations within the same stage,
 but often varies only with time.
 
 The deterministic equivalent formulation of the multi-stage 
 problem has the following general form:
-\begin{equation}
-  \begin{array}{rrclll}
-    \min & (q^{l_1})^T x^{l_1} & + & \!\!\!\!{\displaystyle \sum_{l_2=L_1 \!+\! 1}^{L_2}} \!\!\! p^{l_2} (q^{l_2})^T x^{l_2} && \!\!\!\!\!\!  + \; \ldots \; + {\displaystyle \sum_{l_T = L_{T-1} \! + \! 1}^{L_T}} \!\!\!\!\! p^{l_T} (q^{l_T})^T x^{l_T} \\
-    \mbox{s.t.} & & & W^{l_1} x^{l_1} & \hspace{-1.5cm} = h^{l_1}, \\
-    & T^{l_2} x^1 & + & W^{l_2} x^{l_2} & \hspace{-1.5cm} = h^{l_2}, & l_2 = L_1 \!+\! 1,\dots,L_2, \\
-    & & \vdots & & \hspace{-1.4cm} \vdots \\
-    & T^{l_T} x^{a(l_T)} & + &  W^{l_T} x^{l_T} & \hspace{-1.5cm} = h^{l_T}, & l_T = L_{T-1} \! + \! 1, \dots, L_T, \\
-    & & & x^{l_t} & \hspace{-1.5cm} \geq 0, & l_t = 1,\dots, L_{T}. \\
-    \label{DetEquiv}
-  \end{array} 
+\begin{equation}  \label{DetEquiv}
+  \begin{array}{rrcll}
+  \min & \displaystyle\sum_{t=1}^T\sum_{l\in\mathcal{L}_t} p^l (q^l)^T x^{l}\\
+  \mbox{s.t.} & W^{l_1} x^{l_1} &\!\!\!\! = h^{l_1}, 
+                               &\; l_1\in\mathcal{L}_1 \\
+    & T^{l_t} x^{a(l_t)} + W^{l_t} x^{l_t} &\!\!\!\! = h^{l_t}, 
+                               &\; l_t\in\mathcal{L}_t,\; t = 1,\dots,T, \\
+    & x^{l_t} &\!\!\!\!\!\!\! \geq 0,
+                               &\; l_t\in\mathcal{L}_t,\; t = 1,\dots,T. \\
+  \end{array}
 \end{equation}
 
 Note that the probabilities in the objective function of problem 
@@ -369,7 +366,9 @@ to the chosen ordering of nodes.
 While the different ordering of blocks whithin the matrix is not 
 relevant for general-purpose solvers, the
 structure-exploiting software \OOPS \cite{GondzioSarkissian} can take 
-fully advantage of the nested structure.
+full advantage of the nested dual-block angular structure resulting
+from the depth-first ordering in its internal object-oriented
+linear algebra representation.
 
 Clearly, (\ref{DetEquiv}) represents a structured linear program. Its 
 structure should be exploited in the solution algorithm.
@@ -453,12 +452,12 @@ Algorithm~\ref{alg:OverallAlgorithm}.
   \begin{algorithmic}[0]  \label{alg:OverallAlgorithm}
     \REQUIRE The complete event tree $\Ctree$.
     \smallskip
-    \STATE Generate a reduced event tree $\Rtree$;
+    \STATE Generate a reduced event tree $\Rtree\subset\Ctree$;
     \smallskip
     \STATE Solve the corresponding deterministic equivalent with a loose 
            tolerance;
     \smallskip
-    \STATE Use this solution to generate a warm-start iterate for the 
+    \STATE Use this solution to construct a warm-start iterate for the 
     complete problem;
     \smallskip
     \STATE Solve the complete problem to optimality.
@@ -481,15 +480,15 @@ Recalling that a scenario is a path in the event tree from the root to
 a leaf node, we can encode a scenario $s_k$, $k = 1, \ldots, N$, as an 
 ordered set of nodes $s_k = \{ l_1, \ldots, l_T : \: l_t = a(l_{t+1}), \:
 t=1,\ldots, T-1 \}$.
-To each node $l_t$ of the tree we associate the tuple $n^{l_t} = \{ 
-T^{l_t}, W^{l_t}, h^{l_t}, q^{l_t} \}$ of matrix, 
+To each node $l_t$ of the tree we associate the tuple 
+$\eta^{l_t} = \{ T^{l_t}, W^{l_t}, h^{l_t}, q^{l_t} \}$ of matrices, 
 right-hand side and objective coefficients.
 
 We first define the distance between two nodes $i_t$ and $j_t$ that 
 belong to the same stage $t$ as
 %
 \be \label{eq:Distance}
-   d(n^{i_t}, n^{j_t}) = \| T^{i_t} - T^{j_t} \| + \| W^{i_t} - W^{j_t} 
+   d(\eta^{i_t}, \eta^{j_t}) = \| T^{i_t} - T^{j_t} \| + \| W^{i_t} - W^{j_t} 
    \| + \| h^{i_t} - h^{j_t} \| + \| q^{i_t} - q^{j_t} \|,
 \ee
 %
@@ -497,7 +496,8 @@ for some norm $\| \cdot \|$.
 %
 Hence, we define the distance between scenarios $i$ and $j$ as
 \[
-D(s_i, s_j) = \sum_{t=1}^T d(n^{i_t}, n^{j_t}), \quad i_t \in s_i, j_t \in s_j.
+  D(s_i, s_j) = \sum_{t=1}^T d(\eta^{i_t}, \eta^{j_t}),
+                \quad i_t \in s_i, j_t \in s_j.
 \]
 
 Therefore, scenarios that belong to the same branch of the tree will 
@@ -586,17 +586,29 @@ where, since our ultimate goal is to find the most representative scenario in
 the subtree, we use the term $(1-p^i)$ to ``bring closer'' scenarios 
 that have a higher probability of occurring.
 
-We introduce the function $r(i): \Ctree \to \Rtree$ that maps each
-node of the complete tree $\Ctree$ to a corresponding node in
-the reduced tree $\Rtree$. Clearly, if $i \in \Rtree$, then
-$i = r(i)$.
+The reduced tree selection induces a function $r: \Ctree \to \Rtree$ 
+that maps each node of the complete tree to a corresponding node 
+in the reduced tree in the following way: if $i \in \Rtree$, then
+$r(i) = i$; if $i\not\in \Rtree$, then we choose as $r(i)$ the node in 
+the representative scenario corresponding to node $i$ belonging to the
+same stage $t$ as node $i$. In other words, to get from node
+$i\in\Ctree$ to $r(i)\in\Rtree$ we walk up the tree $\Ctree$ until we
+find a node that is also in $\Rtree$ and from there walk back down
+the reduced tree until we arrive at the same stage as the original node
+
 This mapping is used to decide how to initialise 
 the warm-start iterate for the complete tree, as presented in the
 next section. We remark that our generation process guarantees
 that for each $i \in \Ctree$, the following properties hold:
 \be  \label{eq:ReducedTreeProperties}
-  a(r(i)) \in \Rtree, \quad \mbox{ and } \quad a(r(i)) = r(a(i)).
+  a(r(i)) \in \Rtree, \quad \mbox{ and } \quad a(r(i)) = r(a(i)),
 \ee
+that is if a node is in the reduced tree so is its parent, and the
+mapping $r(.)$ preserves the parent-child relationship. We will also
+need the sets 
+$\mathcal{I}_k = \{\, i \in \Ctree : r(i) = k \,\}$, $k \in \Rtree$,
+the set of nodes in the complete tree that are initialised by a given
+node $k\in\Rtree$.
 
 Continuing the example started above, we consider two subsets of 
 scenarios, corresponding to nodes 9--12 (for the subtree rooted at 
@@ -605,27 +617,49 @@ each subset we build the scenario of average nodes and then find the
 representative scenario.
 The resulting reduced tree is shown in the right of Figure~\ref{fig:Tree}.
 
-It should be noted that the probabilities need to be normalised when 
-the reduced tree is created, so that for each node the sum of the
-conditional probabilities of visiting its child nodes is 1.
-The conditional probability $\delta_R^k$ associated with node $k \in \Rtree$
-is the sum of the conditional probabilities $\delta^i$ of the nodes 
-$i \in \Ctree$ that are initialised by node $k \in \Rtree$.
-Defining $\mathcal{D}_{l} = \{ i \in \Ctree : a(i) = l \}$
-the set of descendants of node $l$, and
-$\mathcal{I}_k = \{\, i \in \Ctree : r(i) = k \,\}$, $k \in \Rtree$,
-the set of nodes that are initialised by node $k$,
-the update of the conditional probabilities can be written formally as
-\be  \label{eq:UpdateCondProbs}
-  \delta_R^k = \sum_{i \in \mathcal{I}_k \cap \mathcal{D}_{l}} \delta^i.
+It should be noted that the reduced tree generation process can be
+interpreted as a node-aggregation process: all nodes in
+$\mathcal{I}_k\subset\Ctree$ are aggregated into a single node $k\in\Rtree$.
+The node-aggregation implies the node probabilities $p_R^k$ associated
+with each node $k\in\Rtree$; we use:
+ \be  \label{eq:UpdatePathProbs}
+  p^l_R = \sum_{i \in \mathcal{I}_l} p^i.
+ \ee
+Here and in the following we use the notation that symbols referring
+to the reduced tree (such as $\Rtree$, $p_R^i$) carry the subscript
+$_R$ to distiguish them from the same symbols used for the complete tree.
+As will be seen later it is advantageous if the aggregation of nodes
+is balanced throughout the tree. On average every node in the reduced
+tree corresponds to $|\Ctree|/|\Rtree|=n/n_R$ nodes in the full tree, so for
+a totally balanced aggregation we would expect 
+\[
+  \frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}\approx 1.
+\]
+We denote by $\rho$ the deviation from this
+\be  \label{eq:rho}
+  \rho := \max_{i\in\Rtree}\max\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
+                                 \frac{p_R^{r(i)}}{p^i}\frac{n_R}{n}\right\}.
 \ee
-%
-Remembering that the path probability $p^i$ is defined recursively as
-$p^i = \delta^i p^{a(i)}$, and because of (\ref{eq:ReducedTreeProperties}),
-equation~(\ref{eq:UpdateCondProbs}) is equivalent 
-to updating the path probabilities $p^i$ as such:
-\be  \label{eq:UpdatePathProbs}
-  p^k_R = \sum_{i \in \mathcal{I}_k} p^i.
+
+It is worth noting the effect of the probabilities update
+(\ref{eq:UpdatePathProbs}) on the conditional path
+probabilities. Denote by $\delta^i := p_i/p_{a(i)}$ the probability of
+reaching node $i$, given that its parent $a(i)$ has already been
+reached and similarly for $\delta^i_R$. For a node $l$ in the $k$-th
+stage where the subtree selection takes place we have (by dividing
+(\ref{eq:UpdatePathProbs}) through by $p_{a(l)}$ and since 
+$a(l)\in \Rtree\subseteq\Ctree$)
+\[
+  \delta_R^l = \sum_{i \in \mathcal{I}_l} \delta^i
+\]
+for a node $l$ below stage $k$ we have $\delta_R^l=1$ (since there is
+only one, the representative, scenario in each subtree). 
+%This is
+%however also equal to the sum of the conditional probabilities of the
+%children of node $l$, so that we have
+In either case we can write
+\be  \label{eq:UpdateCondProbs}
+\delta_R^l = \sum_{i \in \mathcal{I}_l\cap D_{a(l)}} \delta^i.
 \ee
 
 %
@@ -658,39 +692,28 @@ We call problem \eqref{eq:ReducedProblem} the {\em reduced problem}.
 
 We solve problem (\ref{eq:ReducedProblem}) with an interior point method. 
 For the reasons presented in Section~\ref{sec:WarmStart}, we do not 
-aim for optimality, but we stop at a sufficiently advanced barrier 
-parameter $\mu^*_R$ corresponding to merely a few digits of accuracy in the 
-solution. The primal--dual iterate, $(x_R^*,y_R^*,s_R^*)$, 
-is used to generate the warm-start iterate for the complete problem.
-However, the solution of the reduced problem needs to be expanded to the size 
-of the complete problem before being used as a warm-start iterate.
-In the construction phase we take into account the relationship
-between the reduced and the complete trees.
+aim for optimality, but instead we aim for a sufficiently advanced 
+primal--dual feasible point, i.e. we seek a
+$(x_R^*,y_R^*,s_R^*)\in\mathcal{N}_s(\gamma)$ corresponding to a
+sufficiently advanced barrier parameter $\mu^*_R$.
 
-The nodes that appear in the reduced tree directly provide a warm-starting
-solution for the corresponding blocks; therefore, their parts of solution
-can be copied over to initialise the complete iterate.
-%
-For the nodes of the complete tree which did not appear in the reduced 
-tree, we look for a neighbouring node in the reduced tree. We find it 
-by walking up the tree until we encounter a node that was in the reduced 
-tree; at this point, we walk back down along the chosen scenario and return 
-the index of a reduced tree node of the same stage as the original 
-node.
-Therefore, parts of the reduced-tree solution are replicated in the 
-complete iterate. 
+This iterate is used to construct the warm-start iterate
+$(\hat{x}, \hat{y}, \hat{s})$ for the
+complete problem on a node-by-node basis. The sections of the vectors
+$\hat{x}, \hat{y}, \hat{s}$ correspoding to node $i\in\Ctree$ are
+initialised from the sections of the vectors 
+$x_R^*,y_R^*,s_R^*$ correspoding to node $r(i)\in\Rtree$. This process
+will be detailed below.
 
-The blocks of the primal solution can be copied across directly.
-The blocks of the dual solution must be rescaled according to probabilities
-to guarantee dual feasibility in the expanded problem.
-Let $(\hat x^{l}, \hat y^{l}, \hat s^{l})$ be the part of solution
-of the expanded problem corresponding to node $l$. This is initialised
-from the corresponding block of solution $(x_R^{l}, y_R^{l},  s_R^{l})$
-of the reduced problem in the following manner:
+Denote by $\hat x^{i}, \hat y^{i}, \hat s^{i}$ the part of the vectors
+$\hat{x}, \hat{y}, \hat{s}$ corresponding to node $i\in\Ctree$ and likewise
+$x_R^{i}, y_R^{i},  s_R^{i}$ for components of the solution of the
+reduced problem. Then we construct the starting point for the complete
+problem in the following manner:
 \be  \label{eq:WarmstartSolution}
-  \hat x^{l} = x_R^{r(l)}, \qquad 
- (\hat y^{l}, \hat s^{l}) = \frac{p^{l}}{p_R^{r(l)}} (y_R^{r(l)}, s_R^{r(l)}),
-  \qquad l \in \Ctree,
+  \hat x^{i} = x_R^{r(i)}, \qquad 
+ (\hat y^{i}, \hat s^{i}) = \frac{p^{i}}{p_R^{r(i)}} (y_R^{r(i)}, s_R^{r(i)}),
+  \qquad\forall i \in \Ctree,
 \ee
 where $p^i_R$ is computed according to (\ref{eq:UpdatePathProbs}).
 This means that the dual reduced-tree solution is spread among the
@@ -699,7 +722,7 @@ nodes it initialises, as can be seen here:
    \sum_{i \in \mathcal{I}_k} (\hat y^i, \hat s^i)
   = \sum_{i \in \mathcal{I}_k} \frac{p^i}{p^k_R} (y^k_R, s^k_R)
   = (y^k_R, s^k_R) \frac{1}{p^k_R} \sum_{i \in \mathcal{I}_k} p^i 
-  = (y^k_R, s^k_R).
+  = (y^k_R, s^k_R), \qquad\forall k \in \Rtree.
 \]
 
 Considering again the example of Figure~\ref{fig:Tree}, suppose that 
@@ -748,7 +771,7 @@ as the reduced tree problem is, by construction, much smaller than the
 complete problem.
 
 However, in a similar way as we did with the solution vector, 
-we can expand our problem to one which has the same dimension 
+we can expand the reduced problem to one which has the same dimension 
 as the complete problem (\ref{eq:CompleteProblem}) by replicating
 the blocks in the coefficient matrix and in the objective and right-hand 
 side vectors, as shown in Figure~\ref{fig:ExpandedSystem}.
@@ -771,17 +794,27 @@ the dimension of which, $\hat{A} \in \R^{m\times n}$,
 $\hat{c}, x \in \R^{n}$ and $\hat{b} \in \R^{m}$,
 corresponds to the dimension of the complete problem 
 (\ref{eq:CompleteProblem}).
+Using the notation introduced earlier, we will denote 
+all symbols referring to the expanded problem with a hat $\hat{\cdot}$.
 
-In Theorem~\ref{th:FeasibleExpandedSolution} we prove that 
-the warm-start iterate $(\hat{x},\hat{y},\hat{s})$
-generated by the procedure of Section~\ref{sec:Construction}
-is a solution to the expanded problem (\ref{eq:ExpandedProblem}) 
-to the level of accuracy with which we solved the reduced problem.
-However,
-we first need to prove a technical result.
+To analyse the warm-start iterate we can now follow a two-step
+procedure. First we note that from an advanced iterate 
+$(x_R, y_R,  s_R)\in\mathcal{N}_{R,s}(\gamma)$ for the reduced
+problem the procedure in (\ref{eq:WarmstartSolution}) constructs a
+primal--dual feasible point $(\hat{x}, \hat{y}, \hat{s})$ for the {\em
+expanded} problem. Indeed we will show 
+$(\hat{x}, \hat{y}, \hat{s})\in\hat{\mathcal{N}}_s(\hat{\gamma})$
+in Theorem~\ref{th:FeasibleExpandedSolution}. In the second step we
+can use this iterate to warmstart the complete problem. Since in the
+step from the expanded to the complete problem only the problem data
+but not its size changes, the methods developed in
+\cite{GondzioGrothey03,YildirimWright} can be used to analyse the 
+warm-start iterate.
+
+We start the analysis with a technical result.
 
 \begin{lemma}  \label{th:SumOfTerms}
-The following holds:
+Let $l\in\Ctree$, then
 \[
 \sum_{i \in \mathcal{D}_{l}} {T^{r(i)}}^T \hat y^i
   = \frac{p^{l}}{p^{r(l)}_R}\sum_{k \in \mathcal{D}_{r(l)}^R}
@@ -802,12 +835,17 @@ We have this chain of identities:
        \sum_{i \in \mathcal{I}_k \cap \mathcal{D}_{l}}\!\!\! \delta^{i},
 \end{split}
 \]
-where we exploited the fact that
+where the second equal sign follows from $p^i = p^l\delta^i$ and
+$p_R^{r(i)} = p_R^{r(l)}\delta_R^{r(i)}$ which is true since $l=a(i)$
+and due to (\ref{eq:ReducedTreeProperties}) also $r(l) = a(r(i))$. The
+third equal sign follows from the fact that we can partition
+$\mathcal{D}_l$ according to which nodes of the reduced tree are used
+for initilisation:
 \(
   \mathcal{D}_{l} = \bigcup_{k \in \mathcal{D}_{r(l)}^R}
      \mathcal{I}_{k} \cap \mathcal{D}_{l}.
 \)
-The claim follows from (\ref{eq:UpdateCondProbs}).
+The claim then follows from (\ref{eq:UpdateCondProbs}).
 \end{proof}
 
 \begin{theorem}  \label{th:FeasibleExpandedSolution}
@@ -862,29 +900,19 @@ Clearly the expanded system has merely a theoretical
 interest, as we use it to evaluate the magnitude of the 
 perturbation introduced, and we never generate it in practice.
 
-A warm-start strategy for interior point methods is successful only
-under guarantee that this perturbation is small enough. The 
-theoretical results of \cite{YildirimWright,GondzioGrothey03} provide 
-bounds on the magnitude of the perturbation that can be absorbed 
-in one interior point iteration. 
-The analysis presented in \cite{GondzioGrothey03} concerns the case
-where the search direction is split into primal and dual 
-feasibility-restoring directions. 
-We will give a more general result and apply it to the situation 
-of warm start for stochastic programming problems.
-
-We assume that a long-step path-following algorithm is used, 
-and we work with the symmetric neighbourhood $\Nhood_s(\gamma)$
-of the central path defined in (\ref{eq:SymmetricNeighbourhood}),
-%
-where $0 < \gamma < 1$. 
-In the authors' experience, such a neighbourhood best describes the desired 
-properties of a ``well-centered'' interior point iterate.
-%
-We consider the following Newton system:
+We assume that a feasible long-step path-following algorithm based on
+the symmetric neighbourhood $\Nhood_s(\gamma)$ 
+is used to solve the warmstarted complete problem. 
+Although the constructed warm-start iterate $(\hat{x}, \hat{y}, \hat{s})$ 
+from (\ref{eq:WarmstartSolution}) is feasible in the expanded problem, 
+it is not feasible in the complete problem. 
+As in \cite{YildirimWright,GondzioGrothey03} we will derive
+conditions that guarantee to absorb these infeasibilities with one
+{\em modification step}. 
+For this consider the following Newton system:
 \be \label{eq:NewtonSystem2}
 \left[ \begin{array}{ccc}
-    A & 0 & 0 \\ 0 &A^T & I \\ S & 0 & X
+    A & 0 & 0 \\ 0 &A^T & I \\ \hat{S} & 0 & \hat{X}
   \end{array} \right]
 \left[ \begin{array}{c}
     \Delta x \\ \Delta y \\ \Delta s
@@ -893,12 +921,26 @@ We consider the following Newton system:
     \xi_b \\ \xi_c \\ 0
   \end{array} \right],
 \ee
-the last equation of which implies
+where $\xi_b = b - A\hat{x}, \xi_c = c - A^T\hat{y}+\hat{s}$ are the
+infeasibilities incurred by using the expanded iterate $(\hat{x},
+\hat{y}, \hat{s})$ to warmstart the complete problem. 
+Such a modification is termed a {\em Newton step correction} in
+\cite{YildirimWright} or an {\em Additional centering iteration}
+in \cite{GondzioGrothey06}. 
+Gondzio and Grothey \cite{GondzioGrothey03} analyse the
+same system, but are concerned with absorbing primal and dual
+infeasibility separately by splitting (\ref{eq:NewtonSystem2}) into
+two separate directions.
+We will give a more general result and apply it to the situation of
+warm start for stochastic programming problems. To avoid overburdening
+notation we will drop the claret $\hat{}$ from the warm-start vectors.
+The last equation of (\ref{eq:NewtonSystem2}) implies
 \[
  s_i\Delta x_i + x_i\Delta s_i = 0, \qquad i = 1, \ldots, n.
 \]
 
-Following the arguments of \cite{GondzioGrothey03}, the Newton
+After some straightforward manipulation following the arguments of 
+\cite{GondzioGrothey03}, the Newton
 direction (\ref{eq:NewtonSystem2}) can be expressed in terms 
 of the primal and dual residuals $\xi_b$, $\xi_c$ as
 %
@@ -922,11 +964,12 @@ which provides a bound on the norm of $Q$, in terms of
 the symmetric neighbourhood $N_s(\gamma)$.
 
 \begin{lemma}  \label{th:BoundQ}
-If $w \in N_s(\gamma)$, then $\|Q\|_2 \le 1/\gamma$.
+If $w \in \widehat{\Nhood}_s(\gamma)$, then $\|Q\|_2 \le 1/\gamma$.
 \end{lemma}
 %
 \begin{proof}
-For a point $w \in N_s(\gamma)$, the following inequalities hold:
+For a point $w \in \widehat{\Nhood}_s(\gamma)$, 
+the following inequalities hold:
 \[
   (x_i s_i)^{-1/2} \le (\gamma\mu)^{-1/2},
   \quad \mbox{ and } \quad
@@ -949,7 +992,7 @@ In the next Lemma we state sufficient conditions for the perturbations
 to guarantee a full Newton step.
 
 \begin{lemma}  \label{th:FullNewtonStep}
-Let $w \in N_s(\gamma)$ be the current primal--dual iterate 
+Let $w \in \widehat{\Nhood}_s(\gamma)$ be the warm-start iterate 
 and define the scaled residuals 
 \be  \label{eq:ScaledResiduals}
   \tilde \xi_b = X^{-1} A^T (A A^T)^{-1} \xi_b 
@@ -962,7 +1005,7 @@ If for $\beta < 1$ we have
     \le \beta\left(1 + \sqrt{n} / \gamma \right)^{-1},
 \]
 then the full Newton step (\ref{eq:NewtonSystem2}) from 
-the current point is feasible.
+the warm-start iterate can be taken and absorbs the complete infeasibilities.
 \end{lemma}
 %
 \begin{proof}
@@ -1004,7 +1047,7 @@ that is the full Newton step is feasible, as $\beta < 1$.
 \end{proof}
 
 \begin{theorem}
-Let $w \in \mathcal{N}_s(\gamma)$ and $\beta < 1$.
+Let $w \in \widehat\Nhood_s(\gamma)$ and $\beta < 1$.
 Under the conditions of Lemma~\ref{th:FullNewtonStep},
 %The full Newton step in the direction $(\Delta x, \Delta y, \Delta s)$
 %is feasible and 
@@ -1196,12 +1239,16 @@ The contribution of a node $l \in \Ctree$ to $\xi_c$ is
 \end{split}
 \]
 where the step from the first to the second line uses 
-(\ref{eq:RedTreeDualContribution}).
+(\ref{eq:RedTreeDualContribution}) and the next step uses
+(\ref{eq:WarmstartSolution}) together with $p^i = p^l\delta^i,
+p_R^{r(i)} = p_R^{r(l)}\delta_R^{r(i)}$.
 % and in the last line we 
 %exploited the fact that $T^i - T^{r(i)} = 0$
 %for $i \in \mathcal{D}_{l}\cap\mathcal{D}_{r(l)}^R$.
 %
 Taking norms (all norms here should be intended as infinity norms)
+and using the partitioning 
+$\mathcal{D}_l = \bigcup_{k\in D^R_{r(l)}} \mathcal{I}_k\cap\mathcal{D}_l$
 we obtain
 \[
 \begin{split}
@@ -1264,8 +1311,8 @@ Now the result follows from  Lemma~\ref{th:FullNewtonStep}.
 
 A few remarks are in order about these results.
 Theorem~\ref{th:Final} implies that if we can choose the reduced
-scenario tree such that $\varepsilon = \max_i\{d(r(i),i)\}$ small enough
-to satisfy the bound given in the Theorem, then the warmstart
+scenario tree such that $\varepsilon = \max_i\{d(r(i),i)\}$ is small enough
+to satisfy the bound given in the Theorem, then the warm-start point
 constructed from the reduced scenario tree will be successful for the
 complete problem. Unfortunately we have only limited influence on
 $\varepsilon$: indeed $\varepsilon$ is the result of the variation of
@@ -1368,7 +1415,7 @@ storm1000    &  2 & 1000 & 107 &1498.3 & 45 & 831.5 \\ \hline
 \subsection{Telecommunication problems}
 
 Given the favourable results, we implemented the same approach 
-in \OOPS \cite{GondzioSarkissian,GondzioGrothey04}, where we were 
+in \OOPS \cite{GondzioSarkissian,GondzioGrothey07}, where we were 
 able to test larger instances. 
 Since \OOPS does not have features such as presolve and scaling,
 % or freedom in the choice of the pivot elements. 
@@ -1376,7 +1423,7 @@ the accuracy requested in the solution has to be smaller. We set it to
 $5.0 \times 10^{-4}$ which is more than enough for telecommunication
 applications anyway.
 On the other hand, \OOPS makes an effective use of its structure-exploiting
-capabilities \cite{GondzioSarkissian,GondzioGrothey04},
+capabilities \cite{GondzioSarkissian,GondzioGrothey07},
 allowing the solver to tackle large-scale problems 
 and provides access to parallel computing techniques.
 

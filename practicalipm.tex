@@ -5,7 +5,7 @@
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
-%Apr:  1,  2, 16, 18
+%Apr:  1,  2, 16, 18, 19, 21
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -647,8 +647,8 @@ predictor direction
 \be  \label{eq:ComponentwiseAffineScaling}
   s_i\Delta_a x_i + x_i\Delta_a s_i = -x_i s_i,
 \ee
-and consider the two cases: either $\Delta_a x_i \Delta_a s_i < 0$
-or $\Delta_a x_i \Delta_a s_i > 0$. In the first case, it must be true
+and consider the two cases: either $\Delta_a x_i \Delta_a s_i > 0$
+or $\Delta_a x_i \Delta_a s_i < 0$. In the first case, it must be true
 that $\Delta_a x_i < 0$ and $\Delta_a s_i < 0$.
 However, rewriting (\ref{eq:ComponentwiseAffineScaling}) as
 \[
@@ -662,7 +662,9 @@ that is, this is not a blocking component.
 
 In the second case, let us assume that 
 $\Delta_a x_i > 0$ and $\Delta_a s_i < 0$. 
-This means that $x_i\Delta_a s_i < -x_is_i$, so $s_i + \Delta_a s_i < 0$:
+This implies that $x_i\Delta_a s_i < -x_is_i$, so
+$s_i + \Delta_a s_i < 0$, and the stepsize must be damped
+in order to keep the iterate positive. Therefore,
 this component may be a blocking component for the stepsize.
 Consider now the equation for Mehrotra's predictor--corrector
 direction
@@ -670,7 +672,9 @@ direction
   s_i\Delta_M x_i + x_i\Delta_M s_i = \mu -x_i s_i -\Delta_a x_i\Delta_a s_i 
                                     > -x_i s_i,
 \]
-and using (\ref{eq:ComponentwiseAffineScaling}) we obtain
+where the inequality follows from the assumption that
+$\Delta_a x_i \Delta_a s_i < 0$.
+Using (\ref{eq:ComponentwiseAffineScaling}) we obtain
 \[
   s_i\Delta_M x_i + x_i\Delta_M s_i > s_i\Delta_a x_i + x_i\Delta_a s_i,
 \]
@@ -1139,7 +1143,8 @@ the primal and the dual spaces independently.
 This reoptimization procedure is based on two phases: first, an attempt 
 is made to absorb the infeasibilities caused by the perturbation with a full 
 Newton step; second, the centrality of the iterate is improved. Another 
-key feature of \yildirim and Wright's approach is that the primal search 
+key feature of Gondzio and Grothey's approach \cite{GondzioGrothey03}
+is that the primal search 
 direction is governed only by the primal perturbation, and similarly 
 for the dual space. This corresponds to solving the Newton system 
 (\ref{eq:NewtonSystem}) for the two right-hand sides independently
