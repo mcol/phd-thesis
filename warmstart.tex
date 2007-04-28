@@ -4,7 +4,7 @@
 % 2007
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
-%Apr:  2,  3,  4,  5, 18, 21
+%Apr:  2,  3,  4,  5, 18, 21, 28
 
 %
 % Chapter: Warm-start
@@ -12,10 +12,11 @@
 \label{ch:Warmstart}
 
 In this chapter we develop an efficient way of constructing a 
-starting point for structured large-scale stochastic linear programs.
+starting point for large-scale stochastic linear programs.
 We first present the relevant
-concepts of stochastic programming and review some studies on 
-warm-start techniques for interior point methods. Then we introduce 
+concepts of stochastic programming, stressing the fact that
+they lead to highly structured problems.
+Then we introduce 
 the proposed method of generating an advanced starting point for 
 stochastic programming that exploits the inherent structure of the
 problem. Finally, we present an analysis of the warm-start strategy.
@@ -91,18 +92,18 @@ situations in which possible future events are correlated or follow a
 time-structure, in that realisations become known in stages and it is
 possible to react to the observed events.
 
-Taking into account a large number of possible scenarios leads
-to the generation of large-scale structured optimization problems.
+The stochastic programming paradigm is perceived to have
+some weaknesses.
+In particular, these relate to the need for reliable forecasts
+of the probabilities of the future events under consideration
+(which may not be available), and the fact that 
+taking into account a large number of possible scenarios 
+(especially when applied to multi-stage models) leads to
+to the generation of large-scale structured optimization problems,
+the solution of which is challenging. 
 With the growing industrial acknowledgement of the benefits of 
 considering uncertainty for planning purposes, it is expected that the 
 need for solving very large instances will grow as well.
-
-Its perceived weaknesses are the need for reliable forecasts
-of the probabilities of the future events under consideration
-(which may not be available), and the fact that stochastic programming
-(especially when applied to multi-stage models) tends to lead to
-problems with very large dimensions, thus making their solution
-challenging. 
 
 As the dimensions of the problems increase, the computational advantages 
 of relying on interior point solvers become more and more evident. 
@@ -137,7 +138,7 @@ Following \cite{BirgeLouveaux}, this can be illustrated by the
   \end{array}
 \ee
 %
-where $\xi$ is a random variable and $\E_\xi$ is the expectation function
+where $\xi$ is a random variable, $\E_\xi$ is the expectation function
 and
 \be  \label{eq:SP2}
   \begin{array}{rcrl}
@@ -172,9 +173,8 @@ described through a stochastic process which is assumed to be
 known or can be either estimated from historical data or 
 conjectured according to some prescribed properties. The 
 continuous process $\xi$ is usually further approximated by a discrete 
-distribution, $\xi \in \{\xi_1, \ldots,\xi_n\}$, $p(\xi=\xi_i) = p_i$,
+distribution
 in order to obtain a computationally amenable description. 
-%
 In such a case, the most common techniques generate a 
 finite, but usually very large, number of scenarios that represent an 
 approximate description of the possible outcomes.
@@ -213,8 +213,11 @@ The discrete stochastic process can be represented as an
 {\em event tree} $\Ctree$,
 where each node denotes a stage when a realisation 
 of the random process becomes known and a subsequent decision is taken.
-A path from the root to a leaf node of the event tree represents a 
-scenario.
+It is common to consider balanced trees, where the number of
+branches for each node is the same at each stage.
+However, a better approach is to consider more branches in the
+earlier stages than in the later ones. This leads to the
+so called left-heavy trees.
 A very simple event tree is shown in Figure~\ref{fig:EventTree}.
 %
 \begin{figure}[ht]
@@ -229,17 +232,16 @@ A very simple event tree is shown in Figure~\ref{fig:EventTree}.
 To each node of the event tree we associate a set of constraints, an 
 objective function, and the conditional probability of visiting the 
 node from its parent node in the previous stage.
+A path from the root to a leaf node of the event tree represents a 
+scenario.
 The probability of each scenario is the product of the 
 conditional probabilities of visiting each node on the path.
 
-It should be noted that usually a very large number of scenarios is
+As we have already mentioned, usually a very large number of scenarios is
 needed to adequately capture the characteristics of the underlying
 continuous distribution, particularly in the multi-stage setting.
 In this case, the number of scenarios grows exponentially with the
 number of decisions considered at each stage.
-The size of the scenario tree determines the size of the optimization
-program.
-
 The question of how to generate an appropriate scenario tree
 is not trivial, and has received extensive attention in the
 literature 
@@ -315,9 +317,10 @@ The decision variables are superscripted with the node number $l$;
 similar notation is used for the corresponding matrix and vector blocks.
 The total number of scenarios is $N$.
 
-The main constraint that describes the dynamics of the system has the form 
+In the case of one-period recourse, 
+the main constraint that describes the dynamics of the system has the form 
 \[
-  T^{l}x^{a(l)} +W^{l}x^{l} =h^{l}, \qquad l \in\mathcal{L}_t, t=2,\ldots,T,
+  T^{l}x^{a(l)} +W^{l}x^{l} =h^{l}, \qquad l \in\mathcal{L}_t,\; t=2,\ldots,T,
 \]
 %
 where $T^{l}$ is the technology matrix that varies 
@@ -330,10 +333,9 @@ problem has the following general form:
 \begin{equation}  \label{DetEquiv}
   \begin{array}{rrcll}
   \min & \displaystyle\sum_{t=1}^T\sum_{l\in\mathcal{L}_t} p^l (q^l)^T x^{l}\\
-  \mbox{s.t.} & W^{l_1} x^{l_1} &\!\!\!\! = h^{l_1}, 
-                               &\; l_1\in\mathcal{L}_1 \\
+  \mbox{s.t.} & W^1 x^1 &\!\!\!\! = h^1, \\
     & T^{l_t} x^{a(l_t)} + W^{l_t} x^{l_t} &\!\!\!\! = h^{l_t}, 
-                               &\; l_t\in\mathcal{L}_t,\; t = 1,\dots,T, \\
+                               &\; l_t\in\mathcal{L}_t,\; t = 2,\dots,T, \\
     & x^{l_t} &\!\!\!\!\!\!\! \geq 0,
                                &\; l_t\in\mathcal{L}_t,\; t = 1,\dots,T. \\
   \end{array}
@@ -344,6 +346,8 @@ Note that the probabilities in the objective function of problem
 the probability that a path goes through node $l$, which equals the 
 product of the conditional probabilities along the path from the root 
 to the node $l$.
+Clearly, (\ref{DetEquiv}) represents a structured linear program. Its 
+structure should be exploited in the solution algorithm.
 
 If the event tree is traversed with depth-first-search ordering of the 
 nodes during the generation of the mathematical program, the 
@@ -370,8 +374,6 @@ full advantage of the nested dual-block angular structure resulting
 from the depth-first ordering in its internal object-oriented
 linear algebra representation.
 
-Clearly, (\ref{DetEquiv}) represents a structured linear program. Its 
-structure should be exploited in the solution algorithm.
 Several solution methods for stochastic linear programs have been 
 presented in the literature. These often rely on some decomposition
 approach \cite{Birge85,LinderothWright03,MulveyRuszczynski}, among others.
@@ -480,7 +482,7 @@ Recalling that a scenario is a path in the event tree from the root to
 a leaf node, we can encode a scenario $s_k$, $k = 1, \ldots, N$, as an 
 ordered set of nodes $s_k = \{ l_1, \ldots, l_T : \: l_t = a(l_{t+1}), \:
 t=1,\ldots, T-1 \}$.
-To each node $l_t$ of the tree we associate the tuple 
+To each node $l_t$ of the tree we associate the 4-tuple 
 $\eta^{l_t} = \{ T^{l_t}, W^{l_t}, h^{l_t}, q^{l_t} \}$ of matrices, 
 right-hand side and objective coefficients.
 
@@ -500,7 +502,7 @@ Hence, we define the distance between scenarios $i$ and $j$ as
                 \quad i_t \in s_i, j_t \in s_j.
 \]
 
-Therefore, scenarios that belong to the same branch of the tree will 
+Scenarios that belong to the same branch of the tree will 
 have smaller distance in general, as they share some of the nodes. 
 Conversely, scenarios are likely to be farther away if they do
 not share nodes apart from the root.
@@ -593,7 +595,7 @@ $r(i) = i$; if $i\not\in \Rtree$, then we choose as $r(i)$ the node in
 the representative scenario corresponding to node $i$ belonging to the
 same stage $t$ as node $i$. In other words, to get from node
 $i\in\Ctree$ to $r(i)\in\Rtree$ we walk up the tree $\Ctree$ until we
-find a node that is also in $\Rtree$ and from there walk back down
+find a node that is also in $\Rtree$, and from there walk back down
 the reduced tree until we arrive at the same stage as the original node
 
 This mapping is used to decide how to initialise 
@@ -604,11 +606,7 @@ that for each $i \in \Ctree$, the following properties hold:
   a(r(i)) \in \Rtree, \quad \mbox{ and } \quad a(r(i)) = r(a(i)),
 \ee
 that is if a node is in the reduced tree so is its parent, and the
-mapping $r(.)$ preserves the parent-child relationship. We will also
-need the sets 
-$\mathcal{I}_k = \{\, i \in \Ctree : r(i) = k \,\}$, $k \in \Rtree$,
-the set of nodes in the complete tree that are initialised by a given
-node $k\in\Rtree$.
+mapping $r(\cdot)$ preserves the parent-child relationship. 
 
 Continuing the example started above, we consider two subsets of 
 scenarios, corresponding to nodes 9--12 (for the subtree rooted at 
@@ -617,15 +615,18 @@ each subset we build the scenario of average nodes and then find the
 representative scenario.
 The resulting reduced tree is shown in the right of Figure~\ref{fig:Tree}.
 
-It should be noted that the reduced tree generation process can be
+We introduce the set $\mathcal{I}_k$ of nodes in the complete tree 
+that are initialised by a given node $k\in\Rtree$, that is
+$\mathcal{I}_k = \{\, i \in \Ctree : r(i) = k \,\}$, $k \in \Rtree$.
+It should be noted that the reduced-tree generation process can be
 interpreted as a node-aggregation process: all nodes in
 $\mathcal{I}_k\subset\Ctree$ are aggregated into a single node $k\in\Rtree$.
-The node-aggregation implies the node probabilities $p_R^k$ associated
+The node aggregation implies the node probabilities $p_R^k$ associated
 with each node $k\in\Rtree$; we use:
- \be  \label{eq:UpdatePathProbs}
+\be  \label{eq:UpdatePathProbs}
   p^l_R = \sum_{i \in \mathcal{I}_l} p^i.
- \ee
-Here and in the following we use the notation that symbols referring
+\ee
+Here and in the following we use the convention that symbols referring
 to the reduced tree (such as $\Rtree$, $p_R^i$) carry the subscript
 $_R$ to distiguish them from the same symbols used for the complete tree.
 As will be seen later it is advantageous if the aggregation of nodes
@@ -643,9 +644,9 @@ We denote by $\rho$ the deviation from this
 
 It is worth noting the effect of the probabilities update
 (\ref{eq:UpdatePathProbs}) on the conditional path
-probabilities. Denote by $\delta^i := p_i/p_{a(i)}$ the probability of
+probabilities. Denote by $\delta^i := p^i/p^{a(i)}$ the probability of
 reaching node $i$, given that its parent $a(i)$ has already been
-reached and similarly for $\delta^i_R$. For a node $l$ in the $k$-th
+reached. For a node $l$ in the $k$-th
 stage where the subtree selection takes place we have (by dividing
 (\ref{eq:UpdatePathProbs}) through by $p_{a(l)}$ and since 
 $a(l)\in \Rtree\subseteq\Ctree$)
@@ -659,7 +660,7 @@ only one, the representative, scenario in each subtree).
 %children of node $l$, so that we have
 In either case we can write
 \be  \label{eq:UpdateCondProbs}
-\delta_R^l = \sum_{i \in \mathcal{I}_l\cap D_{a(l)}} \delta^i.
+  \delta_R^l = \!\!\! \sum_{i \in \mathcal{I}_l\cap D_{a(l)}} \!\!\! \delta^i.
 \ee
 
 %
@@ -685,21 +686,29 @@ equivalent problem
 \min\; c_R^T x_R \;\quad \mbox{s.t. }\; A_R x_R = b_R, \; x_R \ge 0,
 \ee
 with $A_R \in \R^{m_R\times n_R}$, $x_R \in 
-\R^{n_R}$ and $b_R \in \R^{m_R}$. This problem is 
-much smaller than the complete formulation, and hence we expect it to 
-be much easier to solve.
+\R^{n_R}$ and $b_R \in \R^{m_R}$. 
 We call problem \eqref{eq:ReducedProblem} the {\em reduced problem}.
+As we expect that $(n_R, m_R) \ll (n, m)$, the reduced problem is 
+much smaller than the complete formulation, and hence much easier to solve.
 
 We solve problem (\ref{eq:ReducedProblem}) with an interior point method. 
 For the reasons presented in Section~\ref{sec:WarmStart}, we do not 
 aim for optimality, but instead we aim for a sufficiently advanced 
-primal--dual feasible point, i.e. we seek a
-$(x_R^*,y_R^*,s_R^*)\in\mathcal{N}_s(\gamma)$ corresponding to a
-sufficiently advanced barrier parameter $\mu^*_R$.
+primal--dual feasible point. Therefore we stop at an iterate
+$(x_R^*,y_R^*,s_R^*)\in\mathcal{N}_s(\gamma)$ for a
+barrier parameter corresponding to merely few digits of accuracy 
+in the solution.
+This iterate is used to construct the warm-start point
+$(\hat{x}, \hat{y}, \hat{s})$ for the complete problem.
 
-This iterate is used to construct the warm-start iterate
-$(\hat{x}, \hat{y}, \hat{s})$ for the
-complete problem on a node-by-node basis. The sections of the vectors
+In our approach, the size of the problem changes in both 
+the number of constraints and the number of variables.
+Therefore, we are faced with the challenge of using 
+the reduced-tree solution to provide a warm-start iterate for 
+the complete system.
+This objective can be achieved on a node by node basis 
+by exploiting the inherent structure of the problem.
+The sections of the vectors
 $\hat{x}, \hat{y}, \hat{s}$ correspoding to node $i\in\Ctree$ are
 initialised from the sections of the vectors 
 $x_R^*,y_R^*,s_R^*$ correspoding to node $r(i)\in\Rtree$. This process
@@ -785,7 +794,7 @@ side vectors, as shown in Figure~\ref{fig:ExpandedSystem}.
   \vspace{-3ex}
 \end{figure}
 
-This corresponds to creating the (artificial) expanded problem
+This corresponds to creating the (artificial) {\em expanded problem}
 \be \label{eq:ExpandedProblem}
 \min\; \hat{c}^T x \;\quad \mbox{s.t. }\; \hat{A} x = \hat{b},
     \; x \ge 0,
@@ -795,19 +804,19 @@ $\hat{c}, x \in \R^{n}$ and $\hat{b} \in \R^{m}$,
 corresponds to the dimension of the complete problem 
 (\ref{eq:CompleteProblem}).
 Using the notation introduced earlier, we will denote 
-all symbols referring to the expanded problem with a hat $\hat{\cdot}$.
+all symbols referring to the expanded problem with a hat $\hat{\ }$.
 
 To analyse the warm-start iterate we can now follow a two-step
 procedure. First we note that from an advanced iterate 
-$(x_R, y_R,  s_R)\in\mathcal{N}_{R,s}(\gamma)$ for the reduced
+$(x_R, y_R,  s_R)\in\mathcal{N}^R_s(\gamma)$ for the reduced
 problem the procedure in (\ref{eq:WarmstartSolution}) constructs a
-primal--dual feasible point $(\hat{x}, \hat{y}, \hat{s})$ for the {\em
-expanded} problem. Indeed we will show 
+primal--dual feasible point $(\hat{x}, \hat{y}, \hat{s})$ for the 
+expanded problem. Indeed we will show 
 $(\hat{x}, \hat{y}, \hat{s})\in\hat{\mathcal{N}}_s(\hat{\gamma})$
-in Theorem~\ref{th:FeasibleExpandedSolution}. In the second step we
+in Theorem~\ref{th:NeighbourhoodExpandedSolution}. In the second step we
 can use this iterate to warmstart the complete problem. Since in the
 step from the expanded to the complete problem only the problem data
-but not its size changes, the methods developed in
+changes but not its size, the methods developed in
 \cite{GondzioGrothey03,YildirimWright} can be used to analyse the 
 warm-start iterate.
 
@@ -836,9 +845,8 @@ We have this chain of identities:
 \end{split}
 \]
 where the second equal sign follows from $p^i = p^l\delta^i$ and
-$p_R^{r(i)} = p_R^{r(l)}\delta_R^{r(i)}$ which is true since $l=a(i)$
-and due to (\ref{eq:ReducedTreeProperties}) also $r(l) = a(r(i))$. The
-third equal sign follows from the fact that we can partition
+$p_R^{r(i)} = p_R^{r(l)}\delta_R^{r(i)}$ for $i \in \mathcal{D}_l$. 
+The last equality follows from the fact that we can partition
 $\mathcal{D}_l$ according to which nodes of the reduced tree are used
 for initilisation:
 \(
@@ -886,6 +894,44 @@ Lemma~\ref{th:SumOfTerms}, becomes
 \ee
 so $(\hat y, \hat s)$ satisfies
 the dual constraints in the expanded problem.
+\end{proof}
+
+\begin{theorem}  \label{th:NeighbourhoodExpandedSolution}
+If $(x_R, y_R, s_R) \in \mathcal{N}^R_s(\gamma)$ 
+for some $\gamma\in(0,1)$, then $(\hat{x}, \hat{y}, \hat{s})\in
+\widehat{\mathcal{N}}_s(\rho\gamma)$,
+with $\rho$ defined in (\ref{eq:rho}).
+\end{theorem}
+%
+\begin{proof}
+From Theorem~\ref{th:FeasibleExpandedSolution}, the warm-start iterate 
+$(\hat x, \hat y, \hat s)$ is feasible in the reduced system.
+Hence, here we only need to prove centrality. 
+We observe that 
+\begin{eqnarray*}
+  \hat{\mu} &=& \frac{\hat{x}^T\hat{s}}{n} 
+   = \frac{1}{n}\sum_{i \in \Ctree}(\hat x^i)^T\hat{s}^i 
+   = \frac{1}{n}\sum_{k\in \Rtree}\sum_{i\in I_k} (\hat{x}^i)^T\hat{s}^i \\
+  &=& \frac{1}{n}\sum_{k\in \Rtree}\sum_{i\in I_k} \frac{p^i}{p_R^k} 
+      (x_R^k)^T s_R^k \\
+  &=& \frac{1}{n} \sum_{k\in\Rtree} \frac{1}{p_R^k}(x_R^k)^T s_R^k
+      \sum_{i\in I_k}p^i\\
+  &=& \frac{n_R}{n} \mu_R,
+\end{eqnarray*}
+where we used (\ref{eq:WarmstartSolution}) and (\ref{eq:UpdatePathProbs}), 
+and $\mu_R = x_R^Ts_R/n_R$. 
+Hence, since $(x_R, y_R, s_R)\in N_s(\gamma)$ 
+implies $(x_R)_j (s_R)_j\ge \gamma\mu_R$, for $j = 0, \ldots, n_R$, 
+and using (\ref{eq:rho}) we have
+\[
+  \hat x^l_j\hat s^l_j = (x_R^{r(l)})_j (s_R^{r(l)})_j
+                         \frac{p^l}{p_R^{r(l)}}
+                       \ge \rho\frac{n_R}{n} \gamma\mu_R 
+                       = \rho\hat{\mu},
+		       \qquad\forall l \in \Ctree.
+\]
+The upper bound showing $\hat x^l_j\hat s^l_j\le \hat{\mu}/\rho$
+can be derived similarly.
 \end{proof}
 
 %
@@ -1624,6 +1670,7 @@ as measured with the number of warm start iterations.
 Obviously, the solution times are reduced but this is the effect 
 of using more processors.
 
+\ignore{
 %
 % Section
 %
@@ -1648,12 +1695,6 @@ guarantees better centrality (at least in the sense of
 complementary pairs). Possibly this could be compared again 
 with the points generated by Mehrotra's starting point heuristic.
 
-\item Point out that if we knew about the underlying 
-stochastic process, then we could exploit it directly in the 
-generation of the reduced tree (althogh, in such a case how 
-could we ensure the correspondence of nodes between the reduced 
-and the complete tree?)
-
 \item Clarify the issue of nonanticipativity constraints: 
 since we have our own deterministic equivalent generator, we 
 already avoid duplication without using those constraints.
@@ -1662,12 +1703,4 @@ Nonanticipativity means that the decisions taken at any stage
 do not depend on future realizations of the random parameter or 
 on future decisions, but only on the history.
 \end{itemize}
-
-In our approach, the size of the problem changes in both 
-the number of constraints and the number of variables in the 
-primal and in the dual. Therefore, we are faced with the 
-challenge of using the solution of the small instance to 
-provide a warm-start iterate for the complete system. This 
-entails initialising both the primal and the dual vectors, of 
-which only a fraction of the elements are known. This objective 
-can be achieved by exploiting the inherent structure of the problem.
+}

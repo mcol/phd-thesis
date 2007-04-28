@@ -5,7 +5,7 @@
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
-%Apr:  1,  2, 16, 18, 19, 21
+%Apr:  1,  2, 16, 18, 19, 21, 28
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -190,17 +190,34 @@ techniques depends also on
 the relative density of $AD^2A^T$ with respect to $A$.
 Normal equations are to be avoided when there are dense columns in $A$, 
 as they generate dense blocks in $AD^2A^T$.
-
+In the broad context of weighted least squares computations, the choice
+between the augmented system and normal equations techniques was studied long
+before the development of interior point methods, see for example
+\cite{DuffErismanReid86}.
 The augmented system formulation requires particular attention 
 to the development of linear algebra routines because
 it involves an indefinite matrix. This raises problems of numerical
 stability, and an accurate choice of pivoting strategies is fundamental.
 Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
 study of the properties of the augmented system formulation.
-In the broad context of weighted least squares computations, the choice
-between the augmented system and normal equations techniques was studied long
-before the development of interior point methods, see for example
-\cite{DuffErismanReid86}.
+
+A direct approach computes the Cholesky factorisation $M=LDL^T$
+of the constraint matrix $M$ with a lower triangular $L$ and
+a diagonal matrix $D$.
+In the computation of the factors, inevitably new nonzero entries
+are generated (the so called {\em fill-in}). The amount of
+fill-in is strongly influenced by the ordering in which the
+operations are performed.
+Various ordering techniques have been developed to reduce the fill-in
+in the Cholesky factors, thus maintaining sparsity and 
+reducing the required work.
+Once the factors have been computed, the solution a system $Mx = r$ 
+happens in two steps:
+first by solving $Lz = r$ for $z$, then $L^Tx = D^{-1}z$ for $x$.
+The solution phase is also called the {\em backsolve phase}.
+A careful implementation of the linear algebra routines that perform
+the ordering, factorisation and solution of the Newton system is
+one of the key points for an efficient interior point solver.
 
 %
 %
@@ -913,7 +930,7 @@ the information gathered in the solution process may still be valid.
 Therefore, starting the 
 optimization of one problem from the solution of the previous instance
 should reduce the computational effort of solving the perturbed instance.
-The strategies that exploit and advanced starting point are called
+The strategies that exploit an advanced starting point are called
 {\em warm-start strategies}.
 
 Warm-start techniques are very successful 
@@ -1172,7 +1189,7 @@ thus can be used in practice.
 
 If the perturbation is bounded above by some quantity depending 
 on $n$ and $\theta$, a full Newton step can be taken in the dual space. 
-This happens for both the $\mathcal{N}_2$ and $\mathcal{N}_\infty$ 
+This happens for both the $\mathcal{N}_2$ and $\mathcal{N}_{-\infty}$ 
 neighbourhoods. Similarly, a full Newton step can be taken in the 
 primal feasibility restoration direction. These conditions may not 
 be satisfied in practice. In such case, a different iterate further 

@@ -1,6 +1,6 @@
 %Started on 5 February 2007
 %Mar: 31
-%Apr:  1,  2, 18
+%Apr:  1,  2, 18, 28
 
 %
 % Chapter: Conclusions
@@ -121,14 +121,32 @@ in general resulting in a decrease of the number of iterations needed.
 As the computational cost of generating such an iterate is negligible,
 this produces consistent savings in computational time.
 
-Mention that if the iterate produced by a reduced tree 
-is not good enough (according to what criteria?), another one 
+If the iterate produced by a reduced tree is not good enough 
+in the sense that the warm-start strategy fails, then another one 
 can be produced by generating a modified reduced tree (more 
 bushy for example).
+This second tree will provide a better approximation to the
+complete tree, and the corresponding warm-start point produces
+smaller infeasibilities. Hence, the chances for a successful 
+warm-start increase.
+This leads to the idea of allowing a multi-start procedure, in
+which a series of reduced trees of increasing size are generated,
+and the solution to one of them is used to construct an 
+advanced starting point for the next instance.
+
+In our analysis we assumed not to have any information about the
+undelying stochastic process that governs the uncertainty.
+However, it is clear that such information would provide additional
+elements on which the choice of the reduced tree can be based.
+In such a situation, two trees would be generated: the complete one,
+and an optimally reduced one.
+As we have seen, in constructing the warm-start point we need
+to know the mapping of nodes between the reduced and complete trees.
+Therefore, the tree-reduction process should provide this information
+as well.
 
 A big avenue of research, according to the author, is the development
 of specialised techniques to exploit the problem structure.
-
 This means that the development and diffusion of structure-exploiting
 codes and of structure-aware modelling languages may become a necessary
 requirement for a new generation of interior point codes.
