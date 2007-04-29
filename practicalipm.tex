@@ -5,7 +5,7 @@
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
-%Apr:  1,  2, 16, 18, 19, 21, 28
+%Apr:  1,  2, 16, 18, 19, 21, 28, 29
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -210,7 +210,7 @@ fill-in is strongly influenced by the ordering in which the
 operations are performed.
 Various ordering techniques have been developed to reduce the fill-in
 in the Cholesky factors, thus maintaining sparsity and 
-reducing the required work.
+reducing the required work \cite{RothbergHendrickson}.
 Once the factors have been computed, the solution a system $Mx = r$ 
 happens in two steps:
 first by solving $Lz = r$ for $z$, then $L^Tx = D^{-1}z$ for $x$.
@@ -900,6 +900,9 @@ Their use depends on the quality of the linear algebra implementation,
 particularly with respect to the Cholesky factorisation routines,
 as this affects the ratio between factorisation and backsolve costs.
 
+We will present further improvements in the way corrector directions
+can be computed in Chapter~\ref{ch:Correctors}.
+
 
 %
 % Section
@@ -1240,3 +1243,6 @@ This is of particular importance in reoptimization, as the optimal
 solution of the previous problem is necessarily close to a boundary.
 Benson and Shanno \cite{BensonShanno} also provide some computational
 evidence of the effectiveness of their strategy.
+
+We will introduce a novel warm-start technique tailored to stochastic
+linear programming in Chapter~\ref{ch:Warmstart}.
