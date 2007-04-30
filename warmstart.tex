@@ -4,7 +4,7 @@
 % 2007
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
-%Apr:  2,  3,  4,  5, 18, 21, 28
+%Apr:  2,  3,  4,  5, 18, 21, 28, 30
 
 %
 % Chapter: Warm-start
@@ -615,20 +615,19 @@ each subset we build the scenario of average nodes and then find the
 representative scenario.
 The resulting reduced tree is shown in the right of Figure~\ref{fig:Tree}.
 
-We introduce the set $\mathcal{I}_k$ of nodes in the complete tree 
-that are initialised by a given node $k\in\Rtree$, that is
-$\mathcal{I}_k = \{\, i \in \Ctree : r(i) = k \,\}$, $k \in \Rtree$.
+We introduce the set $\mathcal{I}_l$ of nodes in the complete tree 
+that are initialised by a given node $l\in\Rtree$, that is
+$\mathcal{I}_l = \{\, i \in \Ctree : r(i) = l \,\}$, $l \in \Rtree$.
 It should be noted that the reduced-tree generation process can be
 interpreted as a node-aggregation process: all nodes in
-$\mathcal{I}_k\subset\Ctree$ are aggregated into a single node $k\in\Rtree$.
-The node aggregation implies the node probabilities $p_R^k$ associated
-with each node $k\in\Rtree$; we use:
+$\mathcal{I}_l\subset\Ctree$ are aggregated into a single node $l\in\Rtree$.
+The node aggregation determines the node probabilities $p_R^l$ associated
+with each node $l\in\Rtree$; we use:
 \be  \label{eq:UpdatePathProbs}
   p^l_R = \sum_{i \in \mathcal{I}_l} p^i.
 \ee
 Here and in the following we use the convention that symbols referring
-to the reduced tree (such as $\Rtree$, $p_R^i$) carry the subscript
-$_R$ to distiguish them from the same symbols used for the complete tree.
+to the reduced tree (such as $\Rtree$, $p_R^i$) carry the subscript $_R$.
 As will be seen later it is advantageous if the aggregation of nodes
 is balanced throughout the tree. On average every node in the reduced
 tree corresponds to $|\Ctree|/|\Rtree|=n/n_R$ nodes in the full tree, so for
@@ -636,32 +635,27 @@ a totally balanced aggregation we would expect
 \[
   \frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}\approx 1.
 \]
-We denote by $\rho$ the deviation from this
+We define the deviation from this as
 \be  \label{eq:rho}
-  \rho := \max_{i\in\Rtree}\max\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
+  \rho = \max_{i\in\Rtree}\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
                                  \frac{p_R^{r(i)}}{p^i}\frac{n_R}{n}\right\}.
 \ee
 
 It is worth noting the effect of the probabilities update
-(\ref{eq:UpdatePathProbs}) on the conditional path
-probabilities. Denote by $\delta^i := p^i/p^{a(i)}$ the probability of
+(\ref{eq:UpdatePathProbs}) on the conditional probabilities.
+Denote by $\delta^i = p^i/p^{a(i)}$ the conditional probability of
 reaching node $i$, given that its parent $a(i)$ has already been
-reached. For a node $l$ in the $k$-th
-stage where the subtree selection takes place we have (by dividing
-(\ref{eq:UpdatePathProbs}) through by $p_{a(l)}$ and since 
-$a(l)\in \Rtree\subseteq\Ctree$)
-\[
-  \delta_R^l = \sum_{i \in \mathcal{I}_l} \delta^i
-\]
-for a node $l$ below stage $k$ we have $\delta_R^l=1$ (since there is
-only one, the representative, scenario in each subtree). 
-%This is
-%however also equal to the sum of the conditional probabilities of the
-%children of node $l$, so that we have
-In either case we can write
+reached.
+The conditional probabilities in the reduced tree update according to
 \be  \label{eq:UpdateCondProbs}
-  \delta_R^l = \!\!\! \sum_{i \in \mathcal{I}_l\cap D_{a(l)}} \!\!\! \delta^i.
+  \delta_R^l = \!\!\! \sum_{i \in \mathcal{I}_l\cap D_{a(l)}} \!\!\! \delta^i,
+  \quad l \in \Rtree.
 \ee
+To see that \eqref{eq:UpdateCondProbs} holds, we note that for a node $l$
+in the $k$-th stage where the subtree selection takes place we have
+$\mathcal{I}_l \cap \mathcal{D}_{a(l)} = \mathcal{I}_l$, and
+\eqref{eq:UpdateCondProbs} follows from \eqref{eq:UpdatePathProbs}
+by dividing through by $p^{a(l)}$.
 
 %
 %
@@ -927,10 +921,10 @@ and using (\ref{eq:rho}) we have
   \hat x^l_j\hat s^l_j = (x_R^{r(l)})_j (s_R^{r(l)})_j
                          \frac{p^l}{p_R^{r(l)}}
                        \ge \rho\frac{n_R}{n} \gamma\mu_R 
-                       = \rho\hat{\mu},
+                       = \rho\gamma\hat{\mu},
 		       \qquad\forall l \in \Ctree.
 \]
-The upper bound showing $\hat x^l_j\hat s^l_j\le \hat{\mu}/\rho$
+The upper bound showing $\hat x^l_j\hat s^l_j\le \hat{\mu}/(\rho\gamma)$
 can be derived similarly.
 \end{proof}
 
@@ -967,7 +961,7 @@ For this consider the following Newton system:
     \xi_b \\ \xi_c \\ 0
   \end{array} \right],
 \ee
-where $\xi_b = b - A\hat{x}, \xi_c = c - A^T\hat{y}+\hat{s}$ are the
+where $\xi_b = b - A\hat{x}$ and $\xi_c = c - A^T\hat{y}+\hat{s}$ are the
 infeasibilities incurred by using the expanded iterate $(\hat{x},
 \hat{y}, \hat{s})$ to warmstart the complete problem. 
 Such a modification is termed a {\em Newton step correction} in

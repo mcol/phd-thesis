@@ -5,7 +5,7 @@
 %Jan: 15, 16, 17, 22
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
-%Apr:  1,  2, 16, 18, 19, 21, 28, 29
+%Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -960,9 +960,8 @@ corresponds in the analytic center of the optimal set of solutions.
 When the polytope changes (due, for example,
 to the addition of cutting planes or other changes in the 
 problem data), the optimal solution changes as well.
-In such a case the previous solution is very close to a non optimal
-vertex or, in other words, is very far from the central path
-of the perturbed instance. 
+In such a case the previously optimal solution may now be very far
+from the central path of the perturbed instance. 
 
 As presented in Chapter~\ref{ch:Ipm}, interior point methods approach 
 the solution to the \KKT system of optimality conditions by relaxing 
@@ -984,15 +983,16 @@ very slow progress is achieved.
 
 Hipolito \cite{Hipolito} considered the issue of robustness of 
 search directions in interior point methods in these situations.
-While his analysis concerns the dual affine-scaling algorithm, 
-it seems to provide an interesting insight on the misbehaviour
-of the search directions computed from non-central points also
-for primal--dual algorithms.
 In his analysis, Hipolito showed that if the iterate is close 
 to a boundary, the affine-scaling direction may be parallel to 
 the nearby constraints. In such cases, the corrector direction 
 may also display the same behaviour, and short stepsizes are 
 obtained for the resulting combined search direction.
+While the analysis in \cite{Hipolito} concerns the
+dual affine-scaling algorithm, 
+it seems to provide an interesting insight on the misbehaviour
+of the search directions computed from non-central points also
+for primal--dual algorithms.
 
 The required features for a good warm-start candidate for an
 interior point algorithm are somewhat contradictory.
@@ -1104,8 +1104,7 @@ analyse the number of iterations required to converge to a
 solution of the perturbed instance from the warm-start point and 
 obtain worst-case estimates.
 They show that these estimates depend on the size of the perturbation 
-as well as on the conditioning %and other properties 
-of the problem 
+as well as on the conditioning of the problem 
 instances. Thus they obtain conditions under which the complexity 
 of the warm-start approach is better than for the cold start case.
 
@@ -1143,22 +1142,6 @@ perturbations that can be absorbed in one Newton step.
 However, they measure perturbations by a relative measure of implied
 primal and dual infeasibilities, and analyse recovery steps in
 the primal and the dual spaces independently.
-
-%They derive the directions for absorbing primal and dual 
-%infeasibilities from the system
-%\[
-%\left[ \begin{array}{ccc}
-%    A & 0 & 0 \\ 0 &A^T & I \\ S & 0 & X
-%  \end{array} \right]
-%\left[ \begin{array}{c}
-%    \Delta x \\ \Delta \lambda \\ \Delta s
-%  \end{array} \right] = 
-%\left[ \begin{array}{c}
-%    -r_b \\ -r_c \\ 0
-%  \end{array} \right].
-%\]
-%This formulation aims at restoring feasibility, while the requirement 
-%for a well-centred iterate is considered separately. 
 
 This reoptimization procedure is based on two phases: first, an attempt 
 is made to absorb the infeasibilities caused by the perturbation with a full 
