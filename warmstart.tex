@@ -5,6 +5,7 @@
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
+%May:  1
 
 %
 % Chapter: Warm-start
@@ -335,9 +336,9 @@ problem has the following general form:
   \min & \displaystyle\sum_{t=1}^T\sum_{l\in\mathcal{L}_t} p^l (q^l)^T x^{l}\\
   \mbox{s.t.} & W^1 x^1 &\!\!\!\! = h^1, \\
     & T^{l_t} x^{a(l_t)} + W^{l_t} x^{l_t} &\!\!\!\! = h^{l_t}, 
-                               &\; l_t\in\mathcal{L}_t,\; t = 2,\dots,T, \\
+                               &\quad l_t\in\mathcal{L}_t,\; t = 2,\dots,T, \\
     & x^{l_t} &\!\!\!\!\!\!\! \geq 0,
-                               &\; l_t\in\mathcal{L}_t,\; t = 1,\dots,T. \\
+                               &\quad l_t\in\mathcal{L}_t,\; t = 1,\dots,T. \\
   \end{array}
 \end{equation}
 
@@ -368,8 +369,8 @@ to the chosen ordering of nodes.
 \end{figure}
 %
 While the different ordering of blocks whithin the matrix is not 
-relevant for general-purpose solvers, the
-structure-exploiting software \OOPS \cite{GondzioSarkissian} can take 
+relevant for general-purpose solvers, the structure-exploiting
+software \OOPS \cite{GondzioGrothey07,GondzioSarkissian} can take 
 full advantage of the nested dual-block angular structure resulting
 from the depth-first ordering in its internal object-oriented
 linear algebra representation.
@@ -496,10 +497,10 @@ belong to the same stage $t$ as
 %
 for some norm $\| \cdot \|$.
 %
-Hence, we define the distance between scenarios $i$ and $j$ as
+Hence, we compute the distance between scenarios $i$ and $j$ as
 \[
   D(s_i, s_j) = \sum_{t=1}^T d(\eta^{i_t}, \eta^{j_t}),
-                \quad i_t \in s_i, j_t \in s_j.
+                \qquad i_t \in s_i, j_t \in s_j.
 \]
 
 Scenarios that belong to the same branch of the tree will 
@@ -559,7 +560,7 @@ we determine an artificial node $n_t$ by averaging the data
 associated to all nodes at this stage:
 \[
 n_t = \frac{1}{|S_t|} \sum_{l_t \in S_t} (T^{l_t}, W^{l_t}, h^{l_t}, q^{l_t}),
-\quad k < t \le T.
+  \qquad k < t \le T.
 \]
 
 We define the average scenario for subtree $S$ as the ordered
@@ -597,7 +598,6 @@ same stage $t$ as node $i$. In other words, to get from node
 $i\in\Ctree$ to $r(i)\in\Rtree$ we walk up the tree $\Ctree$ until we
 find a node that is also in $\Rtree$, and from there walk back down
 the reduced tree until we arrive at the same stage as the original node
-
 This mapping is used to decide how to initialise 
 the warm-start iterate for the complete tree, as presented in the
 next section. We remark that our generation process guarantees
@@ -630,14 +630,14 @@ Here and in the following we use the convention that symbols referring
 to the reduced tree (such as $\Rtree$, $p_R^i$) carry the subscript $_R$.
 As will be seen later it is advantageous if the aggregation of nodes
 is balanced throughout the tree. On average every node in the reduced
-tree corresponds to $|\Ctree|/|\Rtree|=n/n_R$ nodes in the full tree, so for
+tree corresponds to $n/n_R$ nodes in the full tree, so for
 a totally balanced aggregation we would expect 
 \[
   \frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}\approx 1.
 \]
 We define the deviation from this as
 \be  \label{eq:rho}
-  \rho = \max_{i\in\Rtree}\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
+  \rho = \min_{i\in\Rtree}\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
                                  \frac{p_R^{r(i)}}{p^i}\frac{n_R}{n}\right\}.
 \ee
 
@@ -656,6 +656,12 @@ in the $k$-th stage where the subtree selection takes place we have
 $\mathcal{I}_l \cap \mathcal{D}_{a(l)} = \mathcal{I}_l$, and
 \eqref{eq:UpdateCondProbs} follows from \eqref{eq:UpdatePathProbs}
 by dividing through by $p^{a(l)}$.
+For a node $l$ after stage $k$ we have $\delta_R^l = 1$, we need to sum
+only over the descendants of $a(l)$, otherwise $\delta_R^l$ may be 
+bigger than 1.
+With our reduced-tree selection strategy, for such nodes we actually
+have $\delta_R^l = 1$, since there is only one representative scenario
+in each subtree.
 
 %
 %
@@ -664,7 +670,7 @@ by dividing through by $p^{a(l)}$.
 
 Consider the linear programming problem in standard form
 \be  \label{eq:CompleteProblem}
-\min\;  c^T x \;\quad \mbox{s.t. }\; Ax = b, \;\; x \ge 0,
+  \min\; c^T x \;\qquad \mbox{s.t. }\; Ax = b, \;\; x \ge 0,
 \ee
 where $A \in \R^{m \times n}$ is full rank, 
 $x, c \in \R^{n}$ and $b \in \R^{m}$. 
@@ -716,7 +722,7 @@ problem in the following manner:
 \be  \label{eq:WarmstartSolution}
   \hat x^{i} = x_R^{r(i)}, \qquad 
  (\hat y^{i}, \hat s^{i}) = \frac{p^{i}}{p_R^{r(i)}} (y_R^{r(i)}, s_R^{r(i)}),
-  \qquad\forall i \in \Ctree,
+  \qquad i \in \Ctree,
 \ee
 where $p^i_R$ is computed according to (\ref{eq:UpdatePathProbs}).
 This means that the dual reduced-tree solution is spread among the
@@ -725,7 +731,7 @@ nodes it initialises, as can be seen here:
    \sum_{i \in \mathcal{I}_k} (\hat y^i, \hat s^i)
   = \sum_{i \in \mathcal{I}_k} \frac{p^i}{p^k_R} (y^k_R, s^k_R)
   = (y^k_R, s^k_R) \frac{1}{p^k_R} \sum_{i \in \mathcal{I}_k} p^i 
-  = (y^k_R, s^k_R), \qquad\forall k \in \Rtree.
+  = (y^k_R, s^k_R), \qquad k \in \Rtree.
 \]
 
 Considering again the example of Figure~\ref{fig:Tree}, suppose that 
@@ -863,7 +869,7 @@ As $\hat x^{l} = x^{r(l)}_R$, primal feasibility is trivially
 satisfied:
 \be  \label{eq:RedTreePrimalContribution}
    T^{r(l)}\hat x^{a(l)} + W^{r(l)} \hat x^{l} =  h^{r(l)}, 
-      \quad l \in \Ctree.
+      \qquad l \in \Ctree.
 \ee
 %
 Now we consider dual feasibility. 
@@ -872,7 +878,7 @@ the dual constraints:
 \[
   {W^{r(l)}}^T y^{r(l)}_R +\sum_{i \in \mathcal{D}^R_{r(l)}} {T^{r(i)}}^T
      y^{r(i)}_R + s^{r(l)}_R = p^{r(l)}_R q^{r(l)},
-     \quad r(l) \in \Rtree.
+     \qquad r(l) \in \Rtree.
 \]
 Multiplying both terms by $p^{l}/p^{r(l)}_R$ we obtain
 \[
@@ -884,7 +890,7 @@ which, according to (\ref{eq:WarmstartSolution}) and
 Lemma~\ref{th:SumOfTerms}, becomes
 \be  \label{eq:RedTreeDualContribution}
   {W^{r(l)}}^T \hat y^{l}+\sum_{i\in\mathcal{D}_{l}}{T^{r(i)}}^T \hat y^i
-   + \hat s^{l} = p^{l} q^{r(l)}, \quad l \in \Ctree,
+   + \hat s^{l} = p^{l} q^{r(l)}, \qquad l \in \Ctree,
 \ee
 so $(\hat y, \hat s)$ satisfies
 the dual constraints in the expanded problem.
@@ -920,11 +926,12 @@ and using (\ref{eq:rho}) we have
 \[
   \hat x^l_j\hat s^l_j = (x_R^{r(l)})_j (s_R^{r(l)})_j
                          \frac{p^l}{p_R^{r(l)}}
-                       \ge \rho\frac{n_R}{n} \gamma\mu_R 
-                       = \rho\gamma\hat{\mu},
-		       \qquad\forall l \in \Ctree.
+                       \ge \gamma\mu_R \frac{p^l}{p_R^{r(l)}}
+		       = \gamma\hat\mu \frac{n}{n_R}\frac{p^l}{p_R^{r(l)}}
+                       \ge \rho\gamma\hat{\mu},
+		       \qquad l \in \Ctree.
 \]
-The upper bound showing $\hat x^l_j\hat s^l_j\le \hat{\mu}/(\rho\gamma)$
+The upper bound $\hat x^l_j\hat s^l_j\le \hat{\mu}/(\rho\gamma)$
 can be derived similarly.
 \end{proof}
 
@@ -946,7 +953,7 @@ is used to solve the warmstarted complete problem.
 Although the constructed warm-start iterate $(\hat{x}, \hat{y}, \hat{s})$ 
 from (\ref{eq:WarmstartSolution}) is feasible in the expanded problem, 
 it is not feasible in the complete problem. 
-As in \cite{YildirimWright,GondzioGrothey03} we will derive
+As in \cite{YildirimWright} and \cite{GondzioGrothey03} we derive
 conditions that guarantee to absorb these infeasibilities with one
 {\em modification step}. 
 For this consider the following Newton system:
@@ -1004,11 +1011,11 @@ which provides a bound on the norm of $Q$, in terms of
 the symmetric neighbourhood $N_s(\gamma)$.
 
 \begin{lemma}  \label{th:BoundQ}
-If $w \in \widehat{\Nhood}_s(\gamma)$, then $\|Q\|_2 \le 1/\gamma$.
+If $w \in \Nhood_s(\gamma)$, then $\|Q\|_2 \le 1/\gamma$.
 \end{lemma}
 %
 \begin{proof}
-For a point $w \in \widehat{\Nhood}_s(\gamma)$, 
+For a point $w \in \Nhood_s(\gamma)$, 
 the following inequalities hold:
 \[
   (x_i s_i)^{-1/2} \le (\gamma\mu)^{-1/2},
@@ -1071,7 +1078,7 @@ yielding the bound
   \le (1 +\|Q\|_\infty)(\|\tilde{\xi}_b\|_\infty + \|\tilde{\xi}_c\|_\infty).
 \ee
 %
-As $(x,y,s)\in N_s(\gamma)$, using Lemma~\ref{th:BoundQ} we get
+As $(x,y,s)\in \Nhood_s(\gamma)$, using Lemma~\ref{th:BoundQ} we get
 that $\|Q\|_\infty \le \sqrt{n} \|Q\|_2 \le \sqrt{n} / \gamma$.
 Substituting it into (\ref{boundx}), we obtain
 \[
@@ -1479,7 +1486,7 @@ and are not going to change during the planning horizon.
 We model this situation as a two-stage stochastic linear program 
 with recourse. The general model has the following form:
 \[
-  \min_x \; E_d [f(x,d)] \;\quad 
+  \min_x \; E_d [f(x,d)] \qquad 
   \mbox{s.t. }\; \sum_{l \in {\cal A}} c_l x_l \le M, \;\;  x \ge 0,
 \]
 where $c_l$ and $x_l$ are the cost and the capacity of link $l \in {\cal A}$, 
