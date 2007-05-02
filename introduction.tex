@@ -6,6 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
 %Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16
+%May:  2
 
 %
 % Chapter: Background and introduction.
@@ -552,40 +553,42 @@ Andreas Grothey \cite{ColomboGondzioGrothey06}.
 In Chapter~\ref{ch:Ipm} we introduce and formalise some basic
 notions on linear programming and present the main theoretical results 
 that are at the heart of many interior-point methods. 
-We will concentrate on the path-following class of
+We concentrate on the path-following class of
 primal--dual interior point methods, as they provide the framework for 
 most practical implementations.
 Alongside reviewing the theoretical achievements known in the
-literature, we will introduce and analyse the concept of 
+literature, we introduce and analyse the concept of 
 symmetric neighbourhood.
 
 Chapter~\ref{ch:PracticalIpm} is dedicated to presenting
 the main techniques adopted in computational implementations of
 interior point methods.
-We will consider when
+We consider when
 theoretical analysis and practical implementation diverge,
 paying particular attention to two important strategies used 
 in generating effective search directions: 
 Mehrotra's predictor--corrector algorithm and the
 multiple centrality correctors technique.
+We also review the main results in the area of warm-start
+approaches for interior point methods.
 
 In Chapter~\ref{ch:Correctors} we continue the discussion on
 Mehrotra's algorithm, presenting some recent insight on the
 cases of failure of the corrector direction, and studying the use of
 weighted correctors in the generation of search directions. This will
-be compared to the subspace searches approach, which tries something
-similar but considers a given set of directions. The advantages
-and drawbacks of both strategies will be discussed together with
+be compared to the subspace searches approach, which uses
+an auxiliary linear subproblem to combine
+a given set of directions. The advantages
+and drawbacks of both strategies is presented together with
 a rich computational study on the implementation of the
 weighted correctors technique.
 
 In Chapter~\ref{ch:Warmstart} we turn our attention to the field
 of stochastic programming, explain its relevance and introduce some
 basic concepts.
-We review the main results in the area of warm-start approaches
-for interior point methods, and present a warm-start technique
+We present a warm-start technique
 that exploits the inherent structure of stochastic linear programs.
-Alongside some theoretical results, we will show our computational
+Alongside some theoretical results, we show our computational
 experience on some standard test problems and larger instances coming
 from the telecommunication industry.
 

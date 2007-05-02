@@ -6,6 +6,7 @@
 %Feb:  6,  9, 11, 22
 %Mar:  8, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2,  3, 11, 18
+%May:  2
 
 %
 % Chapter: 
@@ -299,10 +300,10 @@ next section.
 %
 % Section
 %
-\section{Weighting the corrector directions}
+\section{Failures of Mehrotra's corrector}
 
 As seen in Section~\ref{sec:PathFollowingAlgorithms},
-Newton's method employed in primal--dual path-following algorithms 
+Newton's method employed in a primal--dual path-following algorithm
 provides a first-order approximation of the central path, in which
 the nonlinear perturbed KKT system (\ref{eq:PerturbedKKT}) 
 is linearised around the current primal--dual point $w^k$. Consistently with 
@@ -352,7 +353,7 @@ the use of the second-order term in the corrector direction.
 
 %
 %
-\subsection{Failures of Mehrotra's corrector}
+\subsection{The implementation viewpoint}
 
 In practical implementations, it is sometimes observed
 that Mehrotra's corrector produces a shorter stepsize 
@@ -363,6 +364,8 @@ as measured by the length of the achievable step.
 In such situations, a solver may decide to reject Mehrotra's corrector 
 and only use some multiple centrality correctors. 
 As these generally construct less demanding target points,
+in which only the complementarity products that lie outwith
+the symmetric neighbourhood are corrected,
 the chances of them being rejected are smaller. 
 However, if these do not help either, the search direction may reduce
 to the affine-scaling predictor direction alone.
@@ -376,7 +379,7 @@ same situation may arise again in the following iteration.
 
 In Table~\ref{table:MehrotraFailure} we provide some evidence
 gathered on the collection of Netlib and Kennington problems
-by running \HOPDM.
+by running \HOPDM 2.13 \cite{HOPDM}.
 \HOPDM's strategy can be summarised in the following steps.
 First both the predictor and the corrector direction are
 computed according to Mehrotra's algorithm 
@@ -384,7 +387,7 @@ computed according to Mehrotra's algorithm
 composite $\Delta_M w$ direction is shorter than what would be
 achieved in the predictor $\Delta_a w$, a warning is raised
 (reported in the first column of Table~\ref{table:MehrotraFailure}).
-At this point some multiple centrality correctors are computed:
+At this point some multiple centrality correctors $\Delta_m w$ are computed:
 if they do not improve on the stepsize, a second warning is raised
 (reported in the second column of Table~\ref{table:MehrotraFailure}),
 and the algorithm moves along the affine-scaling direction $\Delta_a w$
@@ -394,7 +397,7 @@ alone.
   \centering
   \begin{minipage}[t]{0.4\textwidth}
     \begin{tabular}{|l|r|r|}\hline
-      Problem  & No $\Delta_M$ & Only $\Delta_a$ \\ \hline
+      Problem  & $\Delta_M$ failed & $\Delta_m$ failed \\ \hline
       cre-a    &  2  &  1 \\
       cre-b    &  1  &  1 \\
       degen3   &  1  &  1 \\ 
@@ -405,7 +408,7 @@ alone.
   \end{minipage} \hspace{1em}
   \begin{minipage}[t]{0.4\textwidth}
     \begin{tabular}{|l|r|r|}\hline
-      Problem  & No $\Delta_M$ & Only $\Delta_a$ \\ \hline
+      Problem  & $\Delta_M$ failed & $\Delta_m$ failed \\ \hline
       ken-13   &  1  &  0 \\
       maros    &  1  &  0 \\
       modszk1  &  2  &  1 \\
@@ -414,15 +417,29 @@ alone.
       shell    &  1  &  0 \\ \hline
     \end{tabular}
   \end{minipage}
-  \caption{Number of times Mehrotra's corrector is rejected and
-           only the affine-scaling direction is used.}
+  \caption{Number of times Mehrotra's corrector and
+           multiple centrality correctors have been rejected in \HOPDM.}
   \label{table:MehrotraFailure}
 \end{table}
+
+As we can see from Table~\ref{table:MehrotraFailure}, in the
+\HOPDM implementation Mehrotra's corrector is rejected only in
+12 problems. Two instances appear particularly troublesome:
+{\tt dfl001} and {\tt greenbea}.
+In 15 iterations, multiple centrality correctors provide a
+successful correction to the predictor direction;
+however, in 18 cases (10 of which in problem {\tt dfl001})
+the search direction reduced to the affine-scaling predictor alone.
+
+%
+%
+\subsection{Theoretical insight}
 
 The issue of failures of Mehrotra's corrector
 has recently been analysed by Cartis \cite{Cartis04}, 
 who provided an example in which the second-order corrector does 
 not behave well. 
+We report it here and make some observations.
 
 \begin{example}[Cartis \cite{Cartis04}]  \label{ex:Coralia}
 Consider the following primal--dual pair:
@@ -438,6 +455,10 @@ Consider the following primal--dual pair:
 and the starting point:
 \[
   x^0 = (8,\, 1.95,\, 0.05), \quad y^0 = -0.1, \quad s^0 = (1,\, 8.1,\, 0.1).
+\]
+The solution is:
+\[
+  x^* = (0,\, 0,\, 2), \quad y^* = 0, \quad s^* = (1,\, 8,\, 0).
 \]
 \end{example}
 
@@ -523,12 +544,13 @@ Still, in the centrality term,  we ask all of them to align to the
 average $\mu$.
 }
 
-A better understanding of these issues and a solution to these
-problems will be the major focus of the next sections.
+An implementable solution to these problems will be the
+major focus of the next section.
 
 %
+% Section
 %
-\subsection{A practical implementation}
+\section{Weighting the corrector directions}
 
 \fb{
 Connect better with the previous section.
@@ -555,10 +577,6 @@ the choice $\hat\omega=1$ yields the full Mehrotra corrector of
 the standard implementations. 
 %  On the other hand, $\omega=\alpha$ produces the algorithm 
 %  suggested by Salahi \etal \cite{SalahiPengTerlaky}.
-
-\fb{
-Discuss the difficulties related to the choice of $\omega$.
-}
 
 We apply the weighting strategy to multiple centrality correctors 
 as well. The justification in this case comes from the following argument.
@@ -938,7 +956,7 @@ search directions, then it would be beneficial to have as many as possible.
 
 %
 %
-\subsection{Beyond Netlib}
+\subsection{Larger test problems}
 \label{BN-tests}
 
 We have applied our algorithm to examples from other test collections 
@@ -1090,7 +1108,4 @@ corrector steps.
 
 \fb{
 Add the performance profiles on M-L test set as well?
-
-Also, in the slides for ergo or dundee, there was a graph of
-omega with comparison with alpha for various problems.
 }

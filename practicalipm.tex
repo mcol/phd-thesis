@@ -6,6 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
+%May:  2
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -211,7 +212,7 @@ operations are performed.
 Various ordering techniques have been developed to reduce the fill-in
 in the Cholesky factors, thus maintaining sparsity and 
 reducing the required work \cite{RothbergHendrickson}.
-Once the factors have been computed, the solution a system $Mx = r$ 
+Once the factors have been computed, the solution of system $Mx = r$ 
 happens in two steps:
 first by solving $Lz = r$ for $z$, then $L^Tx = D^{-1}z$ for $x$.
 The solution phase is also called the {\em backsolve phase}.
