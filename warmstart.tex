@@ -5,7 +5,7 @@
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
-%May:  1
+%May:  1,  4
 
 %
 % Chapter: Warm-start
@@ -176,7 +176,8 @@ conjectured according to some prescribed properties. The
 continuous process $\xi$ is usually further approximated by a discrete 
 distribution
 in order to obtain a computationally amenable description. 
-In such a case, the most common techniques generate a 
+In such a case, the most common techniques
+\cite{HoylandKautWallace,Pflug01} generate a 
 finite, but usually very large, number of scenarios that represent an 
 approximate description of the possible outcomes.
 
@@ -657,8 +658,7 @@ $\mathcal{I}_l \cap \mathcal{D}_{a(l)} = \mathcal{I}_l$, and
 \eqref{eq:UpdateCondProbs} follows from \eqref{eq:UpdatePathProbs}
 by dividing through by $p^{a(l)}$.
 For a node $l$ after stage $k$ we have $\delta_R^l = 1$, we need to sum
-only over the descendants of $a(l)$, otherwise $\delta_R^l$ may be 
-bigger than 1.
+only over the descendants of $a(l)$.
 With our reduced-tree selection strategy, for such nodes we actually
 have $\delta_R^l = 1$, since there is only one representative scenario
 in each subtree.
@@ -921,7 +921,7 @@ We observe that
 where we used (\ref{eq:WarmstartSolution}) and (\ref{eq:UpdatePathProbs}), 
 and $\mu_R = x_R^Ts_R/n_R$. 
 Hence, since $(x_R, y_R, s_R)\in N_s(\gamma)$ 
-implies $(x_R)_j (s_R)_j\ge \gamma\mu_R$, for $j = 0, \ldots, n_R$, 
+implies $(x_R)_j (s_R)_j\ge \gamma\mu_R$, for $j = 1, \ldots, n_R$, 
 and using (\ref{eq:rho}) we have
 \[
   \hat x^l_j\hat s^l_j = (x_R^{r(l)})_j (s_R^{r(l)})_j
@@ -980,11 +980,12 @@ infeasibility separately by splitting (\ref{eq:NewtonSystem2}) into
 two separate directions.
 We will give a more general result and apply it to the situation of
 warm start for stochastic programming problems. To avoid overburdening
-notation we will drop the claret $\hat{}$ from the warm-start vectors.
-The last equation of (\ref{eq:NewtonSystem2}) implies
-\[
- s_i\Delta x_i + x_i\Delta s_i = 0, \qquad i = 1, \ldots, n.
-\]
+notation we will drop the hat from the warm-start vectors.
+We will keep it in the neighbourhoods to make a clear distinction between
+$\widehat{\mathcal{N}}_s(\gamma)$ and $\mathcal{N}_s(\gamma)$
+denoting the symmetric neighbourhoods 
+for the expanded problem \eqref{eq:ExpandedProblem}
+and the complete problem \eqref{eq:CompleteProblem}, respectively.
 
 After some straightforward manipulation following the arguments of 
 \cite{GondzioGrothey03}, the Newton
@@ -1108,8 +1109,10 @@ At the new point $\tilde w$ the barrier parameter is
 \be  \label{eq:NewBarrier}
   n \tilde\mu = \sum_{i=1}^n \tilde x_i \tilde s_i 
               = \sum_{i=1}^n (x_i +\Delta x_i)(s_i +\Delta s_i)
-              = \sum_{i=1}^n (x_is_i + \Delta x_i\Delta s_i).
+              = \sum_{i=1}^n (x_is_i + \Delta x_i\Delta s_i),
 \ee
+as the last equation of (\ref{eq:NewtonSystem2}) implies
+$s_i\Delta x_i + x_i\Delta s_i = 0$, $i = 1, \ldots, n$.
 %
 Using (\ref{eq:FullNewtonStep}) from Lemma~\ref{th:FullNewtonStep}, 
 we have that
@@ -1248,8 +1251,8 @@ The contribution of a node $l \in \Ctree$ to $\xi_b$ is
 \end{split}
 \]
 where the step from the first to the second line uses 
-(\ref{eq:RedTreePrimalContribution}), and all norms here should be
-intended as infinity norms.
+(\ref{eq:RedTreePrimalContribution}), and all norms here 
+are infinity norms.
 %
 This clearly implies that $\| \xi_b \|_\infty \le \varepsilon B$. 
 
@@ -1293,7 +1296,7 @@ p_R^{r(i)} = p_R^{r(l)}\delta_R^{r(i)}$.
 %exploited the fact that $T^i - T^{r(i)} = 0$
 %for $i \in \mathcal{D}_{l}\cap\mathcal{D}_{r(l)}^R$.
 %
-Taking norms (all norms here should be intended as infinity norms)
+Taking norms (all norms here are infinity norms)
 and using the partitioning 
 $\mathcal{D}_l = \bigcup_{k\in D^R_{r(l)}} \mathcal{I}_k\cap\mathcal{D}_l$
 we obtain
