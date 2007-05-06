@@ -1,12 +1,21 @@
 %Started on 5 February 2007
 %Mar: 31
 %Apr:  1,  2, 18, 28
+%May:  6
 
 %
 % Chapter: Conclusions
 %
 \label{ch:Conclusions}
 
+We summarise the results presented in the previous chapters.
+Our focus here is to draw together the original aspects of this research
+with respect to possible improvements and future research.
+
+
+%
+%
+\subsection*{On weighted correctors}
 
 In Chapter~\ref{ch:Correctors} we have revisited the 
 technique of multiple centrality correctors \cite{Gondzio96} 
@@ -20,20 +29,18 @@ $\Delta w = \Delta_p w + \omega \Delta_c w$.
 We combined this modification with the use of a symmetric neighbourhood
 of the central path. 
 
-The extensive computational results presented for different 
-classes of problems demonstrate the potential of the new scheme. 
 We have compared our algorithm against the recently introduced 
-Krylov subspace scheme \cite{MehrotraLi}.
+Krylov subspace scheme of Mehrotra and Li \cite{MehrotraLi}.
 The two approaches have similarities: they look for a set of attractive 
 independent terms from which the final direction is constructed. 
 Mehrotra and Li's approach uses the first few elements from the basis
-of the Krylov space; the weighted correctors technique
-generates direction terms using 
-centrality correctors of \cite{Gondzio96}. Mehrotra and Li's approach 
-solves an auxiliary linear program to find an optimal combination 
-of all available direction terms; our approach repeatedly chooses 
-the best weight for each newly constructed corrector term (and switches 
-off if the use of the corrector does not offer sufficient improvement). 
+of the Krylov space and solves an auxiliary linear program to find an
+optimal combination of all available direction terms.
+The weighted correctors technique generates direction terms using 
+centrality correctors of \cite{Gondzio96}, evaluates the weight
+for each corrector independently, and it can detect when the use
+of an additional corrector term would not be beneficial.
+
 Eventually, after adding $k$ corrector terms, 
 the directions used in our approach have form
 \[
@@ -43,15 +50,18 @@ and the affine-scaling term $\Delta_a$ contributes to it without any
 reduction. Hence, the larger the stepsize, the more progress we make
 towards the optimizer.
 
-The computational comparison presented in Section~\ref{ML-tests} 
+The extensive computational results presented for different 
+classes of problems demonstrate the potential of the
+weighted correctors technique, particularly for large-scale problems.
+The comparison presented in Section~\ref{ML-tests} 
 shows some advantage
 of our scheme over that of \cite{MehrotraLi}. Indeed, with the same 
 number of direction terms allowed, our scheme outperforms Krylov subspace 
 correctors by a wide margin.
 
-Besides, our scheme follows the usual predictor--corrector framework,
-and thus we expect it to be easier to implement in other 
-interior point software.
+One of the advantages of generating correctors in a recursive way
+consists in the possibility of stopping the correction phase
+if the use of the corrector does not offer sufficient improvement.
 However, we realise that using a small linear programming subproblem
 to produce the optimal weighting of search directions can only improve
 our results in terms of stepsizes and number of iterations.
@@ -59,10 +69,21 @@ It was suggested by Nick Gould to implement a mixed strategy;
 by the multiple centrality correctors heuristic we can dynamically
 find the number of correctors needed at each iteration; then we find
 the weights by solving a subproblem.
-This suggestion leads to another possibility: in the scheme of
-Mehrotra and Li, they should have a heuristic way to decide how many
+This suggestion leads to another possibility: the scheme of
+Mehrotra and Li should have a heuristic way to decide how many
 Krylov vectors they want to produce, rather than always generating
 a fixed number of them.
+
+Given that the weighted correctors scheme follows the usual 
+predictor--corrector framework,
+we expect it to be easier to implement in other interior point software.
+In particular, such a technique should be used for large-scale problems
+for which the reduction in number of iterations repays the
+increased cost of each iteration. 
+
+%
+%
+\subsection*{On search directions}
 
 The relative youth of interior point methods means that there is still
 a lot to learn and try, particularly in practical implementations.
@@ -99,6 +120,10 @@ In our reimplementation of multiple centrality correctors, we
 have pushed the target vector of complementary points further
 in the infeasible space with the aim to generate a better
 correction to the current iterate.
+
+%
+%
+\subsection*{On warm-start for interior point methods}
 
 In Chapter~\ref{ch:Warmstart}
 we have introduced a technique that exploits the near-optimal solution
@@ -144,6 +169,10 @@ As we have seen, in constructing the warm-start point we need
 to know the mapping of nodes between the reduced and complete trees.
 Therefore, the tree-reduction process should provide this information
 as well.
+
+%
+%
+\subsection*{On exploiting structure}
 
 A big avenue of research, according to the author, is the development
 of specialised techniques to exploit the problem structure.

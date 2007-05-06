@@ -5,7 +5,7 @@
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
-%May:  1,  4
+%May:  1,  4,  6
 
 %
 % Chapter: Warm-start
@@ -133,9 +133,9 @@ Following \cite{BirgeLouveaux}, this can be illustrated by the
 %
 \be  \label{eq:SP1}
   \begin{array}{rl}
-    \min        & c^T x + \E_\xi Q(x, \xi) \\
-    \mbox{s.t.} & Ax = b,  \\
-                & x\geq 0, \\
+    \min        & (q^1)^T x^1 + \E_\xi Q(x^1, \xi) \\
+    \mbox{s.t.} & W^1x^1 = h^1,  \\
+                & x^1\geq 0, \\
   \end{array}
 \ee
 %
@@ -143,31 +143,21 @@ where $\xi$ is a random variable, $\E_\xi$ is the expectation function
 and
 \be  \label{eq:SP2}
   \begin{array}{rcrl}
-  Q(x, \xi) &\!\!\! = \!\!\! & \min & q(\xi)^T y(\xi) \\
-            &   & \mbox{s.t.} & Wy(\xi) = h(\xi) - T(\xi)x, \\
+  Q(x^1,\xi)& \!\!\! = \!\!\! & \min & q(\xi)^T y(\xi) \\
+            &   & \mbox{s.t.} & W(\xi)y(\xi) = h(\xi) - T(\xi)x^1, \\
 	    &   &             & y(\xi) \ge 0.
   \end{array}
 \ee
-This can be interpreted as an optimization
+Notice that we use the convention that first-stage variables
+and coefficients carry the superscript 1.
+Problem \eqref{eq:SP1}-\eqref{eq:SP2} can be interpreted as an optimization
 problem in which some parameters or coefficients are unknown.
 While (\ref{eq:SP1}) models the first stage decisions, 
 (\ref{eq:SP2}) refers to the second stage decisions, which can
 be made only after a realisation of the random variable $\xi$
-has become known. Note how the first-stage decision variables $x$ 
+has become known. Note how the first-stage decision variables $x^1$ 
 appear in (\ref{eq:SP2}): at the time when the realisation
 become available, the first-stage decisions have already been made.
-
-\ignore{
-Formulation (\ref{eq:SP}) is however an unsatisfactory model, since
-it is unclear how to interpret the probabilistic constraint
-$g(x,\xi) \le 0$. A better formulation is the stochastic program
-with recourse:
-\begin{eqnarray} \label{eq:SPRecourse}
-\min_x \hspace{-1.5em} && \E_\xi[f(x, \xi) + Q(x, \xi)] \nonumber \\ 
-  && Q(x,\xi) = \min_y \{\, q(y) : u_i(y) \ge g_i^+(x, \xi),\:\forall i \,\},\\
-  && g_i^+(x, \xi) = \max \{\, g_i(x, \xi), \, 0 \,\}. \nonumber
-\end{eqnarray}
-}
 
 In stochastic programming, the uncertain environment is 
 described through a stochastic process which is assumed to be 
@@ -181,18 +171,6 @@ In such a case, the most common techniques
 finite, but usually very large, number of scenarios that represent an 
 approximate description of the possible outcomes.
 
-%The decision variables $x$ are
-%split depending on the timing of the decision: $x_0$ are those
-%variables whose value is to be decided {\em before} the random event
-%becomes known, $x_i$ are decisions taken as a reaction to the outcome
-%of $\xi$ being $\xi_i$ (recourse action). Problem
-%(\ref{continuousSP}) then becomes
-%\begin{equation}
-%\min_{x} \sum_{i=1}^n p_i f(x_0, x_i, \xi_i)) \text{~subject
-%to~}c(x_0, x_i, \xi_i) \le 0,
-%\label{SP}
-%\end{equation}
-
 The model can be generalised to a {\em multi-stage model} in which 
 the evolution of uncertainties can be 
 described as an alternating sequence of decisions and random 
@@ -200,7 +178,6 @@ realisations that occur at different stages.
 A multi-stage stochastic program with recourse is a multi-period 
 mathematical program where parameters are assumed to be uncertain 
 along the time path.
-
 The stages do not necessarily refer to time periods, but they correspond
 to steps in the decision process. In particular, at each stage the
 realisations of some random parameters become known, and a decision
@@ -219,7 +196,7 @@ It is common to consider balanced trees, where the number of
 branches for each node is the same at each stage.
 However, a better approach is to consider more branches in the
 earlier stages than in the later ones. This leads to the
-so called left-heavy trees.
+so-called {\em left-heavy trees}.
 A very simple event tree is shown in Figure~\ref{fig:EventTree}.
 %
 \begin{figure}[ht]
@@ -263,10 +240,10 @@ recourse problem:
 %
 \be \label{eq:SLPRecourse}
 \begin{array}{rl}
-  \min & c^T x + \E_\xi[\min\, q(\xi)^T y(\xi)]     \\
-  \text{s.t.} &  Ax                       = b,      \\
-	      &  T(\xi) x + W(\xi) y(\xi) = h(\xi), \\
-	      &  x \geq 0,\; y(\xi) \ge 0,
+  \min & (q^1)^T x^1 + \E_\xi[\min\, q(\xi)^T y(\xi)] \\
+  \text{s.t.} &  W^1x^1                   = h^1,      \\
+	      &  T(\xi) x^1 + W(\xi) y(\xi) = h(\xi), \\
+	      &  x^1 \geq 0,\; y(\xi) \ge 0,
 \end{array}
 \ee
 %
@@ -275,18 +252,19 @@ outcome of the random process $\xi$.
 Note that (\ref{eq:SLPRecourse}) combines in a single formulation
 both (\ref{eq:SP1}) and (\ref{eq:SP2}).
 After discretizing $\xi$ 
-according to $P(x^i=\xi_i) = p^i$, and using the notation 
+according to $P(y^i=\xi_i) = p^i$, and using the notation 
 $T^i = T(\xi_i)$ (and analogously for $h^i$, $W^i$, $y^i$ and $q^i$), 
+$i = 2, \ldots, n$,
 problem (\ref{eq:SLPRecourse}) can be written in the 
 {\em deterministic equivalent formulation}:
 \be \label{eq:DetEq-2stage}
 \begin{array}{rlllll}
-\min & c^T x + \sum_i p^i(q^i)^T y^i \\
-\mbox{s.t.} & Ax              &        &          & = b,   \\
-            & T^1 x + W^1 y^1 &        &          & = h^1  \\
+\min & (q^1)^T x^1 + \displaystyle\sum_{i=2}^n p^i(q^i)^T y^i \\
+\mbox{s.t.} & W^1x^1          &        &          & = h^1, \\
+            & T^2x^1 + W^2y^1 &        &          & = h^2, \\
 	    & \quad\vdots     & \hspace{-1em}\ddots & & \;\vdots \\
-            & T^n x           &        &+\; W^n y^n & = h^n \\
-            & x \geq 0,\; y^i \ge 0.
+            & T^n x^1         &        &+\; W^ny^n & = h^n,\\
+            & x^1 \geq 0,\; y^i \ge 0.
 \end{array}
 \ee
 The deterministic equivalent formulation is derived by writing
@@ -298,10 +276,7 @@ Also note that problem (\ref{eq:DetEq-2stage}) displays a
 dual-block angular structure
 in the constraint matrix.
 
-\fb{
-Make a step from two-stage to multistage.
-}
-
+The same approach can be immediately extended to multi-stage models.
 To formulate the deterministic equivalent of the multi-stage 
 stochastic programming problem we first need to enumerate all nodes 
 of the event tree. We use a breadth-first 
@@ -333,13 +308,13 @@ but often varies only with time.
 The deterministic equivalent formulation of the multi-stage 
 problem has the following general form:
 \begin{equation}  \label{DetEquiv}
-  \begin{array}{rrcll}
+  \begin{array}{rlcll}
   \min & \displaystyle\sum_{t=1}^T\sum_{l\in\mathcal{L}_t} p^l (q^l)^T x^{l}\\
-  \mbox{s.t.} & W^1 x^1 &\!\!\!\! = h^1, \\
-    & T^{l_t} x^{a(l_t)} + W^{l_t} x^{l_t} &\!\!\!\! = h^{l_t}, 
-                               &\quad l_t\in\mathcal{L}_t,\; t = 2,\dots,T, \\
-    & x^{l_t} &\!\!\!\!\!\!\! \geq 0,
-                               &\quad l_t\in\mathcal{L}_t,\; t = 1,\dots,T. \\
+  \mbox{s.t.} & W^1 x^1            & \hspace{-1.5em} = h^1, \\
+    & T^{l} x^{a(l)} + W^{l} x^{l} & \hspace{-1.5em} = h^{l}, 
+                               &\quad l\in\mathcal{L}_t,\; t = 2,\dots,T, \\
+    & \hspace{5.3em} x^{l}         & \hspace{-1.5em} \geq 0,
+                               &\quad l\in\mathcal{L}_t,\; t = 1,\dots,T. \\
   \end{array}
 \end{equation}
 
@@ -347,7 +322,7 @@ Note that the probabilities in the objective function of problem
 (\ref{DetEquiv}) are the unconditional path probabilities: $p^l$ is 
 the probability that a path goes through node $l$, which equals the 
 product of the conditional probabilities along the path from the root 
-to the node $l$.
+to node $l$.
 Clearly, (\ref{DetEquiv}) represents a structured linear program. Its 
 structure should be exploited in the solution algorithm.
 
@@ -1079,7 +1054,7 @@ yielding the bound
   \le (1 +\|Q\|_\infty)(\|\tilde{\xi}_b\|_\infty + \|\tilde{\xi}_c\|_\infty).
 \ee
 %
-As $(x,y,s)\in \Nhood_s(\gamma)$, using Lemma~\ref{th:BoundQ} we get
+As $(x,y,s)\in \widehat{\Nhood}_s(\gamma)$, using Lemma~\ref{th:BoundQ} we get
 that $\|Q\|_\infty \le \sqrt{n} \|Q\|_2 \le \sqrt{n} / \gamma$.
 Substituting it into (\ref{boundx}), we obtain
 \[
@@ -1367,16 +1342,30 @@ constructed from the reduced scenario tree will be successful for the
 complete problem. Unfortunately we have only limited influence on
 $\varepsilon$: indeed $\varepsilon$ is the result of the variation of
 the problem data between the expanded and the complete system.
-However, we can reduce $\varepsilon$ by having a
-denser reduced tree, although this would make the solution of the
-reduced problem more expensive.
 
-\fb{
-We can also play with $\mu$, not just $\epsilon$
-}
+There are two approaches that can be adopted in case the warm-start
+for a given reduced tree fails.
+The first relies on generating a denser reduced tree. This would
+directly reduce $\varepsilon$, but it would also imply solving
+a bigger reduced deterministic equivalent, making the solution of the
+reduced problem more expensive.
+Since the description of the new reduced tree is more detailed,
+we guarantee that the infeasibility of the new warm-start point
+is smaller.
+The second way, fully explored in the literature 
+(see Section~\ref{sec:WarmStart}), suggests to reduce the accuracy
+with which the reduced problem is solved. This is justified by the fact
+that the amount of perturbation that can be absorbed is directly related
+th $\mu$ for the warm-start point.
+In our approach we see that, considering \eqref{xysBound},
+a change in the accuracy of the reduced-tree solution $(x^*, y^*, s^*)$
+affects the value of $B$ that appears in the left-hand side of
+the bound of Theorem~\ref{th:Final}.
 
 It is important to remember, however,
-that these are theoretical bounds. There is a gap between theory and
+that the bounds we derived in Lemma~\ref{th:BoundResiduals}
+and Theorem~\ref{th:Final} express theoretical requirements.
+There is a gap between theory and
 practice. In practice much larger infeasibilities 
 $\|\tilde{\xi}_b\|, \|\tilde{\xi}_c\|$ can be absorbed. This is
 confirmed by our numerical results where even choosing just 2
