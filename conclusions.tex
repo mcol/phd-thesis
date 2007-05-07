@@ -1,17 +1,18 @@
 %Started on 5 February 2007
 %Mar: 31
 %Apr:  1,  2, 18, 28
-%May:  6
+%May:  6,  7
 
 %
 % Chapter: Conclusions
 %
 \label{ch:Conclusions}
 
-We summarise the results presented in the previous chapters.
+In this chapter we summarise the results obtained and 
+present some observations derived from the experience
+gathered during this research.
 Our focus here is to draw together the original aspects of this research
 with respect to possible improvements and future research.
-
 
 %
 %
@@ -25,7 +26,7 @@ $\Delta w = \Delta_p w + \Delta_c w$ where
 $\Delta_p w$ and $\Delta_c w$ are the predictor and corrector terms, 
 we allow a choice of weight 
 $\omega \in (0,1]$ for the corrector term and compute 
-$\Delta w = \Delta_p w + \omega \Delta_c w$.
+$\Delta^\omega w = \Delta_p w + \omega \Delta_c w$.
 We combined this modification with the use of a symmetric neighbourhood
 of the central path. 
 
@@ -84,11 +85,6 @@ increased cost of each iteration.
 %
 %
 \subsection*{On search directions}
-
-The relative youth of interior point methods means that there is still
-a lot to learn and try, particularly in practical implementations.
-We present here some observations derived from the experience
-gathered during this research.
 
 As we have seen in Chapter~\ref{ch:Correctors}, many attempts
 have been made to find new and original search directions.
@@ -172,9 +168,12 @@ as well.
 
 %
 %
-\subsection*{On exploiting structure}
+\subsection*{Avenues of research}
 
-A big avenue of research, according to the author, is the development
+The relative youth of interior point methods means that there is still
+a lot to learn and try, particularly in practical implementations.
+
+An interesting avenue of research, according to the author, is the development
 of specialised techniques to exploit the problem structure.
 This means that the development and diffusion of structure-exploiting
 codes and of structure-aware modelling languages may become a necessary
