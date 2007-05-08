@@ -6,7 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
-%May:  2,  4
+%May:  2,  4,  8
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -90,8 +90,7 @@ The choice of an initial iterate for interior point methods is a
 critical one. It challenges both the feasible and infeasible
 algorithms, and the solutions proposed in the two contexts are
 completely different.
-
-Turning our attention to infeasible algorithms, the major hurdle
+For infeasible algorithms the major hurdle
 of finding a feasible starting point is removed. 
 However, the practical performance is very sensitive to the initial
 iterate, so the use of arbitrary points is not recommended.
@@ -106,7 +105,13 @@ satisfy the primal and dual constraints:
   \min_x    \!\! & x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
   \min_{y,s}\!\! & s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c.
 \end{eqnarray*}
-The corresponding solution $\tilde w$ is further 
+These problems have solution
+\[
+  \tilde x = A^T(AA^T)^{-1}b, \quad
+  \tilde y = (AA^T)^{-1}Ac, \quad
+  \tilde s = c - A^T \tilde y.
+\]
+The solution $\tilde w$ is further 
 shifted inside the positive orthant, and the starting point is
 \[
   w^0 = (\tilde x + \delta_x e,\, \tilde y,\, \tilde s + \delta_s e),
@@ -127,15 +132,13 @@ to compensate for the contribution of the primal and dual objectives.
 Mehrotra's starting point strategy has some drawbacks. It is scale dependent,
 it is affected by the presence of redundant constraints,
 and it does not guarantee producing a well-centered iterate.
+However it is commonly employed in interior point codes, and it is
+considered to be an effective heuristic for determining a starting point.
 
-The procedure of finding an appropriate starting point will be discussed
-again in Section~\ref{sec:WarmStart}, where we survey the possibility
-of warm-starting an interior point method.
-
-\fb{
-Also check what is done by Lustig, Marsten and Shanno
-\cite{LustigMarstenShanno}.
-}
+Considerations on what constitutes an appropriate starting point 
+for interior point methods will be discussed
+again in Section~\ref{sec:WarmStart}, where we survey some
+warm-start strategies.
 
 %
 %
@@ -653,14 +656,15 @@ An insightful explanation of how Mehrotra's second-order direction
 helps in lengthening the step has been provided by
 Jarre and Wechs \cite{JarreWechs}.
 Consider one of the equations that define the affine-scaling
-predictor direction
+predictor direction:
 \be  \label{eq:ComponentwiseAffineScaling}
-  s_i\Delta_a x_i + x_i\Delta_a s_i = -x_i s_i,
+  s_i\Delta_a x_i + x_i\Delta_a s_i = -x_i s_i.
 \ee
-and consider the two cases: either $\Delta_a x_i \Delta_a s_i > 0$
-or $\Delta_a x_i \Delta_a s_i < 0$. In the first case, it must be true
+There are two possibilities: either $\Delta_a x_i \Delta_a s_i > 0$
+or $\Delta_a x_i \Delta_a s_i < 0$. In the first case, as the right-hand side
+of \eqref{eq:ComponentwiseAffineScaling} is negative, it must be true
 that $\Delta_a x_i < 0$ and $\Delta_a s_i < 0$.
-However, rewriting (\ref{eq:ComponentwiseAffineScaling}) as
+By rewriting (\ref{eq:ComponentwiseAffineScaling}) as
 \[
   \frac{\Delta_a x_i}{x_i} + \frac{\Delta_a s_i}{s_i} = -1,
 \]
@@ -670,7 +674,7 @@ it is clear that
 \]
 that is, this is not a blocking component.
 
-In the second case, let us assume that 
+In the second case $\Delta_a x_i \Delta_a s_i < 0$, and let us assume that 
 $\Delta_a x_i > 0$ and $\Delta_a s_i < 0$. 
 This implies that $x_i\Delta_a s_i < -x_is_i$, so
 $s_i + \Delta_a s_i < 0$, and the stepsize must be damped
@@ -679,18 +683,18 @@ this component may be a blocking component for the stepsize.
 Consider now the equation for Mehrotra's predictor--corrector
 direction
 \[
-  s_i\Delta_M x_i + x_i\Delta_M s_i = \mu -x_i s_i -\Delta_a x_i\Delta_a s_i 
+  s_i\Delta_c x_i + x_i\Delta_c s_i = \mu -x_i s_i -\Delta_a x_i\Delta_a s_i 
                                     > -x_i s_i,
 \]
 where the inequality follows from the assumption that
 $\Delta_a x_i \Delta_a s_i < 0$.
 Using (\ref{eq:ComponentwiseAffineScaling}) we obtain
 \[
-  s_i\Delta_M x_i + x_i\Delta_M s_i > s_i\Delta_a x_i + x_i\Delta_a s_i,
+  s_i\Delta_c x_i + x_i\Delta_c s_i > s_i\Delta_a x_i + x_i\Delta_a s_i,
 \]
 which we can interpret as an increase in the weighted sum 
 of the search directions. Hence, it is possible that 
-$\Delta_M s_i > \Delta_a s_i$, which would lead to an increase in
+$\Delta_c s_i > \Delta_a s_i$, which would lead to an increase in
 the stepsize if this was a blocking component in the 
 affine-scaling direction.
 
@@ -932,13 +936,14 @@ The strategies that exploit an advanced starting point are called
 Warm-start techniques are very successful 
 when implemented with a simplex solver (see, for example, 
 \cite{Bixby02}). 
+The main reason for this is that the solution of a problem,
+being a vertex, is an ideal starting point for a perturbed instance.
+If the perturbation is not too big, then optimality can be recovered
+very quickly.
 
-\fb{
-More on the simplex.
-}
-
-However, in the context of interior point methods, it 
-is much more difficult to implement successfully, for the reasons
+In the context of interior point methods, it 
+is much more difficult to implement a warm-start strategy in a
+successful way, for the reasons
 we outline below.
 
 %
@@ -954,7 +959,15 @@ When the polytope changes (due, for example,
 to the addition of cutting planes or other changes in the 
 problem data), the optimal solution changes as well.
 In such a case the previously optimal solution may now be very far
-from the central path of the perturbed instance. 
+from the central path of the perturbed instance 
+(see Figure~\ref{fig:ws-path})
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{figures/ws-path.eps}
+\caption{Effect of a perturbation on the central path.}
+\label{fig:ws-path}
+\end{figure}
 
 As presented in Chapter~\ref{ch:Ipm}, interior point methods approach 
 the solution to the \KKT system of optimality conditions by relaxing 
@@ -972,7 +985,15 @@ iterate gets too close to a boundary before optimality is reached,
 or, equivalently, when the iterate gets far from the central path.
 In these situations the algorithm may spend many iterations in recovering
 centrality, during which small steps are usually generated and thus
-very slow progress is achieved.
+very slow progress is achieved (see Figure~\ref{fig:ws-behaviour}).
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{figures/ws-behaviour.eps}
+\caption{Typical behaviour of an interior point method if warmstarted
+         from the previously optimal solution.}
+\label{fig:ws-behaviour}
+\end{figure}
 
 Hipolito \cite{Hipolito} considered the issue of robustness of 
 search directions in interior point methods in these situations.

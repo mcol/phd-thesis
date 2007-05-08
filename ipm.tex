@@ -6,7 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
 %Mar:  8,  9, 13, 15, 16, 17, 19, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2,  3, 16, 18
-%May:  1,  4
+%May:  1,  4,  8
 
 %
 % Chapter: Interior point methods
@@ -121,8 +121,9 @@ A point $x \in \mathcal{P}$ is an optimal solution if and only if
 there exists a pair $(y,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
 \end{lemma}
 
-Problem $(P)$ has a solution if and only if $\mathcal{P} \ne \emptyset$;
-if also $\mathcal{D} \ne \emptyset$, then both problems admit an
+Problem $(P)$ has a solution if and only if $\mathcal{P} \ne \emptyset$.
+If $\mathcal{D} \ne \emptyset$ and $\mathcal{D} \ne \emptyset$,
+then both $(P)$ and $(D)$ admit an
 optimal solution $w^* = (x^*, y^*, s^*)$, and by Lemma~\ref{th:StrongDuality}
 the objective function 
 values of both problems coincide at that point. 
@@ -813,10 +814,6 @@ that provided full theoretical analysis of convergence of
 an infeasible interior point method as well as
 a stepsize rule that guarantees global convergence of the algorithm.
 
-\fb{
-Sure? Wright (page 109) says it was Lustig Marsten and Shanno.
-}
-
 In such 
 an algorithm, all iterates are infeasible, but the limit points 
 are feasible and optimal. This is obtained by using a 
@@ -852,9 +849,6 @@ does not get too close to a complementary point before feasibility
 is restored.
 The second safeguard forces $x_i s_i \ge \beta x^Ts$ for a chosen 
 $\beta$, and requires that all iterates must stay in this neighbourhood.
-\fb{
-Check this Kojima-Megiddo-Mizuno stuff!
-}
 }
 
 Letting 
@@ -957,10 +951,6 @@ This neighbourhood was implicitly used in \cite{Gondzio96}
 to define an achievable target for multiple centrality correctors
 (we refer the reader to Section~\ref{sec:MultipleCC}).
 
-\fb{
-Can I invent an example to show this?
-}
-
 We define the symmetric neighbourhood to be the set
 \be  \label{eq:SymmetricNeighbourhood}
   \Nhood_s(\gamma)=\{ w \in \mathcal{F}^0: 
@@ -1021,7 +1011,7 @@ path, accomplished by the concept of neighbourhood. Second,
 they show that the direction computed by solving the Newton system
 (\ref{eq:NewtonSystem}) can be followed with a strictly positive step
 (and therefore some progress is made at every iteration) 
-and generates an iterate 
+and that it generates an iterate 
 that retains the property of being in some neighbourhood of the central 
 path (possibly larger than the one before). Finally, they require
 a decrease in the barrier parameter that allows derivation 

@@ -5,7 +5,7 @@
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
-%May:  1,  4,  6
+%May:  1,  4,  6,  8
 
 %
 % Chapter: Warm-start
@@ -1548,7 +1548,7 @@ average number of arcs in each path.
   \end{center} \vspace{-3ex}
 \end{table}
 
-\noindent For a problem with $N$ scenarios, the number of constraints and 
+For a problem with $N$ scenarios, the number of constraints and 
 decision variables (including slacks) are
 \[
 m = 1 + N \times (\#{\cal A} + \#{\cal D}), \quad \mbox{ and } \quad
@@ -1562,24 +1562,24 @@ collected in Table~\ref{table:ProblemSizes}.
 \begin{table}[ht]
   \begin{center}
     \begin{tabular}{|l||r|r|r||l|r|r|r|} \hline
-      Name      & Rows  &  Cols & Nonzeros 
-    & Name      & Rows  &  Cols & Nonzeros \\ \hline\hline
-      mnx-100   &    11 &    30 &   
-    & jlg-100   &    34 &   104 & \\
-      mnx-200   &    23 &    61 & 
-    & jlg-200   &    69 &   209 & \\
-      mnx-400   &    46 &   122 & 
-    & jlg-400   &   139 &   418 & \\
-      mnx-800   &    92 &   244 & 
-    & jlg-800   &   278 &   836 & \\
-      mnx-1600  &   185 &   488 & 
-    & jlg-1600  &   556 & 1,672 & \\ \hline
-      mgntA-100 &   153 &   511 & 
-    & mgntB-100 &   255 &   869 & \\
-      mgntA-200 &   307 & 1,022 & 
-    & mgntB-200 &   511 & 1,738 & \\
-      mgntA-400 &   614 & 2,044 & 
-    & mgntB-400 & 1,022 & 3,477 & \\ \hline
+      \multicolumn{1}{|c||}{Name} & Rows  &  Cols & Nonzeros 
+    & \multicolumn{1}{|c||}{Name} & Rows  &  Cols & Nonzeros \\ \hline\hline
+      mnx-100   &    11 &    30 &     85
+    & jlg-100   &    34 &   104 &    503 \\
+      mnx-200   &    23 &    61 &    170
+    & jlg-200   &    69 &   209 &  1,006 \\
+      mnx-400   &    46 &   122 &    340
+    & jlg-400   &   139 &   418 &  2,013 \\
+      mnx-800   &    92 &   244 &    680
+    & jlg-800   &   278 &   836 &  4,025 \\
+      mnx-1600  &   185 &   488 &  1,362
+    & jlg-1600  &   556 & 1,672 &  8,051 \\ \hline
+      mgntA-100 &   153 &   511 &  2,919
+    & mgntB-100 &   255 &   869 &  4,816 \\
+      mgntA-200 &   307 & 1,022 &  5,838
+    & mgntB-200 &   511 & 1,738 &  9,633 \\
+      mgntA-400 &   614 & 2,044 & 11,675
+    & mgntB-400 & 1,022 & 3,477 & 19,265 \\ \hline
     \end{tabular}
     \caption{Approximate size of the problems in thousands.}
     \label{table:ProblemSizes}

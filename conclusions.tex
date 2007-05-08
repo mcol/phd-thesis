@@ -1,7 +1,7 @@
 %Started on 5 February 2007
 %Mar: 31
 %Apr:  1,  2, 18, 28
-%May:  6,  7
+%May:  6,  7,  8
 
 %
 % Chapter: Conclusions
@@ -12,13 +12,19 @@ In this chapter we summarise the results obtained and
 present some observations derived from the experience
 gathered during this research.
 Our focus here is to draw together the original aspects of this research
-with respect to possible improvements and future research.
+and present possible directions for future research.
 
-%
-%
-\subsection*{On weighted correctors}
+In Chapter~\ref{ch:Ipm} we analysed the symmetric neighbourhood
+of the central path, which expresses both a lower and an upper bound
+on the complementarity pairs.
+The analysis presented shows that the presence of an upper bound does not
+adversely affect the theoretical properties of a feasible algorithm
+based on this neighbourhood.
+As this neighbourhood is at the heart of the successful multiple
+centrality correctors technique, we believe that it properly describes
+the properties of a well-centered iterate for a practical algorithm.
 
-In Chapter~\ref{ch:Correctors} we have revisited the 
+In Chapter~\ref{ch:Correctors} we revisited the 
 technique of multiple centrality correctors \cite{Gondzio96} 
 and added a new degree of freedom to it. 
 Instead of computing the corrected direction from 
@@ -41,7 +47,6 @@ The weighted correctors technique generates direction terms using
 centrality correctors of \cite{Gondzio96}, evaluates the weight
 for each corrector independently, and it can detect when the use
 of an additional corrector term would not be beneficial.
-
 Eventually, after adding $k$ corrector terms, 
 the directions used in our approach have form
 \[
@@ -82,10 +87,6 @@ In particular, such a technique should be used for large-scale problems
 for which the reduction in number of iterations repays the
 increased cost of each iteration. 
 
-%
-%
-\subsection*{On search directions}
-
 As we have seen in Chapter~\ref{ch:Correctors}, many attempts
 have been made to find new and original search directions.
 We believe that the direction generated from the Newton system,
@@ -117,12 +118,8 @@ have pushed the target vector of complementary points further
 in the infeasible space with the aim to generate a better
 correction to the current iterate.
 
-%
-%
-\subsection*{On warm-start for interior point methods}
-
 In Chapter~\ref{ch:Warmstart}
-we have introduced a technique that exploits the near-optimal solution
+we introduced a technique that exploits the near-optimal solution
 to a stochastic linear program corresponding to a 
 reduced scenario tree to warm-start a much larger problem 
 that encompasses the complete scenario tree.
@@ -166,18 +163,12 @@ to know the mapping of nodes between the reduced and complete trees.
 Therefore, the tree-reduction process should provide this information
 as well.
 
-%
-%
-\subsection*{Avenues of research}
-
 The relative youth of interior point methods means that there is still
 a lot to learn and try, particularly in practical implementations.
-
 An interesting avenue of research, according to the author, is the development
 of specialised techniques to exploit the problem structure.
 This means that the development and diffusion of structure-exploiting
 codes and of structure-aware modelling languages may become a necessary
 requirement for a new generation of interior point codes.
-
 In this sense, also theoretical developments in these aspects are 
 wanted and necessary.

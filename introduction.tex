@@ -6,7 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  9, 11, 21
 %Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16
-%May:  2
+%May:  2,  8
 
 %
 % Chapter: Background and introduction.
@@ -30,7 +30,7 @@ spectrum.
 It was developed as mathematical models were being introduced for
 economic and military planning in the years immediately following
 the end of World War II.
-The realisation of its usefulness came together with the development
+The realisation of its usefulness came simultaneously with the development
 of a solution method, the simplex method, and so
 the introduction of the first computer calculators was crucial to
 the blossoming and increase of this newly born area of study. 
@@ -115,7 +115,7 @@ An important feature of any algorithm is its efficiency, that is
 how much effort is needed for the algorithm to provide an answer
 for some given input.
 The concept of {\em computational complexity} was introduced in the 70s,
-as the availability of computing machines required a deeper insight
+as the greater availability of computing machines required a deeper insight
 on the computational performance of different algorithms.
 The computational complexity of an algorithm can be used as a measure
 of the growth in the computational effort required by the algorithm
@@ -238,7 +238,8 @@ The gap between the observed and theoretical worst-case performances
 of the simplex method is still unexplained.
 Given this theoretical drawback, a great deal of effort 
 has been put into finding an
-algorithm for linear programming characterised by a polynomial-time bound.
+algorithm for linear programming which is 
+characterised by a polynomial-time bound.
 
 %
 %
@@ -246,7 +247,7 @@ algorithm for linear programming characterised by a polynomial-time bound.
 
 In 1979 a breakthrough occurred, as Khachiyan showed how to adapt 
 the ellipsoid method for convex programming to the linear programming case,
-and settled the question on computational complexity of linear programming.
+and determined the computational complexity of linear programming.
 
 In Khachiyan's ellipsoid method, the feasible polyhedron is inscribed in 
 a sequence of ellipsoids of decreasing size. 
@@ -368,12 +369,12 @@ semidefinite programming.
 \section{Motivation and scope of this thesis}
 
 Optimization algorithms are extremely important in real-life 
-applications. Theoretical advances are necessary for the 
-understanding of the current state and the opening of new avenues 
+applications. Theoretical advances are necessary for a deeper
+understanding of the the available techniques and the opening of new avenues 
 of research. 
 However, theory per se rarely has a direct impact on the lives 
 of those who use optimization as a tool to solve their problems.
-It is therefore necessary that the understanding gathered from
+It is therefore necessary that the insight gathered from
 theoretical studies is then transformed into effective practical
 tools. This usually requires the implementation of computer programs
 with the aims of accuracy, speed, and reliability.
@@ -390,13 +391,15 @@ will not be possible. There are a few reasons for this:
 \item Theoretical assumptions may not be realistic. This is the case
 when a condition stated in a theorem is not realistically satisfiable 
 in practice (for example, bounds on some quantities). 
-\item Theoretical assumptions may be too restrictive. This occurs
-when the theory predicts a certain behaviour under some conditions
-but actually in practice it happens anyway, or provides a worst-case 
-result which may be far from the average one.
 \item Theoretical requirements may be computationally expensive. This 
-happens when the satisfaction of a certain condition is not 
-computationally viable, in which case workarounds are usually employed.
+happens when checking the satisfaction of a certain condition is not 
+viable in practice.
+\item Theoretical assumptions may be too restrictive. This occurs
+when the theory predicts the conditions under which a certain behaviour
+happens, but in practice the same behaviour happens under more relaxed
+conditions.
+\item Theoretical analysis provides a worst-case result which may be 
+very far from the average one.
 \end{itemize}
 
 On the other hand, the practical implementation of an optimization
@@ -507,7 +510,7 @@ and the practical value of the
 symmetric neighbourhood is also appreciable here.
 In this setting we develop an efficient way of constructing 
 an advanced starting point which greatly reduces the computational
-effort of solving the problem instance.
+effort of solving a problem instance.
 Large-scale stochastic linear programs are very structured problems
 that are generated from event trees which can be very big, particularly
 in the multistage case.
@@ -537,7 +540,7 @@ We also show that from an iterate within the symmetric neighbourhood
 of the central path, we can produce
 a corrector direction that absorbs the perturbation and 
 keeps the point inside a larger symmetric neighbourhood,
-and follow such direction with full step.
+and move along such direction with full step.
 The implementation within the \HOPDM and \OOPS interior point solvers 
 shows remarkable advantages on a series of problem instances.
 
