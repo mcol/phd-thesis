@@ -5,7 +5,7 @@
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
-%May:  1,  4,  6,  8
+%May:  1,  4,  6,  8, 10
 
 %
 % Chapter: Warm-start
@@ -1038,13 +1038,6 @@ the relations (\ref{eq:Directions}) simplify to
 \[
    X^{-1}\Delta x = -Q \tilde{\xi}_c + (I-Q) \tilde{\xi}_b = -S^{-1}\Delta s,
 \]
-%\begin{eqnarray*}
-%   X^{-1}\Delta x & \!\! = \!\! & 
-%       -Q \tilde{\xi}_c + (I-Q) \tilde{\xi}_b, \\
-%   S^{-1}\Delta s & \!\! = \!\! & 
-%        Q \tilde{\xi}_c - (I-Q) \tilde{\xi}_b, 
-%\end{eqnarray*}
-%
 yielding the bound
 %
 \be  \label{boundx}
@@ -1069,7 +1062,7 @@ which, under the condition of the Lemma, implies
 that is the full Newton step is feasible, as $\beta < 1$.
 \end{proof}
 
-\begin{theorem}
+\begin{theorem}  \label{th:NeighbourhoodWarmstart}
 Let $w \in \widehat\Nhood_s(\gamma)$ and $\beta < 1$.
 Under the conditions of Lemma~\ref{th:FullNewtonStep},
 %The full Newton step in the direction $(\Delta x, \Delta y, \Delta s)$

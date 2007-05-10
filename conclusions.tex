@@ -1,7 +1,7 @@
 %Started on 5 February 2007
 %Mar: 31
 %Apr:  1,  2, 18, 28
-%May:  6,  7,  8
+%May:  6,  7,  8, 10
 
 %
 % Chapter: Conclusions
@@ -14,29 +14,55 @@ gathered during this research.
 Our focus here is to draw together the original aspects of this research
 and present possible directions for future research.
 
-In Chapter~\ref{ch:Ipm} we analysed the symmetric neighbourhood
+%
+% Section
+%
+\section{Research outcomes}
+
+We started by considering what characteristics an interior point iterate
+should have. The main feature is undoubtedly centrality, as following
+the central path leads to the optimal solution.
+The centrality requirement is satisfied by defining a neighbourhood
+of the central path inside which all iterates should lie.
+This led us to consider and analyse the symmetric neighbourhood
 of the central path, which expresses both a lower and an upper bound
-on the complementarity pairs.
+on the complementarity products.
+A feasible algorithm based on the symmetric neighbourhood $\Nhood_s(\gamma)$
+matches the theoretical complexity of one based on the wide
+$\Nhood_{-\infty}(\gamma)$ neighbourhood, as it converges
+in $\bigO(n)$ iterations (Theorem~\ref{th:SymNeighbourhoodConvergence}).
 The analysis presented shows that the presence of an upper bound does not
-adversely affect the theoretical properties of a feasible algorithm
-based on this neighbourhood.
+adversely affect the theoretical properties.
 As this neighbourhood is at the heart of the successful multiple
-centrality correctors technique, we believe that it properly describes
+centrality correctors technique \cite{Gondzio96}, we believe that
+it properly describes
 the properties of a well-centered iterate for a practical algorithm.
 
 In Chapter~\ref{ch:Correctors} we revisited the 
-technique of multiple centrality correctors \cite{Gondzio96} 
+technique of multiple centrality correctors
 and added a new degree of freedom to it. 
-Instead of computing the corrected direction from 
-$\Delta w = \Delta_p w + \Delta_c w$ where 
+Instead of computing the corrected direction as
+$\Delta w = \Delta_p w + \Delta_c w$, where 
 $\Delta_p w$ and $\Delta_c w$ are the predictor and corrector terms, 
-we allow a choice of weight 
-$\omega \in (0,1]$ for the corrector term and compute 
+we allow the use of a weight $\omega \in (0,1]$ as a scaling factor
+for the corrector, and thus compute the search direction as
 $\Delta^\omega w = \Delta_p w + \omega \Delta_c w$.
 We combined this modification with the use of a symmetric neighbourhood
-of the central path. 
+of the central path as a tool to find appropriate target points.
+This led to the weighted correctors scheme of
+Algorithm~\ref{alg:WeightedCorrectors}.
 
-We have compared our algorithm against the recently introduced 
+The analysis of Jarre and Wechs \cite{JarreWechs}
+discussed in Section~\ref{sec:JarreWechs}
+makes it very clear that the choice of the target $t$ in
+the right-hand side of the Newton system is the driving
+tool in finding effective search directions.
+In our new implementation of multiple centrality correctors, we
+have pushed the target vector of complementary points further
+in the infeasible space with the aim to generate a better
+correction to the current iterate.
+
+We compared our algorithm against the recently introduced 
 Krylov subspace scheme of Mehrotra and Li \cite{MehrotraLi}.
 The two approaches have similarities: they look for a set of attractive 
 independent terms from which the final direction is constructed. 
@@ -47,15 +73,6 @@ The weighted correctors technique generates direction terms using
 centrality correctors of \cite{Gondzio96}, evaluates the weight
 for each corrector independently, and it can detect when the use
 of an additional corrector term would not be beneficial.
-Eventually, after adding $k$ corrector terms, 
-the directions used in our approach have form
-\[
-  \Delta w = \Delta_a w + \omega_1\Delta_1 w + \ldots + \omega_k\Delta_k w,
-\]
-and the affine-scaling term $\Delta_a$ contributes to it without any
-reduction. Hence, the larger the stepsize, the more progress we make
-towards the optimizer.
-
 The extensive computational results presented for different 
 classes of problems demonstrate the potential of the
 weighted correctors technique, particularly for large-scale problems.
@@ -63,60 +80,13 @@ The comparison presented in Section~\ref{ML-tests}
 shows some advantage
 of our scheme over that of \cite{MehrotraLi}. Indeed, with the same 
 number of direction terms allowed, our scheme outperforms Krylov subspace 
-correctors by a wide margin.
-
-One of the advantages of generating correctors in a recursive way
-consists in the possibility of stopping the correction phase
-if the use of the corrector does not offer sufficient improvement.
-However, we realise that using a small linear programming subproblem
-to produce the optimal weighting of search directions can only improve
-our results in terms of stepsizes and number of iterations.
-It was suggested by Nick Gould to implement a mixed strategy;
-by the multiple centrality correctors heuristic we can dynamically
-find the number of correctors needed at each iteration; then we find
-the weights by solving a subproblem.
-This suggestion leads to another possibility: the scheme of
-Mehrotra and Li should have a heuristic way to decide how many
-Krylov vectors they want to produce, rather than always generating
-a fixed number of them.
-
+searches by a wide margin.
 Given that the weighted correctors scheme follows the usual 
 predictor--corrector framework,
 we expect it to be easier to implement in other interior point software.
 In particular, such a technique should be used for large-scale problems
 for which the reduction in number of iterations repays the
 increased cost of each iteration. 
-
-As we have seen in Chapter~\ref{ch:Correctors}, many attempts
-have been made to find new and original search directions.
-We believe that the direction generated from the Newton system,
-possibly complemented by Mehrotra's second-order correction,
-are only one of the possibility of exploring the solution space.
-
-From the study of subspace searches explored in
-Section~\ref{sec:SubspaceSearches}, it is clear that the more 
-directions we consider, the better the final search direction 
-we get. Therefore, if we had a cheap way of generating search
-directions (rather than from solving a system of linear equations),
-then these should be employed.
-In this respect, Mehrotra and Li \cite{MehrotraLi} 
-mention employing previous search directions alongside the usual ones. 
-The use of these incurs an increased memory usage 
-in order to store them, but no additional computational cost.
-However, it does not seem that they were actually employed in
-their implementation.
-This opens some questions on what constitutes a valid
-previous direction (only affine scaling, the final composite direction
-or something else).
-
-The analysis of Jarre and Wechs discussed in Section~\ref{sec:JarreWechs}
-makes it very clear that the choice of the target $t$ in
-the right-hand side of the Newton system is the driving
-tool in finding effective search directions.
-In our reimplementation of multiple centrality correctors, we
-have pushed the target vector of complementary points further
-in the infeasible space with the aim to generate a better
-correction to the current iterate.
 
 In Chapter~\ref{ch:Warmstart}
 we introduced a technique that exploits the near-optimal solution
@@ -127,25 +97,96 @@ Our way of reducing the dimension of the scenario tree
 is based on the assumption that we have no knowledge 
 of the underlying stochastic process. 
 Therefore we developed an ad-hoc measure of distance 
-between the scenarios, and we proposed to select for the 
-reduced tree those that minimize the distance to 
+between the scenarios in the data space, and we proposed to choose
+those that minimize the distance to 
 a selection of representative scenarios. 
-Other possibilities can be devised, and may be 
-the subject of future research.
+A warm-start solution is obtained by solving the 
+stochastic optimization problem for the reduced event tree, the dimension 
+of which is much smaller than that of the complete one. The solution 
+to the reduced problem is then used to construct an advanced iterate for 
+the complete formulation. 
 
+We presented a thorough theoretical analysis of the warm-start
+iterate generated by our approach.
+In particular, we derived conditions 
+which should be satisfied by the reduced tree to guarantee a successful 
+warm-start of the complete problem. 
+Most of our analysis concentrated on the primal and dual infeasibilities
+at the warm-start point, as these quantities play a major role in the
+success of a warm-start iterate.
+We obtained bounds on the scaled residuals at the warm-start point
+for which a full Newton step aimed at absorbing these residuals
+is feasible (Lemma~\ref{th:FullNewtonStep}).
+We proved that the recovery step keeps the point in a
+symmetric neighbourhood of the central path
+(Theorem~\ref{th:NeighbourhoodWarmstart}).
+In Lemma~\ref{th:BoundResiduals} and Theorem~\ref{th:Final} we specialised
+the above results to our strategy of generating the warm-start
+point from a problem of reduced dimenison.
+
+We provided computational evidence that this novel way 
+of exploiting the problem structure to generate an initial point 
+provides a better starting iterate than the one produced by a generic 
+starting point strategy.
 We observed that the iterate generated from the reduced problem
 provides an advanced starting point for the solution of the complete problem,
-in general resulting in a decrease of the number of iterations needed.
+in general resulting in a decrease in the number of iterations needed.
 As the computational cost of generating such an iterate is negligible,
-this produces consistent savings in computational time.
+our warm-start strategy produces consistent savings in computational time.
+
+We believe that our approach allows to confirm once again 
+that also interior point methods can
+be efficiently warm-started and open some attractive avenues of 
+research for warm-start strategies in interior point methods.
+
+
+%
+% Section
+%
+\section{Avenues of research}
+
+One of the advantages of generating correctors in a recursive way
+consists in the possibility of stopping the correction phase
+if the use of the corrector does not offer sufficient improvement.
+However, we realise that using a small linear programming subproblem
+to produce the optimal weighting of search directions can only improve
+our results in terms of stepsizes and number of iterations.
+It was suggested by Nick Gould to implement a mixed strategy:
+by the multiple centrality correctors heuristic we can dynamically
+find the number of correctors needed at each iteration; then we find
+the weights by solving a subproblem.
+The subproblem could be very similar to the ones used by
+Jarre and Wechs \cite{JarreWechs} or Mehrotra and Li \cite{MehrotraLi}.
+
+As we have seen in Chapter~\ref{ch:Correctors}, many attempts
+have been made to find new and original search directions.
+We believe that the direction generated from the Newton system,
+possibly complemented by Mehrotra's second-order correction,
+are only one of the possible ways of exploring the solution space.
+From the study of subspace searches explored in
+Section~\ref{sec:SubspaceSearches}, it is clear that the more 
+directions we consider, the better the final search direction 
+we get. Therefore, if we had a cheap way of generating search
+directions (rather than from solving a system of linear equations),
+then these should be employed.
+In this respect, Mehrotra and Li \cite{MehrotraLi} 
+mention employing previous search directions.
+The use of these incurs an increased memory requirement
+in order to store them, but no additional computational cost.
+However, it does not seem that they were actually employed in
+their implementation.
+This opens some questions on what constitutes a valid
+previous direction (only affine scaling, the final composite direction
+or something else).
 
 If the iterate produced by a reduced tree is not good enough 
 in the sense that the warm-start strategy fails, then another one 
 can be produced by generating a modified reduced tree (more 
 bushy for example).
-This second tree will provide a better approximation to the
-complete tree, and the corresponding warm-start point produces
-smaller infeasibilities. Hence, the chances for a successful 
+This second tree provides a better approximation to the
+complete tree, and we can expect the infeasibilities of the 
+corresponding warm-start point to be smaller.
+Hence, the chances for a successful 
 warm-start increase.
 This leads to the idea of allowing a multi-start procedure, in
 which a series of reduced trees of increasing size are generated,
@@ -155,7 +196,7 @@ advanced starting point for the next instance.
 In our analysis we assumed not to have any information about the
 undelying stochastic process that governs the uncertainty.
 However, it is clear that such information would provide additional
-elements on which the choice of the reduced tree can be based.
+insight on which the choice of the reduced tree can be based.
 In such a situation, two trees would be generated: the complete one,
 and an optimally reduced one.
 As we have seen, in constructing the warm-start point we need
