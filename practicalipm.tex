@@ -6,7 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
-%May:  2,  4,  8
+%May:  2,  4,  8, 11
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -913,7 +913,8 @@ Mehrotra's starting point heuristic \cite{Mehrotra92}, which is
 considered to be computationally effective for generic problems.
 
 However, many practical applications rely on solving a sequence 
-of closely related problems, where the instances differ by some 
+of closely related problems, where the problem instances differ 
+from each other by some 
 perturbation. This happens within algorithms that are sequential 
 in their nature, such as sequential linear programming or
 sequential quadratic programming.
@@ -924,11 +925,11 @@ branch-and-cut, branch-and-price.
 Similarly, sequential problems appear in the context of solution 
 methods based on cutting planes.
 
-In these situations, we expect the solution of an instance to be 
+In these situations, we expect the solution of one instance of a problem to be 
 close to the solution of the next one, in the sense that some of
 the information gathered in the solution process may still be valid. 
 Therefore, starting the 
-optimization of one problem from the solution of the previous instance
+optimization of a problem from the solution of the previous one
 should reduce the computational effort of solving the perturbed instance.
 The strategies that exploit an advanced starting point are called
 {\em warm-start strategies}.
@@ -936,8 +937,8 @@ The strategies that exploit an advanced starting point are called
 Warm-start techniques are very successful 
 when implemented with a simplex solver (see, for example, 
 \cite{Bixby02}). 
-The main reason for this is that the solution of a problem,
-being a vertex, is an ideal starting point for a perturbed instance.
+The main reason for this is that, as the solution of a problem
+is a vertex, it is an ideal starting point for a perturbed problem instance.
 If the perturbation is not too big, then optimality can be recovered
 very quickly.
 
@@ -952,15 +953,15 @@ we outline below.
 \label{sec:WarmStartDifficulties}
 
 The optimal solution of a linear programming problem found with 
-a path-following interior point methods is very close to a vertex of 
+a path-following interior point method is very close to a vertex of 
 the feasible polytope or, in the more common case of multiple solutions, 
-corresponds in the analytic center of the optimal set of solutions.
+corresponds to the analytic center of the optimal set of solutions.
 When the polytope changes (due, for example,
 to the addition of cutting planes or other changes in the 
 problem data), the optimal solution changes as well.
 In such a case the previously optimal solution may now be very far
-from the central path of the perturbed instance 
-(see Figure~\ref{fig:ws-path})
+from the central path of the perturbed problem
+(see Figure~\ref{fig:ws-path}).
 
 \begin{figure}[h]
 \centering
@@ -974,9 +975,9 @@ the solution to the \KKT system of optimality conditions by relaxing
 the complementarity requirements and obtaining the perturbed
 system (\ref{eq:PerturbedKKT}).
 As moving towards a vertex can be interpreted as making 
-a decision on the optimal partitioning, considering the 
+a decision on the optimal partition, considering the 
 system (\ref{eq:PerturbedKKT}) is equivalent to postponing 
-the choice of the optimal partitioning.
+the choice of the optimal partition.
 If the vertex is not an 
 optimal one, then the central path will not approach it.
 
@@ -990,7 +991,7 @@ very slow progress is achieved (see Figure~\ref{fig:ws-behaviour}).
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.75]{figures/ws-behaviour.eps}
-\caption{Typical behaviour of an interior point method if warmstarted
+\caption{Typical behaviour of an interior point method if warm-started
          from the previously optimal solution.}
 \label{fig:ws-behaviour}
 \end{figure}
@@ -1002,13 +1003,13 @@ to a boundary, the affine-scaling direction may be parallel to
 the nearby constraints. In such cases, the corrector direction 
 may also display the same behaviour, and short stepsizes are 
 obtained for the resulting combined search direction.
-While the analysis in \cite{Hipolito} concerns the
-dual affine-scaling algorithm, 
-it seems to provide an interesting insight on the misbehaviour
-of the search directions computed from non-central points also
-for primal--dual algorithms.
+The analysis in \cite{Hipolito} concerns the
+dual affine-scaling algorithm, but
+it also seems to provide an interesting insight into the misbehaviour
+of search directions used in primal--dual algorithms
+when computed from non-central points.
 
-The required features for a good warm-start candidate for an
+The required features of a good warm-start candidate for an
 interior point algorithm are somewhat contradictory.
 The point should not be too close to the boundary of the feasible 
 region in order to be able to absorb larger perturbations in the 
@@ -1031,9 +1032,9 @@ of the warm-start approaches proposed in the interior point literature.
 Mitchell \cite{phd:Mitchell} and Mitchell and Todd \cite{MitchellTodd}
 analyse the potential reduction interior point method within
 a cutting plane algorithm. They exploit the fact that
-the primal feasible point can be constructed after a set of new
+a primal feasible point can be constructed after a set of new
 columns is added to the problem. They use this strategy with success
-in column generation scheme and more generally in the solution 
+in a column generation scheme and more generally in the solution 
 of combinatorial optimization problems.
 
 Gondzio \cite{Gondzio98} presents a warm-start procedure for 
@@ -1102,7 +1103,7 @@ In the case of Dantzig--Wolfe decomposition, successive subproblems
 differ only in the objective function, while in the case 
 of Benders decomposition they differ only in the right-hand sides.
 Following \cite{Gondzio98}, nearly optimal points are saved and used 
-to warm start the solution of subsequent subproblems \cite{GondzioVial}.
+to warm-start the solution of subsequent subproblems \cite{GondzioVial}.
 
 % An advanced application of this technique is studied in 
 % \cite{GondzioVial}, where a decomposition approach for large 
@@ -1115,24 +1116,24 @@ to warm start the solution of subsequent subproblems \cite{GondzioVial}.
 \yildirim and Wright \cite{YildirimWright} consider again the case 
 of solving a sequence of problems in fixed dimensions, and
 analyse the number of iterations required to converge to a 
-solution of the perturbed instance from the warm-start point and 
-obtain worst-case estimates.
-They show that these estimates depend on the size of the perturbation 
+solution of the perturbed problem instance from the warm-start point.
+They obtain worst-case estimates and
+show that these estimates depend on the size of the perturbation 
 as well as on the conditioning of the problem 
 instances. Thus they obtain conditions under which the complexity 
-of the warm-start approach is better than for the cold start case.
+of the warm-start approach is better than in the cold-start case.
 
-The strategy proposed in \cite{YildirimWright} aims at absorbing the 
+The strategy proposed in \cite{YildirimWright} aims to absorb the 
 primal and dual infeasibilities introduced by the perturbation in just 
 one step.
 % relying on the centrality of the iterate from one instance
 % to provide enough centrality for the starting point of the next instance.
-This strategy requires to backtrack to an iterate for which $\mu$ is 
+This strategy requires backtracking to an iterate for which $\mu$ is 
 large enough to allow a full step for the correction direction they produce. 
 The amount of necessary backtracking depends on the magnitude 
-of the perturbation (as measured by the change in the problem data):
-this is intuitively justified considering that a large perturbation 
-will produce a large adjustment, and it is essential to guarantee that 
+of the perturbation (as measured by the change in the problem data).
+This is intuitively justified by considering that a large perturbation 
+will produce a large adjustment. It is also essential to guarantee that 
 a full step will not compromise the positivity requirements of the 
 iterate.
 %
@@ -1144,7 +1145,7 @@ available is retrieved, and the corresponding iterate is used as a
 warm-start point for the next problem in the sequence.
 %
 In \cite{YildirimWright}, two different corrections for the perturbation
-are studied: one is based on least squares, the other on a Newton step 
+are studied; one is based on least squares, the other on a Newton step 
 correction.
 A detailed computational comparison of these strategies has been 
 carried out by John and \yildirim \cite{JohnYildirim}.
@@ -1157,25 +1158,34 @@ However, they measure perturbations by a relative measure of implied
 primal and dual infeasibilities, and analyse recovery steps in
 the primal and the dual spaces independently.
 
-This reoptimization procedure is based on two phases: first, an attempt 
+This reoptimization procedure is based on two phases. First, an attempt 
 is made to absorb the infeasibilities caused by the perturbation with a full 
 Newton step; second, the centrality of the iterate is improved. Another 
 key feature of Gondzio and Grothey's approach \cite{GondzioGrothey03}
 is that the primal search 
-direction is governed only by the primal perturbation, and similarly 
-for the dual space. This corresponds to solving the Newton system 
-(\ref{eq:NewtonSystem}) for the two right-hand sides independently
+direction is governed only by the primal perturbation,
+and the dual search direction only by the dual perturbation.
+This corresponds to splitting the search direction into
+two terms, $\Delta_1 w$ and $\Delta_2 w$, and solving
+two independent Newton systems
 %
 \[
 \left[ \begin{array}{ccc}
     A & 0 & 0 \\ 0 &A^T & I \\ S & 0 & X
   \end{array} \right]
 \left[ \begin{array}{c}
-    \Delta x \\ \Delta y \\ \Delta s
+    \Delta_1 x \\ \Delta_1 y \\ \Delta_1 s
   \end{array} \right] = 
 \left[ \begin{array}{c}
     \xi_b \\ 0 \\ 0
-  \end{array} \right] +
+  \end{array} \right],
+\quad
+\left[ \begin{array}{ccc}
+    A & 0 & 0 \\ 0 &A^T & I \\ S & 0 & X
+  \end{array} \right]
+\left[ \begin{array}{c}
+    \Delta_2 x \\ \Delta_2 y \\ \Delta_2 s
+  \end{array} \right] = 
 \left[ \begin{array}{c}
     0 \\ \xi_c \\ 0
   \end{array} \right].
@@ -1183,7 +1193,7 @@ for the dual space. This corresponds to solving the Newton system
 %
 They produce bounds on the magnitude of primal perturbation $\xi_b$ 
 and dual perturbation $\xi_c$ that can be absorbed in a single 
-Newton step. As opposed to the results of \cite{YildirimWright}, 
+Newton step. Unlike to the results of \cite{YildirimWright}, 
 the bounds of \cite{GondzioGrothey03} are easy to compute and 
 thus can be used in practice.
 
@@ -1192,7 +1202,7 @@ on $n$ and $\theta$, a full Newton step can be taken in the dual space.
 This happens for both the $\mathcal{N}_2$ and $\mathcal{N}_{-\infty}$ 
 neighbourhoods. Similarly, a full Newton step can be taken in the 
 primal feasibility restoration direction. These conditions may not 
-be satisfied in practice. In such case, a different iterate further 
+be satisfied in practice. In such a case, a different iterate further 
 away from optimality may be more likely to allow for a full Newton step.
 
 A practical implementation is developed within an infeasible interior 
@@ -1222,18 +1232,19 @@ of interior point methods in a reoptimization context by the use of
 a primal--dual penalty approach.
 While standard penalty techniques are effective only in one space, 
 the introduction of penalty parameters in both the primal and the 
-dual problems allows to capture perturbations in both spaces.
+dual problems allows the handling of perturbations in both spaces.
 For example, an $l_1$ penalty can deal with changes in the right-hand
 side of the constraints (primal changes), but has virtually no effect
-in perturbations of the objective coefficients (dual changes).
+on perturbations of the objective coefficients (dual changes).
 
-The strategy relaxes the non-negativity constraints for the decision
+Benson and Shanno's strategy relaxes the non-negativity constraints
+for the decision
 variables, penalising the violation in the objective, for both
 the primal and dual problems.
-The penalised problem allows the variables to become negative: 
-this provides more freedom of movement for the variables, with
-the immediate advantage of accepting larger stepsizes along 
-the computed search direction. This favours a faster progress
+The penalised problem allows the variables to become negative,
+which provides more freedom of movement for the variables, with
+the immediate advantage of allowing larger stepsizes along 
+the computed search direction to be accepted. This favours faster progress
 especially in the first few iterations, when the perturbation needs
 to be absorbed.
 This is of particular importance in reoptimization, as the optimal

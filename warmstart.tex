@@ -5,7 +5,7 @@
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
-%May:  1,  4,  6,  8, 10
+%May:  1,  4,  6,  8, 10, 11
 
 %
 % Chapter: Warm-start
@@ -22,7 +22,7 @@ the proposed method of generating an advanced starting point for
 stochastic programming that exploits the inherent structure of the
 problem. Finally, we present an analysis of the warm-start strategy.
 The results presented in this chapter have been the subject
-of a joint work with Jacek Gondzio and Andreas Grothey
+of joint work with Jacek Gondzio and Andreas Grothey
 \cite{ColomboGondzioGrothey06}. 
 
 
@@ -57,9 +57,9 @@ By stochastic programming, we mean decision and control models in which
 data evolves over time, and are subject to significant uncertainty.
 %
 Uncertainty in the data is a commonly observed phenomenon in
-optimization problems coming from applications. Uncertainty
+optimization problems coming from real-life applications. Uncertainty
 affects problems that aim to plan future actions based on forecasted
-prices or costs. In can be argued that nearly all practical
+prices or costs. It can be argued that nearly all practical
 optimization problems display uncertainty in the data, even if this is
 not made explicit in the chosen solution method. 
 
@@ -87,11 +87,12 @@ description, this encourages the generation of very large scenario trees.
 Stochastic programming aims to take all possible future scenarios 
 into account, weighting them
 with their respective probabilities. Its strength lies in the
-adaptability which allows to express preferences such as restricting
-the exposure to risk. Unlike alternative approaches, it allows to model
+adaptability which allows expression of preferences such as restricting
+exposure to risk. Unlike alternative approaches, it allows modelling of
 situations in which possible future events are correlated or follow a
-time-structure, in that realisations become known in stages and it is
-possible to react to the observed events.
+time-structure, in that realisations of some random process
+become known in stages and it is
+possible to react to observed events.
 
 The stochastic programming paradigm is perceived to have
 some weaknesses.
@@ -100,20 +101,20 @@ of the probabilities of the future events under consideration
 (which may not be available), and the fact that 
 taking into account a large number of possible scenarios 
 (especially when applied to multi-stage models) leads to
-to the generation of large-scale structured optimization problems,
+the generation of large-scale structured optimization problems,
 the solution of which is challenging. 
 With the growing industrial acknowledgement of the benefits of 
 considering uncertainty for planning purposes, it is expected that the 
-need for solving very large instances will grow as well.
+need for solving very large problem instances will grow as well.
 
 As the dimensions of the problems increase, the computational advantages 
 of relying on interior point solvers become more and more evident. 
 Very-large-scale problems, however, create more than one difficulty to general 
 purpose solvers.
-Problems of such sizes can be solved provided they are not only sparse,
-but also structured. If that is the case, then the structure present 
-in the matrix should be conveniently exploited.
-The easier access to powerful parallel machines leads to a 
+Problems of such sizes can be solved provided that they are both sparse
+and structured. If that is the case, then the structure present 
+in the matrix should be effectively exploited.
+Easier access to powerful parallel machines leads to a 
 further advantage coming from assigning the computational work 
 to more than one processing unit through the parallelisation of 
 the linear algebra.
@@ -156,12 +157,12 @@ While (\ref{eq:SP1}) models the first stage decisions,
 (\ref{eq:SP2}) refers to the second stage decisions, which can
 be made only after a realisation of the random variable $\xi$
 has become known. Note how the first-stage decision variables $x^1$ 
-appear in (\ref{eq:SP2}): at the time when the realisation
+appear in (\ref{eq:SP2}); at the time when the realisation
 become available, the first-stage decisions have already been made.
 
 In stochastic programming, the uncertain environment is 
-described through a stochastic process which is assumed to be 
-known or can be either estimated from historical data or 
+described through a stochastic process which is either assumed to be 
+known, or can be estimated from historical data or 
 conjectured according to some prescribed properties. The 
 continuous process $\xi$ is usually further approximated by a discrete 
 distribution
@@ -216,7 +217,7 @@ scenario.
 The probability of each scenario is the product of the 
 conditional probabilities of visiting each node on the path.
 
-As we have already mentioned, usually a very large number of scenarios is
+As we have already mentioned, a very large number of scenarios is usually
 needed to adequately capture the characteristics of the underlying
 continuous distribution, particularly in the multi-stage setting.
 In this case, the number of scenarios grows exponentially with the
@@ -249,11 +250,11 @@ recourse problem:
 %
 where $y(\xi)$ denotes the recourse action which depends on the 
 outcome of the random process $\xi$. 
-Note that (\ref{eq:SLPRecourse}) combines in a single formulation
-both (\ref{eq:SP1}) and (\ref{eq:SP2}).
+Note that (\ref{eq:SLPRecourse}) combines 
+(\ref{eq:SP1}) and (\ref{eq:SP2}) in a single formulation.
 After discretizing $\xi$ 
 according to $P(y^i=\xi_i) = p^i$, and using the notation 
-$T^i = T(\xi_i)$ (and analogously for $h^i$, $W^i$, $y^i$ and $q^i$), 
+$T^i = T(\xi_i)$ (analogously for $h^i$, $W^i$, $y^i$ and $q^i$), 
 $i = 2, \ldots, n$,
 problem (\ref{eq:SLPRecourse}) can be written in the 
 {\em deterministic equivalent formulation}:
@@ -268,7 +269,7 @@ problem (\ref{eq:SLPRecourse}) can be written in the
 \end{array}
 \ee
 The deterministic equivalent formulation is derived by writing
-explicitly each possible realisation of the random parameters.
+each possible realisation of the random parameters explicitly.
 The formulation (\ref{eq:DetEq-2stage}) does not have any stochasticity
 left, but is completely deterministic, and is therefore a common
 linear programming problem of (very) large dimensions.
@@ -280,12 +281,12 @@ The same approach can be immediately extended to multi-stage models.
 To formulate the deterministic equivalent of the multi-stage 
 stochastic programming problem we first need to enumerate all nodes 
 of the event tree. We use a breadth-first 
-search order, i.e., we start from a root node corresponding 
+search order, i.e. we start from a root node corresponding 
 to the initial stage and end with leaf nodes corresponding 
 to the last stage. In this case, the constraint matrix displays
 a nested dual-block angular structure.
 
-Let $t = 1,2,\ldots,T$ denote the stage and let $\mathcal{L}_t$ 
+Let $t = 1,2,\ldots,T$ denote the stages and let $\mathcal{L}_t$ 
 be the set of nodes at stage $t$.
 With $a(l)$ we denote the direct ancestor of node $l\in\mathcal{L}_t$ 
 (which is a node that belongs to stage $t-1$), and with
@@ -344,7 +345,7 @@ to the chosen ordering of nodes.
     \label{fig:deteq}
 \end{figure}
 %
-While the different ordering of blocks whithin the matrix is not 
+While the different ordering of blocks within the matrix is not 
 relevant for general-purpose solvers, the structure-exploiting
 software \OOPS \cite{GondzioGrothey07,GondzioSarkissian} can take 
 full advantage of the nested dual-block angular structure resulting
@@ -353,11 +354,11 @@ linear algebra representation.
 
 Several solution methods for stochastic linear programs have been 
 presented in the literature. These often rely on some decomposition
-approach \cite{Birge85,LinderothWright03,MulveyRuszczynski}, among others.
+approach \cite{Birge85,LinderothWright03,MulveyRuszczynski}.
 Kall and Mayer \cite{KallMayer} provided a comparison of different
 solution algorithms for stochastic linear programming problems.
-In what follows, instead, we consider solving the deterministic equivalent
-problem directly through an interior point method.
+In what follows, we consider solving the deterministic equivalent
+problem directly by using an interior point method.
 
 
 %
@@ -384,7 +385,7 @@ scenarios, and so the large-scale problem can provide a fine-grained
 solution to a problem that could have been solved more coarsely by 
 using a much smaller tree. 
 
-These observations suggests a
+These observations suggest a
 warm-start technique that can be applied in the context of interior 
 point methods. A warm-start solution is obtained by solving the 
 stochastic optimization problem for a reduced event tree, whose 
@@ -404,8 +405,8 @@ reduction technique that couples a large reduction of the scenario
 tree with a small loss in accuracy. In their example, a reduction by 
 50\% of the scenario tree still maintains about 90\% of the original 
 accuracy.
-In this paper, we are interested in capturing some aspects of the 
-stochasticity of the event tree without assuming further knowledge on 
+Here we are interested in capturing some aspects of the 
+stochasticity of the event tree without assuming further knowledge of
 the underlying stochastic process that generated it. Given this difference 
 from what is required for example by \cite{Dupacova}, we will use less 
 sophisticated arguments in finding a reduced tree.
@@ -418,9 +419,10 @@ this selection, so that our choice performs better than an arbitrary
 one.
 Then we discuss how to obtain a warm-start solution from the reduced 
 tree that corresponds to the chosen scenarios.
-Our aim is to generate a warm-start iterate that allows to solve to 
-optimality the complete problem in fewer iterations (and less computing 
-time) than by a standard starting point heuristic \cite{Mehrotra92}.
+Our aim is to generate a warm-start iterate that allows
+the complete problem to be solved to optimality in fewer iterations
+(and less computing time) than an iterate chosen with a standard
+starting point heuristic \cite{Mehrotra92}.
 With these aims, we propose a way of choosing a subset of scenarios 
 that we believe to be sufficiently representative of the whole tree.
 The algorithm can be summarised in the steps of
@@ -476,7 +478,7 @@ for some norm $\| \cdot \|$.
 Hence, we compute the distance between scenarios $i$ and $j$ as
 \[
   D(s_i, s_j) = \sum_{t=1}^T d(\eta^{i_t}, \eta^{j_t}),
-                \qquad i_t \in s_i, j_t \in s_j.
+                \qquad i_t \in s_i,\; j_t \in s_j.
 \]
 
 Scenarios that belong to the same branch of the tree will 
@@ -492,8 +494,8 @@ not share nodes apart from the root.
 We generate the reduced tree by taking into account both 
 the structural and the stochastic information available from the 
 problem formulation. By structural information we mean the shape of 
-the event tree, i.e. how the tree branches at the various stages; by 
-stochastic information we refer to the probabilities associated to 
+the event tree, i.e. how the tree branches at the various stages. By 
+stochastic information we mean the probabilities associated to 
 each node in the tree, and consequently to each scenario. Hence we 
 adopt two complementary strategies. First we choose a subset of 
 branches of the event tree; then, in each branch, we choose the most 
@@ -505,12 +507,12 @@ appear in the reduced tree. In some sense, we look for a way to span
 the breadth of the complete tree. For a defined small value $k < T$, where 
 $T$ is the number of stages in the problem, we choose some of the 
 nodes at the $k$-th stage, together with all their ancestors up to the 
-root, to appear in the subtree. The choice on the nodes to appear in
+root, to appear in the subtree. The choice of nodes to appear in
 the reduced tree should be guided by probabilities.
 The rationale for this strategy is to ensure that our warm-start 
-iterate has a good representation of the decisions to be taken 
+iterate is a good representation of the decisions to be taken 
 in the first few stages, as getting early decisions right is fundamental
-for an easier optimization of the later stages.
+for easier optimization of the later stages.
 %
 To illustrate this idea, suppose we deal with a multistage setting where 
 there are $T=4$ stages, such as in the tree of Figure~\ref{fig:Tree}: 
@@ -550,10 +552,10 @@ then by appending the average nodes. We define it as
 \]
 where $l_t = a(l_{t+1})$ for $t = 1,\ldots, k-1$.
 Scenario $\bar{s}$ is completely artificial, and there is no guarantee 
-that it is feasible: therefore we cannot use it directly as our 
-representative scenario. Instead, we use it as a reference point to 
-which compare all other scenarios, and thus find the closest scenario 
-among the existing ones: this way we do not introduce spurious 
+that it is feasible. Therefore, we cannot use it directly as our 
+representative scenario. Instead, we use it as a reference point
+which we compare all other scenarios to, and thus find the closest scenario 
+among the existing ones. In this way we do not introduce spurious 
 infeasibilities. Hence, in the subtree $S$ we choose the 
 representative scenario $s^*$ as 
 %
@@ -573,7 +575,7 @@ the representative scenario corresponding to node $i$ belonging to the
 same stage $t$ as node $i$. In other words, to get from node
 $i\in\Ctree$ to $r(i)\in\Rtree$ we walk up the tree $\Ctree$ until we
 find a node that is also in $\Rtree$, and from there walk back down
-the reduced tree until we arrive at the same stage as the original node
+the reduced tree until we arrive at the same stage as the original node.
 This mapping is used to decide how to initialise 
 the warm-start iterate for the complete tree, as presented in the
 next section. We remark that our generation process guarantees
@@ -581,7 +583,7 @@ that for each $i \in \Ctree$, the following properties hold:
 \be  \label{eq:ReducedTreeProperties}
   a(r(i)) \in \Rtree, \quad \mbox{ and } \quad a(r(i)) = r(a(i)),
 \ee
-that is if a node is in the reduced tree so is its parent, and the
+that is, if a node is in the reduced tree then so is its parent, and the
 mapping $r(\cdot)$ preserves the parent-child relationship. 
 
 Continuing the example started above, we consider two subsets of 
@@ -595,7 +597,7 @@ We introduce the set $\mathcal{I}_l$ of nodes in the complete tree
 that are initialised by a given node $l\in\Rtree$, that is
 $\mathcal{I}_l = \{\, i \in \Ctree : r(i) = l \,\}$, $l \in \Rtree$.
 It should be noted that the reduced-tree generation process can be
-interpreted as a node-aggregation process: all nodes in
+interpreted as a node-aggregation process, in which all nodes in
 $\mathcal{I}_l\subset\Ctree$ are aggregated into a single node $l\in\Rtree$.
 The node aggregation determines the node probabilities $p_R^l$ associated
 with each node $l\in\Rtree$; we use:
@@ -617,12 +619,12 @@ We define the deviation from this as
                                  \frac{p_R^{r(i)}}{p^i}\frac{n_R}{n}\right\}.
 \ee
 
-It is worth noting the effect of the probabilities update
+It is worth noting the effect of the probability update
 (\ref{eq:UpdatePathProbs}) on the conditional probabilities.
 Denote by $\delta^i = p^i/p^{a(i)}$ the conditional probability of
 reaching node $i$, given that its parent $a(i)$ has already been
 reached.
-The conditional probabilities in the reduced tree update according to
+The conditional probabilities in the reduced tree are updated according to
 \be  \label{eq:UpdateCondProbs}
   \delta_R^l = \!\!\! \sum_{i \in \mathcal{I}_l\cap D_{a(l)}} \!\!\! \delta^i,
   \quad l \in \Rtree.
@@ -684,14 +686,14 @@ the complete system.
 This objective can be achieved on a node by node basis 
 by exploiting the inherent structure of the problem.
 The sections of the vectors
-$\hat{x}, \hat{y}, \hat{s}$ correspoding to node $i\in\Ctree$ are
+$(\hat{x}, \hat{y}, \hat{s})$ correspoding to node $i\in\Ctree$ are
 initialised from the sections of the vectors 
-$x_R^*,y_R^*,s_R^*$ correspoding to node $r(i)\in\Rtree$. This process
+$(x_R^*,y_R^*,s_R^*)$ correspoding to node $r(i)\in\Rtree$. This process
 will be detailed below.
 
-Denote by $\hat x^{i}, \hat y^{i}, \hat s^{i}$ the part of the vectors
-$\hat{x}, \hat{y}, \hat{s}$ corresponding to node $i\in\Ctree$ and likewise
-$x_R^{i}, y_R^{i},  s_R^{i}$ for components of the solution of the
+Denote by $(\hat x^{i}, \hat y^{i}, \hat s^{i})$ the part of the vectors
+$(\hat{x}, \hat{y}, \hat{s})$ corresponding to node $i\in\Ctree$ and likewise
+$(x_R^{i}, y_R^{i},  s_R^{i})$ for components of the solution of the
 reduced problem. Then we construct the starting point for the complete
 problem in the following manner:
 \be  \label{eq:WarmstartSolution}
@@ -714,9 +716,9 @@ in the reduced tree we accepted only the scenarios that end at
 node 10 and node 15, so that the reduced tree consists of nodes 
 1, 2, 3, 4, 7, 10 and 15. By solving the corresponding reduced problem, 
 we obtain the parts of the solution vector associated to such 
-nodes: these can be used directly in the complete iterate
+nodes. These can be used directly in the complete iterate
 (Figure~\ref{fig:Solution} top). 
-We fill the missing elements 
+We fill in the missing elements 
 by reproducing the solution from the nodes in the same subtree 
 and the same stage (Figure~\ref{fig:Solution} bottom).
 The proposed way of constructing the complete iterate is easy to
@@ -754,7 +756,7 @@ Contrary to what is assumed in both \cite{YildirimWright} and
 as the reduced tree problem is, by construction, much smaller than the 
 complete problem.
 
-However, in a similar way as we did with the solution vector, 
+However, similarly to what we did with the solution vector, 
 we can expand the reduced problem to one which has the same dimension 
 as the complete problem (\ref{eq:CompleteProblem}) by replicating
 the blocks in the coefficient matrix and in the objective and right-hand 
@@ -786,11 +788,12 @@ procedure. First we note that from an advanced iterate
 $(x_R, y_R,  s_R)\in\mathcal{N}^R_s(\gamma)$ for the reduced
 problem the procedure in (\ref{eq:WarmstartSolution}) constructs a
 primal--dual feasible point $(\hat{x}, \hat{y}, \hat{s})$ for the 
-expanded problem. Indeed we will show 
-$(\hat{x}, \hat{y}, \hat{s})\in\hat{\mathcal{N}}_s(\hat{\gamma})$
-in Theorem~\ref{th:NeighbourhoodExpandedSolution}. In the second step we
-can use this iterate to warmstart the complete problem. Since in the
-step from the expanded to the complete problem only the problem data
+expanded problem. Indeed,
+in Theorem~\ref{th:NeighbourhoodExpandedSolution} we will show that
+$(\hat{x}, \hat{y}, \hat{s})\in\widehat{\Nhood}_s(\hat{\gamma})$.
+In the second step we
+can use this iterate to warm-start the complete problem. Since in the
+step from the expanded to the complete problem the problem data
 changes but not its size, the methods developed in
 \cite{GondzioGrothey03,YildirimWright} can be used to analyse the 
 warm-start iterate.
@@ -819,11 +822,11 @@ We have this chain of identities:
        \sum_{i \in \mathcal{I}_k \cap \mathcal{D}_{l}}\!\!\! \delta^{i},
 \end{split}
 \]
-where the second equal sign follows from $p^i = p^l\delta^i$ and
+where the second equality follows from $p^i = p^l\delta^i$ and
 $p_R^{r(i)} = p_R^{r(l)}\delta_R^{r(i)}$ for $i \in \mathcal{D}_l$. 
 The last equality follows from the fact that we can partition
 $\mathcal{D}_l$ according to which nodes of the reduced tree are used
-for initilisation:
+for initialisation:
 \(
   \mathcal{D}_{l} = \bigcup_{k \in \mathcal{D}_{r(l)}^R}
      \mathcal{I}_{k} \cap \mathcal{D}_{l}.
@@ -897,7 +900,7 @@ where we used (\ref{eq:WarmstartSolution}) and (\ref{eq:UpdatePathProbs}),
 and $\mu_R = x_R^Ts_R/n_R$. 
 Hence, since $(x_R, y_R, s_R)\in N_s(\gamma)$ 
 implies $(x_R)_j (s_R)_j\ge \gamma\mu_R$, for $j = 1, \ldots, n_R$, 
-and using (\ref{eq:rho}) we have
+using (\ref{eq:rho}) we have
 \[
   \hat x^l_j\hat s^l_j = (x_R^{r(l)})_j (s_R^{r(l)})_j
                          \frac{p^l}{p_R^{r(l)}}
@@ -924,14 +927,14 @@ perturbation introduced, and we never generate it in practice.
 
 We assume that a feasible long-step path-following algorithm based on
 the symmetric neighbourhood $\Nhood_s(\gamma)$ 
-is used to solve the warmstarted complete problem. 
+is used to solve the warm-started complete problem. 
 Although the constructed warm-start iterate $(\hat{x}, \hat{y}, \hat{s})$ 
 from (\ref{eq:WarmstartSolution}) is feasible in the expanded problem, 
 it is not feasible in the complete problem. 
 As in \cite{YildirimWright} and \cite{GondzioGrothey03} we derive
 conditions that guarantee to absorb these infeasibilities with one
 {\em modification step}. 
-For this consider the following Newton system:
+For this, consider the following Newton system:
 \be \label{eq:NewtonSystem2}
 \left[ \begin{array}{ccc}
     A & 0 & 0 \\ 0 &A^T & I \\ \hat{S} & 0 & \hat{X}
@@ -945,7 +948,7 @@ For this consider the following Newton system:
 \ee
 where $\xi_b = b - A\hat{x}$ and $\xi_c = c - A^T\hat{y}+\hat{s}$ are the
 infeasibilities incurred by using the expanded iterate $(\hat{x},
-\hat{y}, \hat{s})$ to warmstart the complete problem. 
+\hat{y}, \hat{s})$ to warm-start the complete problem. 
 Such a modification is termed a {\em Newton step correction} in
 \cite{YildirimWright} or an {\em Additional centering iteration}
 in \cite{GondzioGrothey06}. 
@@ -954,7 +957,7 @@ same system, but are concerned with absorbing primal and dual
 infeasibility separately by splitting (\ref{eq:NewtonSystem2}) into
 two separate directions.
 We will give a more general result and apply it to the situation of
-warm start for stochastic programming problems. To avoid overburdening
+warm-start for stochastic programming problems. To avoid overburdening
 notation we will drop the hat from the warm-start vectors.
 We will keep it in the neighbourhoods to make a clear distinction between
 $\widehat{\mathcal{N}}_s(\gamma)$ and $\mathcal{N}_s(\gamma)$
@@ -1122,7 +1125,7 @@ which proves the statement of the theorem.
 \subsection{Conditions on the warm-start iterate}
 
 We use Lemma~\ref{th:FullNewtonStep} to obtain conditions that the 
-reduced tree has to satisfy in order for a warm start of the complete problem 
+reduced tree has to satisfy in order for a warm-start of the complete problem 
 to be successful. In order to prove this result, we need to assume that 
 the primal--dual solution $(x_R^\ast, y_R^\ast, s_R^\ast)$ to the reduced 
 stochastic programming problem is uniformly bounded, say,
@@ -1306,7 +1309,7 @@ Let the assumptions of Lemma~\ref{th:BoundResiduals} be satisfied and
 \]
 Then the full Newton step (\ref{eq:NewtonSystem2})
 from the warm-start iterate is feasible 
-and it restores primal and dual feasibility.
+and restores primal and dual feasibility.
 \end{theorem}
 %
 \begin{proof}
@@ -1327,16 +1330,16 @@ In a similar way, we obtain
 Now the result follows from  Lemma~\ref{th:FullNewtonStep}. 
 \end{proof}
 
-A few remarks are in order about these results.
+It is worth making a few remarks about these results.
 Theorem~\ref{th:Final} implies that if we can choose the reduced
 scenario tree such that $\varepsilon = \max_i\{d(r(i),i)\}$ is small enough
 to satisfy the bound given in the Theorem, then the warm-start point
 constructed from the reduced scenario tree will be successful for the
 complete problem. Unfortunately we have only limited influence on
-$\varepsilon$: indeed $\varepsilon$ is the result of the variation of
-the problem data between the expanded and the complete system.
+$\varepsilon$. Indeed $\varepsilon$ is the result of the variation of
+the problem data between the expanded and the complete systems.
 
-There are two approaches that can be adopted in case the warm-start
+There are two approaches that can be adopted if the warm-start
 for a given reduced tree fails.
 The first relies on generating a denser reduced tree. This would
 directly reduce $\varepsilon$, but it would also imply solving
@@ -1346,10 +1349,10 @@ Since the description of the new reduced tree is more detailed,
 we guarantee that the infeasibility of the new warm-start point
 is smaller.
 The second way, fully explored in the literature 
-(see Section~\ref{sec:WarmStart}), suggests to reduce the accuracy
+(see Section~\ref{sec:WarmStart}), suggests reducing the accuracy
 with which the reduced problem is solved. This is justified by the fact
 that the amount of perturbation that can be absorbed is directly related
-th $\mu$ for the warm-start point.
+to $\mu$ for the warm-start point.
 In our approach we see that, considering \eqref{xysBound},
 a change in the accuracy of the reduced-tree solution $(x^*, y^*, s^*)$
 affects the value of $B$ that appears in the left-hand side of
@@ -1384,33 +1387,33 @@ available from:
 % while problem {\tt stocfor} comes from \\
 % {\tt http://www.uwsp.edu/math/afelt/slptestset/download.html}. \\
 %
-It should be noted that we disabled presolve % and scaling 
+It should be noted that we disabled \HOPDM's presolve % and scaling 
 in order to preserve the dimensions of the problems, and thus obtain 
 sensible warm-start points.
 
 We solved the reduced problem with an optimality tolerance of 
 $5.0\times 10^{-1}$, while the optimality tolerance for the complete 
 problem was set to $5.0\times 10^{-8}$. 
-Computations were performed on a Linux PC with 3.0GHz Intel Pentium 
+Computations were performed on a Linux PC with a 3.0GHz Intel Pentium 
 processor and 1GB of RAM.
 In Table~\ref{table:hopdm} we report the dimensions of the problems 
 in terms of the number of stages and scenarios for the complete 
 tree, the number of iterations and the computing time (in seconds) 
-with cold start and warm start. The latter includes the generation 
+with cold-start and warm-start. The latter includes the generation 
 and solution of the reduced problem, and the construction of the 
 warm-start iterate.
 
 While the analysis of Section~\ref{sec:Analysis} is very conservative
-in the estimates of the absorbable perturbations, in practice we noticed
+in its estimates of the absorbable perturbations, in practice we noticed
 that the reduced-tree warm-start strategy is effective even with
-a much sparser tree than suggested from the theory.
+a much sparser tree than suggested by the theory.
 In the warm-start case, the reduced tree was built with only 2 scenarios.
 
-The instances solved show an overall good behaviour of our warm-start
-strategy, with time savings up to 59\% for problem {\tt pltexpA5\_6}.
+The problems solved show an overall good behaviour of our warm-start
+strategy, with time savings of up to 59\% (for problem {\tt pltexpA5\_6}).
 The generation of the reduced tree and the solution of the corresponding
-problem (\ref{eq:ReducedProblem}) is generally fast, and as the problem 
-sizes increase becomes negligible. However, for the smallest instances
+problem (\ref{eq:ReducedProblem}) is generally fast, and, as the problem 
+sizes increase become negligible. However, for the smallest instances
 of our test set ({\tt fxm2\_16}, {\tt fxm3\_6} and {\tt fxm4\_6}), it
 is noticeable and consumes the savings produced by using an advanced
 iterate.
@@ -1448,12 +1451,12 @@ storm1000    &  2 & 1000 & 107 &1498.3 & 45 & 831.5 \\ \hline
 
 Given the favourable results, we implemented the same approach 
 in \OOPS \cite{GondzioSarkissian,GondzioGrothey07}, where we were 
-able to test larger instances. 
+able to test larger problem instances. 
 Since \OOPS does not have features such as presolve and scaling,
 % or freedom in the choice of the pivot elements. 
 the accuracy requested in the solution has to be smaller. We set it to
-$5.0 \times 10^{-4}$ which is more than enough for telecommunication
-applications anyway.
+$5.0 \times 10^{-4}$ which is sufficient for telecommunication
+applications.
 On the other hand, \OOPS makes an effective use of its structure-exploiting
 capabilities \cite{GondzioSarkissian,GondzioGrothey07},
 allowing the solver to tackle large-scale problems 
@@ -1463,7 +1466,7 @@ We applied our warm-start strategy to the capacity assignment problem
 with uncertain demand, a model relevant to the telecommunication 
 industry \cite{Ouorou}. The objective of this model is to find 
 the optimal choice of capacities to be assigned to the links 
-in the network in order to minimize the unsatisfied customer demands.
+in the network in order to minimize unsatisfied customer demands.
 In our particular application we assume that the topology 
 of the network and the sets of origin--destination pairs are given 
 and are not going to change during the planning horizon.
@@ -1474,7 +1477,7 @@ with recourse. The general model has the following form:
   \min_x \; E_d [f(x,d)] \qquad 
   \mbox{s.t. }\; \sum_{l \in {\cal A}} c_l x_l \le M, \;\;  x \ge 0,
 \]
-where $c_l$ and $x_l$ are the cost and the capacity of link $l \in {\cal A}$, 
+where $c_l$ and $x_l$ are the cost and capacity of link $l \in {\cal A}$, 
 respectively, and $M$ is a bound on the budget. The objective 
 here is to minimize the expected cost (conditional on the uncertain 
 demand). This general model describes the first stage 
@@ -1584,11 +1587,11 @@ we report the solution statistics for \OOPS.
 Computations were performed on a Linux PC with 3.0GHz Intel Pentium
 processor and 2GB of RAM.
 % We report the number of iterations and 
-% the solution time for cold start and warm start cases.
+% the solution time for cold-start and warm-start cases.
 In all cases the reduced tree was built with merely two scenarios.
 Therefore the computation time corresponding to the solution 
 of the reduced problem (included in time reported in the table) 
-was always negligible. The savings of warm start over cold start 
+was always negligible. The savings of warm-start over cold-start 
 strategy vary between 40\% and 80\% in most cases.
 %
 \begin{table}[ht]
@@ -1643,16 +1646,16 @@ we report the parallel performance
 of \OOPS on a cluster of four machines with a 3.0GHz Intel Pentium 
 processor and 2GB of RAM each.
 In this case, we choose the size of the reduced tree to be equal 
-to the number of processors employed for two complementary reasons: 
-first, it is preferable to assign to \OOPS a balanced number of blocks 
+to the number of processors employed for two complementary reasons.
+First, it is preferable to assign to \OOPS a balanced number of blocks 
 on each processor, so we needed to guarantee that each processor 
 gets at least one block; second, we obtain a more refined 
 starting solution at no additional computational cost. 
 However the analysis of the parallel results collected 
 in Table~\ref{table:oops}
 indicates that the use of a slightly larger reduced tree does not 
-translate into any noticeable improvement in the warm start runs 
-as measured with the number of warm start iterations.
+translate into any noticeable improvement in the warm-start runs 
+as measured with the number of warm-start iterations.
 Obviously, the solution times are reduced but this is the effect 
 of using more processors.
 
@@ -1663,7 +1666,7 @@ of using more processors.
 \section{Other stuff}
 
 \begin{itemize}
-\item The reduced tree approach to construct a warmstart iterate 
+\item The reduced tree approach to construct a warm-start iterate 
 doesn't seem to be IPM specific, and could be exploited also by a 
 simplex solver (in which case, how would such a solver obtain the 
 complete basis?). However, interior point methods have the advantage
