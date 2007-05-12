@@ -6,7 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
-%May:  2,  4,  8, 11
+%May:  2,  4,  8, 11, 12
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -18,11 +18,11 @@ interior point methods. We concentrate on the main strategies which are
 the basis of effective implementations of interior point methods
 for linear programming, and present other issues that are specific
 to practical algorithms.
-We also review some of the warm-start techniques for interior point methods
-that have been proposed in the literature.
-These are documented in extensive literature, for example, see
+These have been documented extensively; for example, see
 \cite{AndersenGondzioMeszarosXu,GondzioTerlaky,ipm:Wright97} 
 and the references therein.
+We also review some of the warm-start techniques for interior point methods
+that have been proposed in the literature.
 
 
 %
@@ -42,6 +42,8 @@ As in the analysis of the simplex method, we see here a large
 gap between the predicted and observed performances that is still to
 be fully understood.
 
+Interior point methods are well-suited to solving very
+large scale optimization problems.
 Practical algorithms are very different from the ones used for
 theoretical purposes, and they usually implement some variation
 of infeasible interior point algorithms. In particular they show
@@ -118,7 +120,7 @@ shifted inside the positive orthant, and the starting point is
 \]
 where $\delta_x$ and $\delta_s$ are positive quantities. 
 Their values depend on the distance of $\tilde x$ and $\tilde s$
-to non-negativity, and an additional correction term to ensure
+to non-negativity and an additional correction term to ensure
 strict positivity.
 
 The following variation is described in \cite{GondzioTerlaky}:
@@ -139,91 +141,6 @@ Considerations on what constitutes an appropriate starting point
 for interior point methods will be discussed
 again in Section~\ref{sec:WarmStart}, where we survey some
 warm-start strategies.
-
-%
-%
-\subsection{Solving the Newton system}
-\label{sec:SolvingNewtonSystem}
-
-The solution of system (\ref{eq:NewtonSystem}) is the computationally
-dominant step in each iteration of an interior point algorithm.
-Throughout this thesis, we will 
-restrict our attention to using a direct approach in solving these
-equations.
-We remark, however, that a wealth of research has explored the use
-of iterative methods in the computation of the search direction
-\cite{BergamaschiGondzioZilli,OliveiraSorensen05}.
-
-System (\ref{eq:NewtonSystem}) is usually reduced to two other
-formulations by exploiting the block structure of its
-matrix.
-%
-The {\em augmented system} formulation is obtained by using 
-the last row of (\ref{eq:NewtonSystem}) to eliminate
-$\Delta s = X^{-1} (\xi_\mu - S\Delta x)$.
-This produces
-%
-\be \label{eq:AugmentedSystem}
-\left[ \begin{array}{cc}
-    -X^{-1}S & A^T \\ A & 0
-  \end{array} \right]
-\left[ \begin{array}{c}
-    \Delta x \\  \Delta y
-  \end{array} \right] =
-\left[ \begin{array}{c}
-    \xi_c - X^{-1}\xi_\mu \\ \xi_b
-   \end{array} \right],
-\ee
-which is a symmetric but indefinite system.
-%
-By further eliminating $\Delta x$, we reduce system 
-(\ref{eq:AugmentedSystem}) to the set of {\em normal equations}
-%
-\be \label{eq:NormalEquations}
-  A D^2 A^T \Delta y = A D^2 (\xi_c - X^{-1} \xi_\mu) + \xi_b,
-\ee
-%
-where we introduced the notation $D^2 = S^{-1} X$.
-Under the standard assumption of full row rank for $A$, matrix 
-$A D^2 A^T$ is positive definite, since $D^2_i = x_i/s_i > 0$ for
-all $i = 1, \ldots, n$.
-
-Besides the issue of definiteness, the two formulations differ in
-terms of sparsity and conditioning, the normal equations usually 
-being denser and worse conditioned.
-The choice between the augmented system and normal equations
-techniques depends also on 
-the relative density of $AD^2A^T$ with respect to $A$.
-Normal equations are to be avoided when there are dense columns in $A$, 
-as they generate dense blocks in $AD^2A^T$.
-In the broad context of weighted least squares computations, the choice
-between the augmented system and normal equations techniques was studied long
-before the development of interior point methods, see for example
-\cite{DuffErismanReid86}.
-The augmented system formulation requires particular attention 
-to the development of linear algebra routines because
-it involves an indefinite matrix. This raises problems of numerical
-stability, and an accurate choice of pivoting strategies is fundamental.
-Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
-study of the properties of the augmented system formulation.
-
-A direct approach computes the Cholesky factorisation $M=LDL^T$
-of the constraint matrix $M$ with a lower triangular $L$ and
-a diagonal matrix $D$.
-In the computation of the factors, inevitably new nonzero entries
-are generated (the so called {\em fill-in}). The amount of
-fill-in is strongly influenced by the ordering in which the
-operations are performed.
-Various ordering techniques have been developed to reduce the fill-in
-in the Cholesky factors, thus maintaining sparsity and 
-reducing the required work \cite{RothbergHendrickson}.
-Once the factors have been computed, the solution of system $Mx = r$ 
-happens in two steps:
-first by solving $Lz = r$ for $z$, then $L^Tx = D^{-1}z$ for $x$.
-The solution phase is also called the {\em backsolve phase}.
-A careful implementation of the linear algebra routines that perform
-the ordering, factorisation and solution of the Newton system is
-one of the key points for an efficient interior point solver.
 
 %
 %
@@ -316,22 +233,92 @@ that is both primal and dual feasible.
 
 %
 %
-\subsection{Correcting techniques}
+\subsection{Solving the Newton system}
+\label{sec:SolvingNewtonSystem}
 
-Interior point methods require the solution of the Newton 
-system (\ref{eq:NewtonSystem}) in order to determine
-the search direction.
-When direct methods of linear algebra are used, the computation 
-of the Newton direction requires two computationally intensive
-operations: 
-\begin{itemize}
-\item The {\em factorisation}, that is the computation of the 
-Cholesky factors of a sparse 
-symmetric matrix; 
-\item The {\em backsolve}, which uses the factors just computed 
-to solve the system. 
-\end{itemize}
-However, it is the computation of the Cholesky factors that
+The solution of system (\ref{eq:NewtonSystem}) is the computationally
+dominant step in each iteration of an interior point algorithm.
+Throughout this thesis, we will 
+restrict our attention to using a direct approach in solving these
+equations.
+We remark, however, that a wealth of research has explored the use
+of iterative methods in the computation of the search direction
+\cite{BergamaschiGondzioZilli,OliveiraSorensen05}.
+
+System (\ref{eq:NewtonSystem}) is usually reduced to two other
+formulations by exploiting the block structure of its
+matrix.
+%
+The {\em augmented system} formulation is obtained by using 
+the last row of (\ref{eq:NewtonSystem}) to eliminate
+$\Delta s = X^{-1} (\xi_\mu - S\Delta x)$.
+This produces
+%
+\be \label{eq:AugmentedSystem}
+\left[ \begin{array}{cc}
+    -X^{-1}S & A^T \\ A & 0
+  \end{array} \right]
+\left[ \begin{array}{c}
+    \Delta x \\  \Delta y
+  \end{array} \right] =
+\left[ \begin{array}{c}
+    \xi_c - X^{-1}\xi_\mu \\ \xi_b
+   \end{array} \right],
+\ee
+which is a symmetric but indefinite system.
+%
+By further eliminating $\Delta x$, we reduce system 
+(\ref{eq:AugmentedSystem}) to the set of {\em normal equations}
+%
+\be \label{eq:NormalEquations}
+  A D^2 A^T \Delta y = A D^2 (\xi_c - X^{-1} \xi_\mu) + \xi_b,
+\ee
+%
+where we introduced the notation $D^2 = S^{-1} X$.
+Under the standard assumption of full row rank for $A$, matrix 
+$A D^2 A^T$ is positive definite, since $D^2_i = x_i/s_i > 0$ for
+all $i = 1, \ldots, n$.
+
+Besides the issue of definiteness, the two formulations differ in
+terms of sparsity and conditioning, the normal equations usually 
+being denser and worse conditioned.
+The choice between the augmented system and normal equations
+techniques depends also on 
+the relative density of $AD^2A^T$ with respect to $A$.
+
+Normal equations are to be avoided when there are dense columns in $A$, 
+as they generate dense blocks in $AD^2A^T$.
+In the broad context of weighted least squares computations, the choice
+between the augmented system and normal equations techniques was studied long
+before the development of interior point methods, see for example
+\cite{DuffErismanReid86}.
+
+The augmented system formulation requires particular attention 
+to the development of linear algebra routines because
+it involves an indefinite matrix. This raises problems of numerical
+stability, and an accurate choice of pivoting strategies is fundamental.
+Maros and M\'esz\'aros \cite{MarosMeszaros} presented an in-depth 
+study of the properties of the augmented system formulation.
+
+A direct approach computes the Cholesky factorisation $M=LDL^T$
+of the constraint matrix $M$ with a lower triangular $L$ and
+a diagonal matrix $D$.
+In the computation of the factors, inevitably new nonzero entries
+are generated (the so called {\em fill-in}). The amount of
+fill-in is strongly influenced by the ordering in which the
+operations are performed.
+Various ordering techniques have been developed to reduce the fill-in
+in the Cholesky factors, thus maintaining sparsity and 
+reducing the required work \cite{RothbergHendrickson}.
+Once the factors have been computed, the solution of system $Mx = r$ 
+happens in two steps:
+first by solving $Lz = r$ for $z$, then $L^Tx = D^{-1}z$ for $x$.
+The solution phase is also called the {\em backsolve phase}.
+A careful implementation of the linear algebra routines that perform
+the ordering, factorisation and solution of the Newton system is
+one of the key points for an efficient interior point solver.
+
+The computation of the Cholesky factors
 dominates the cost of each iteration.
 As this is usually a major computational task, 
 the efforts in the theory and practice of 
@@ -365,7 +352,6 @@ to analyse theoretically.
 Besides, both correcting techniques are applied to long-step and infeasible 
 algorithms which have very little in common with the short-step and 
 feasible algorithms that display the best known theoretical complexity.
-
 These strategies will be the focus of the next two sections.
 
 
@@ -941,16 +927,10 @@ The main reason for this is that, as the solution of a problem
 is a vertex, it is an ideal starting point for a perturbed problem instance.
 If the perturbation is not too big, then optimality can be recovered
 very quickly.
-
 In the context of interior point methods, it 
 is much more difficult to implement a warm-start strategy in a
 successful way, for the reasons
 we outline below.
-
-%
-%
-\subsection{Difficulties}
-\label{sec:WarmStartDifficulties}
 
 The optimal solution of a linear programming problem found with 
 a path-following interior point method is very close to a vertex of 
@@ -1080,7 +1060,7 @@ Hipolito \cite{Hipolito} studies an alternative centering direction
 in the context of the dual affine-scaling algorithm. Such a 
 direction is designed to move the iterate away from the boundary, 
 overcoming the risk of moving parallel to it that was mentioned 
-in Section~\ref{sec:WarmStartDifficulties}. 
+earlier in this section.
 By considering a weighted least squares formulation, Hipolito 
 develops the dual affine-scaling and the corresponding Newton 
 centering directions. 
