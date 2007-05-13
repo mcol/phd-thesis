@@ -6,7 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
-%May:  2,  4,  8, 11, 12
+%May:  2,  4,  8, 11, 12, 13
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -192,8 +192,8 @@ floating point representation typical of computers, feasibility and
 complementarity can be attained only within a certain level
 of accuracy.
 
-For these reasons, some criteria have to be established according
-to which a decision is made about the termination of the algorithm.
+For these reasons, criteria have to be established according
+to which the termination of the algorithm can be decided.
 Some common termination criteria used in practice are the
 following \cite{GondzioTerlaky}:
 \be  \label{eq:TerminationCriteria}
@@ -217,7 +217,6 @@ The values of $p$ and $q$ required depend on the specific application.
 In the literature, it is common to use the value $p = q = 8$.
 The third condition in each set is usually the most important, as it is
 commonly attained only after the feasibility requirements are satisfied.
-
 It is worth noting that the criteria (\ref{eq:TerminationCriteria})
 and (\ref{eq:TerminationCriteriaPCx})
 are dependent on the scaling of the data.
@@ -365,7 +364,7 @@ In Mehrotra's predictor--corrector algorithm \cite{Mehrotra92},
 first a predictor direction is generated 
 to make progress towards optimality, and then 
 a corrector is computed to remedy for some of the error made by the predictor
-and move the point closer to the central path.
+and move the iterate closer to the central path.
 
 A number of advantages can be obtained by exploiting the
 linearity in the Newton system (\ref{eq:NewtonSystem}) and
@@ -419,7 +418,7 @@ system (\ref{eq:NewtonSystem}) with right-hand side
   \end{array} \right].
 \ee
 This corresponds to computing the pure Newton direction for the
-original \KKT system (\ref{eq:KKT}), and for this reason is often
+original \KKT system (\ref{eq:KKT}), and this direction is often
 called the {\em affine-scaling} direction. This 
 direction optimizes strongly, as it targets a point for which 
 all complementarity products are zero. 
@@ -446,22 +445,14 @@ The role of the centering term is to remedy this situation by
 causing the search direction to rotate towards the interior 
 of the feasible region,
 therefore allowing a longer stepsize. 
-
 Tapia \etal \cite{TapiaZhangSaltzmanWeiser} noted that the choice of the 
 centering parameter can be crucial both in theory and in practice,
 and suggest that it is a function of the Newton step. 
 This calls for two separate backsolves at each iteration.
 
-\ignore{
-Another problem with affine scaling is that it is only a linear 
-approximation to the central path. However, the central path is a curve
-with many high-degree turns \cite{VavasisYe}, and only close to the 
-solution set becomes approximately a straight line \cite{Megiddo}. 
-}
-
 %
 %
-\subsection{Second order corrector direction}
+\subsection{Second-order corrector direction}
 
 Mehrotra's algorithm exploits a centrality corrector in order to 
 remedy badly centered points. The purpose of this direction is 
@@ -475,7 +466,8 @@ of the centering parameter $\sigma$. It is based on a simple
 heuristic that evaluates the quality of the predictor direction
 in order to judge the amount of centering term needed.
 %
-The length of the steps $\alpha_P$ and $\alpha_D$ are used to 
+The length of the feasible steps $\alpha_P$ and $\alpha_D$
+for the affine-scaling direction are used to 
 predict the complementarity gap after such a step:
 \be \label{eq:PredictedGap}
   g_a = (x + \alpha_P \Delta_a x)^T(s + \alpha_D \Delta_a s).
@@ -485,7 +477,8 @@ The ratio $g_a / x^{T}s \in (0,1)$ measures the quality of the
 predictor direction.
 A small ratio indicates a successful reduction of the complementarity 
 gap. On the other hand, if the ratio is close to one, then very little 
-progress is achievable in direction $\Delta_a$, and a bigger centering term
+progress is achievable along the direction $\Delta_a w$,
+and a bigger centering term
 is recommended.
 
 In \cite{Mehrotra92} the following choice of the new barrier parameter 
@@ -516,7 +509,7 @@ Also Lustig \etal \cite{LustigMarstenShanno} commented on the
 weak dependence of the computational performance on the choice 
 of the exponent, and settled for the value $p=2$.
 
-A further important contribution by Mehrotra consists of the 
+A further important contribution by Mehrotra is the 
 introduction of a second-order direction. 
 As said above, the affine-scaling direction 
 corresponds to a linear approximation to the the trajectory from 
@@ -536,7 +529,7 @@ $S \Delta_a x + X \Delta_a s = -XSe.$
 %
 The term $\Delta_a X \Delta_a S e$ corresponds to the error introduced
 by Newton's method in linearising the complementarity conditions of 
-(\ref{eq:KKT}).
+the \KKT system (\ref{eq:KKT}).
 
 Ideally, we would like the next iterate to be perfectly centered: 
 \[
@@ -549,7 +542,7 @@ which is equivalent to solving the nonlinear system
 By comparing (\ref{eq:SecondOrder}) and (\ref{eq:NewtonSystem}),
 we see that 
 the linearisation error made by the affine-scaling direction is exactly 
-the $\Delta X\Delta Se$ term that is missing in the right-hand side
+the $\Delta X\Delta Se$ term that is missing from the right-hand side
 of the last equation of (\ref{eq:NewtonSystem}).
 
 Mehrotra's corrector term takes into account the linearisation error.
@@ -627,16 +620,11 @@ iterations: Mehrotra \cite{Mehrotra92} reports on savings of the
 order of 35\%-50\% compared to other strategies.
 For problems for which the factorisation cost is relevant, this
 leads into significant 
-CPU time savings \cite{LustigMarstenShanno,Mehrotra92}. Indeed, 
+savings in CPU time \cite{LustigMarstenShanno,Mehrotra92}. Indeed, 
 Mehrotra's predictor--corrector technique is advantageous in all 
 interior point implementations for linear programming 
 which use direct methods to compute 
 the Newton direction.
-
-\ignore{
-It should be noted that in the computation of the predicted gap, 
-it is assumed that a full step in the affine-scaling has been taken. 
-}
 
 An insightful explanation of how Mehrotra's second-order direction
 helps in lengthening the step has been provided by
@@ -646,23 +634,33 @@ predictor direction:
 \be  \label{eq:ComponentwiseAffineScaling}
   s_i\Delta_a x_i + x_i\Delta_a s_i = -x_i s_i.
 \ee
-There are two possibilities: either $\Delta_a x_i \Delta_a s_i > 0$
+As $(x_i, s_i) > 0$, we can rewrite (\ref{eq:ComponentwiseAffineScaling}) as
+\be  \label{eq:ComponentwiseRatio}
+  \frac{\Delta_a x_i}{x_i} + \frac{\Delta_a s_i}{s_i} = -1.
+\ee
+We consider two possibilities: either $\Delta_a x_i \Delta_a s_i > 0$
 or $\Delta_a x_i \Delta_a s_i < 0$. In the first case, as the right-hand side
-of \eqref{eq:ComponentwiseAffineScaling} is negative, it must be true
+of \eqref{eq:ComponentwiseRatio} is negative, it must be true
 that $\Delta_a x_i < 0$ and $\Delta_a s_i < 0$.
-By rewriting (\ref{eq:ComponentwiseAffineScaling}) as
+From \eqref{eq:ComponentwiseRatio} we get the bounds
 \[
-  \frac{\Delta_a x_i}{x_i} + \frac{\Delta_a s_i}{s_i} = -1,
+  \frac{\Delta_a x_i}{x_i} > -1 \quad \text{ and } \quad
+  \frac{\Delta_a s_i}{s_i} > -1,
 \]
-it is clear that 
+which imply
 \[
-  \Delta_a x_i > -x_i \quad \text{ and } \quad \Delta_a s_i > -s_i,
+  x_i + \Delta_a x_i > 0 \quad \text{ and } \quad s_i + \Delta_a s_i > 0,
 \]
-that is, this is not a blocking component.
+that is, this is not a blocking component, as a step of full length
+can be taken.
 
-In the second case $\Delta_a x_i \Delta_a s_i < 0$, and let us assume that 
+In the second case, $\Delta_a x_i \Delta_a s_i < 0$, let us assume that 
 $\Delta_a x_i > 0$ and $\Delta_a s_i < 0$. 
-This implies that $x_i\Delta_a s_i < -x_is_i$, so
+Considering again \eqref{eq:ComponentwiseRatio}, we obtain the bound
+\[
+  \frac{\Delta_a s_i}{s_i} < -1,
+\]
+so
 $s_i + \Delta_a s_i < 0$, and the stepsize must be damped
 in order to keep the iterate positive. Therefore,
 this component may be a blocking component for the stepsize.
@@ -672,7 +670,8 @@ direction
   s_i\Delta_c x_i + x_i\Delta_c s_i = \mu -x_i s_i -\Delta_a x_i\Delta_a s_i 
                                     > -x_i s_i,
 \]
-where the inequality follows from the assumption that
+where the inequality follows from the fact that
+$\mu - \Delta_a x_i \Delta_a s_i > 0$, as
 $\Delta_a x_i \Delta_a s_i < 0$.
 Using (\ref{eq:ComponentwiseAffineScaling}) we obtain
 \[
@@ -752,7 +751,7 @@ in certain special circumstances, such as warm-starting,
 may be justified.
 
 Assume that a predictor direction $\Delta_p w$ is given 
-and not the corresponding
+and the corresponding
 feasible stepsizes $\alpha_{P}$ and $\alpha_{D}$ 
 in the primal and dual spaces are determined. 
 We want to enlarge the stepsizes to 
@@ -786,21 +785,22 @@ and some exceed $\mu$. Instead of trying to correct
 all of them to the same value $\mu$, we correct only those that
 lie outwith the symmetric neighbourhood of the central path.
 As the symmetric neighbourhood (\ref{eq:SymmetricNeighbourhood})
-provides both a lower and an upper bound on each complementarity product,
+provides a lower and an upper bound on each complementarity product,
 this means checking where each $\tilde v_i$ lies with respect to
-them.
+both of them.
 
 Namely, we try to move small products 
 $(\tilde v_i \leq \gamma \mu)$ to the lower bound $\gamma \mu$, and move 
 large products $(\tilde v_i \geq \gamma^{-1} \mu)$ 
-to the upper bound $\gamma^{-1} \mu$, where $\gamma \in (0,1)$.
+to the upper bound $\gamma^{-1} \mu$, where $\gamma \in (0,1)$
+is the neighbourhood parameter.
 Complementarity products 
 which satisfy $\gamma \mu \leq \tilde v_i \leq \gamma^{-1} \mu$ are
 already within the bounds of the symmetric neighbourhood and thus
 reasonably close to their target values: therefore they
 do not need to be changed. 
 In other words, we attempt to move the iterate inside the symmetric
-neighbourhood of the central path.
+neighbourhood $\Nhood_s(\gamma)$ of the central path.
 
 The corrector term $\Delta_m w$ is computed by solving the usual 
 system of equations (\ref{eq:NewtonSystem}) for a special right-hand side
@@ -862,7 +862,7 @@ multiple centrality correctors technique.
            \smallskip
         \UNTIL The stepsize does not increase by at least a fraction of
 	       the aspiration level $\delta$ or the number of correctors 
-               exceeds $l$.
+               reaches $l$.
         \smallskip
         \STATE Update the iterate $w^{k+1} = w^k + \alpha_k\Delta_p w$.
   \end{algorithmic}
@@ -934,7 +934,7 @@ we outline below.
 
 The optimal solution of a linear programming problem found with 
 a path-following interior point method is very close to a vertex of 
-the feasible polytope or, in the more common case of multiple solutions, 
+the feasible polytope or, in the common case of multiple solutions, 
 corresponds to the analytic center of the optimal set of solutions.
 When the polytope changes (due, for example,
 to the addition of cutting planes or other changes in the 
@@ -943,7 +943,7 @@ In such a case the previously optimal solution may now be very far
 from the central path of the perturbed problem
 (see Figure~\ref{fig:ws-path}).
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics[scale=0.75]{figures/ws-path.eps}
 \caption{Effect of a perturbation on the central path.}
@@ -968,7 +968,7 @@ In these situations the algorithm may spend many iterations in recovering
 centrality, during which small steps are usually generated and thus
 very slow progress is achieved (see Figure~\ref{fig:ws-behaviour}).
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \centering
 \includegraphics[scale=0.75]{figures/ws-behaviour.eps}
 \caption{Typical behaviour of an interior point method if warm-started
@@ -1007,7 +1007,7 @@ of the warm-start approaches proposed in the interior point literature.
 
 %
 %
-\subsection{Changes in the problem size}
+\subsection{Literature review}
 
 Mitchell \cite{phd:Mitchell} and Mitchell and Todd \cite{MitchellTodd}
 analyse the potential reduction interior point method within
@@ -1017,44 +1017,12 @@ columns is added to the problem. They use this strategy with success
 in a column generation scheme and more generally in the solution 
 of combinatorial optimization problems.
 
-Gondzio \cite{Gondzio98} presents a warm-start procedure for 
-primal--dual interior point methods in the context of a cutting 
-plane method. The interior 
-point method is used to solve a sequence of restricted master 
-problems, which differ by one or more cutting planes.
-%
-% Therefore, by construction the solution to one problem violates 
-% some of the newly added constraints.
-% The optimal solution to a problem is necessarily very close 
-% to the boundary, thus is an unattractive starting point 
-% for a perturbed problem. Therefore, an alternative warm-start 
-% iterate needs to be defined.
-%
-The idea proposed in \cite{Gondzio98} is to store a nearly optimal 
-point (3--4 digits of accuracy) to be employed as a warm-start point.
-%
-% Because of the cutting plane setting, the problem is then solved 
-% to optimality (7--8 digits of accuracy) in order to generate 
-% appropriate cuts.
-%
-As one requirement for a good iterate is centrality, it is of interest 
-to perform a few centering steps on the stored iterate, the cost of 
-which is marginal, as a factorisation is already available. The 
-recentering steps proposed are based on
-centrality correctors \cite{Gondzio96}.
-An auxiliary feasibility recovery procedure may be needed as, due to 
-the addition of cuts, large infeasibilities are often produced.
-
 The role of interior point methods in integer and combinatorial 
 optimization has been comprehensively surveyed in \cite{Mitchell96} 
 and \cite{MitchellPardalosResende98}. This is relevant as these classes
 of optimization problems are generally solved by formulating a sequence
 of linear relaxations, where the problem instances differ by the
 addition of cutting planes and facet-inducing constraints.
-
-%
-%
-\subsection{Perturbations that do not affect the problem size}
 
 Hipolito \cite{Hipolito} studies an alternative centering direction 
 in the context of the dual affine-scaling algorithm. Such a 
@@ -1072,6 +1040,28 @@ Unfortunately, it is developed only for the dual affine-scaling
 algorithm, and to the best of our knowledge there have been no 
 studies on how to obtain a similar search direction in the 
 primal--dual context.
+
+Gondzio \cite{Gondzio98} presents a warm-start procedure for primal--dual
+interior point methods in the context of a cutting plane method.
+The interior point method is used to solve a sequence of restricted
+master problems, which differ by one or more cutting planes.
+By construction, in such a setting, the solution to one problem
+deeply violates some of the newly added constraints.
+The optimal solution to a problem is necessarily very close 
+to the boundary, thus is an unattractive starting point 
+for a perturbed problem, and an alternative warm-start 
+iterate needs to be defined.
+The idea proposed in \cite{Gondzio98} is to store a nearly optimal 
+point (3--4 digits of accuracy) to be employed as a warm-start point.
+Because of the cutting plane setting, the problem is then solved to
+optimality (7--8 digits of accuracy) in order to generate appropriate cuts.
+As one requirement for a good iterate is centrality, it is of interest 
+to perform a few centering steps on the stored iterate, the cost of 
+which is marginal, as a factorisation is already available. The 
+recentering steps proposed are based on
+centrality correctors \cite{Gondzio96}.
+An auxiliary feasibility recovery procedure may be needed as, due to 
+the addition of cuts, large infeasibilities are often produced.
 
 The warm-start approach proposed in \cite{Gondzio98} is extended
 in \cite{GondzioVial} to the case of solving a sequence of problems 
@@ -1171,18 +1161,13 @@ two independent Newton systems
   \end{array} \right].
 \]
 %
-They produce bounds on the magnitude of primal perturbation $\xi_b$ 
-and dual perturbation $\xi_c$ that can be absorbed in a single 
+They produce bounds on the magnitude of primal residual $\xi_b$ 
+and dual residual $\xi_c$ that can be absorbed in a single 
 Newton step. Unlike to the results of \cite{YildirimWright}, 
 the bounds of \cite{GondzioGrothey03} are easy to compute and 
 thus can be used in practice.
-
-If the perturbation is bounded above by some quantity depending 
-on $n$ and $\theta$, a full Newton step can be taken in the dual space. 
-This happens for both the $\mathcal{N}_2$ and $\mathcal{N}_{-\infty}$ 
-neighbourhoods. Similarly, a full Newton step can be taken in the 
-primal feasibility restoration direction. These conditions may not 
-be satisfied in practice. In such a case, a different iterate further 
+If the residuals at the warm-start point do not satisfy these bounds,
+a different iterate further 
 away from optimality may be more likely to allow for a full Newton step.
 
 A practical implementation is developed within an infeasible interior 

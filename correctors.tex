@@ -6,7 +6,7 @@
 %Feb:  6,  9, 11, 22
 %Mar:  8, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2,  3, 11, 18
-%May:  2,  3,  4,  6,  7,  8, 10, 11, 12
+%May:  2,  3,  4,  6,  7,  8, 10, 11, 12, 13
 
 %
 % Chapter: 
@@ -22,9 +22,7 @@ drawing particularly from \cite{Cartis04,Cartis05},
 and we introduce a computationally competitive way
 to improve the performance of multiple centrality correctors.
 We present the implementation of such a strategy in the \HOPDM solver,
-along with extensive computational experience, in which
-we also compare our approach with one of the most promising
-subspace-search strategies.
+along with extensive computational experience.
 The original content of this chapter has already appeared 
 in \cite{ColomboGondzio05}, co-authored with Jacek Gondzio.
 
@@ -35,7 +33,7 @@ in \cite{ColomboGondzio05}, co-authored with Jacek Gondzio.
 \section{Subspace searches}
 \label{sec:SubspaceSearches}
 
-Subspace searches are a different strategy for generating search 
+Subspace searches are a strategy for generating search 
 directions. 
 They are usually derived differently than the Newton system, and 
 are built according to some criteria that are believed to summarise
@@ -44,7 +42,7 @@ In this section we discuss two subspace-search approaches.
 The first, by Jarre and Wechs \cite{JarreWechs}, generates directions
 by a recursion on a modification of Mehrotra's corrector.
 The second, the approach of Mehrotra and Li \cite{MehrotraLi},
-employs generic directions, and studies search directions
+considers search directions
 produced through Krylov subspace basis.
 
 %
@@ -290,8 +288,7 @@ the use of up to four Krylov subspace directions embedded in a small
 linear program results in an algorithm with very good performance.
 We will discuss these results in more details in 
 Section~\ref{sec:NumericalResults}, where we compare them with
-the weighted correctors strategy that we introduce in the
-next section.
+the weighted correctors strategy of Section~\ref{sec:WeightedCorrectors}.
 
 
 %
@@ -549,10 +546,12 @@ average $\mu$.
 An implementable solution to these problems will be the
 major focus of the next section.
 
+
 %
 % Section
 %
 \section{Weighting the corrector directions}
+\label{sec:WeightedCorrectors}
 
 The discussion of the previous section clarifies the fact that
 using a full weight for a corrector direction may not always be
@@ -560,13 +559,14 @@ desirable.
 The theoretical findings 
 outlined above give rise to the following generalisation
 \[
-  \Delta^\omega w = \Delta_a w +\omega\Delta_c w,
+  \Delta^\omega_M w = \Delta_a w +\omega\Delta_c w,
 \]
 where we weight the corrector by a parameter $\omega\in(0,1]$ 
 independent of the stepsize $\alpha$.
 
 We choose the weight independently at each iteration in order 
-to maximize the stepsize in the composite direction $\Delta^\omega w$.
+to maximize the stepsize in the weighted composite direction
+$\Delta^\omega_M w$.
 This gives us the freedom to find the optimal weight 
 $\hat\omega$ in the interval $(0,1]$.
 %
@@ -598,10 +598,11 @@ correctors, and for each of them we choose the optimal weight
 $\hat \omega$ that  maximizes the stepsizes in primal and dual spaces 
 for the composite direction
 \[
- \Delta^\omega w = \Delta_p w +\omega\Delta_m w.
+ \Delta^\omega_m w = \Delta_p w +\omega\Delta_m w.
 \]
-Direction $\Delta^{\hat\omega} w$ becomes
-a predictor for the next centrality corrector, hence the correcting process
+Direction $\Delta_p w + \hat\omega\Delta_m w$ becomes
+a predictor $\Delta_p w$ for the next centrality corrector.
+The correcting process
 is recursive, and can be interrupted at any stage.
 
 It is worthwhile noting that eventually, after adding $k$ corrector terms, 
@@ -632,9 +633,9 @@ Algorithm~\ref{alg:WeightedCorrectors}.
         \smallskip
         \STATE Do a linesearch to find the optimal $\hat\omega$ that
                maximizes the stepsize $\alpha$ in
-               $\Delta^\omega w = \Delta_a w +\omega\Delta_c w$
+               $\Delta^\omega_M w = \Delta_a w +\omega\Delta_c w$
         \smallskip
-	\STATE Set $\Delta_p w := \Delta_p w +\hat\omega\Delta_m w$. 
+	\STATE Set $\Delta_p w := \Delta_a w +\hat\omega\Delta_c w$. 
         \smallskip
         \WHILE{the stepsize increases by at least a fraction of the aspiration 
                level $\delta$}
@@ -645,7 +646,7 @@ Algorithm~\ref{alg:WeightedCorrectors}.
            \smallskip
 	   \STATE Perform a linesearch to find the optimal $\hat\omega$ that
                   maximizes the stepsize $\alpha$ in
-                  $\Delta^\omega w = \Delta_p w +\omega\Delta_m w$.
+                  $\Delta^\omega_m w = \Delta_p w +\omega\Delta_m w$.
            \smallskip
            \STATE Set $\Delta_p w := \Delta_p w +\hat\omega\Delta_m w$.
            \smallskip
@@ -726,14 +727,6 @@ product $\alpha^\omega_P\alpha^\omega_D$ of about 0.375.
   \label{fig:alphaomega}
 \end{figure}
 
-In our crude linesearch procedure we choose 9 points uniformly 
-distributed in the interval $[\alpha_P\alpha_D, 1]$ 
-and evaluate, for each of these points, the stepsizes 
-$\alpha^\omega_P$ and $\alpha^\omega_D$ in both spaces. 
-When a larger stepsize $\alpha^\omega_P$ or $\alpha^\omega_D$ is obtained, 
-the corresponding $\omega$ is stored as $\omega_P$ or $\omega_D$ 
-respectively. Hence, we allow different weightings for directions 
-in the primal and dual spaces.
 
 %
 % Section
@@ -751,12 +744,11 @@ We have implemented our proposal within the \HOPDM interior point solver
 We tested our implementation in a series of computational 
 experiments, using test problems from different collections. 
 As a comparison, we present the results obtained by \PCx \cite{PCx}, 
-a reference implementation of interior point methods. Since the two 
-implementations, \PCx and \HOPDM, have different termination criteria 
-in their default configurations, for the purpose of consistency,
+a reference implementation of interior point methods.
+The two implementations, \PCx and \HOPDM, have different termination criteria 
+in their default configurations. For the purpose of consistency,
 in the results shown, 
-we decided to implement in \HOPDM the criteria used in the study 
-performed by Mehrotra and Li \cite{MehrotraLi}.
+we decided to implement in \HOPDM the criteria used by \PCx.
 Therefore, for all solvers optimal termination occurs when the conditions
 (\ref{eq:TerminationCriteriaPCx}) are met, with feasibility
 accuracy $p=8$ and complementarity accuracy $q = 10$.
@@ -781,6 +773,15 @@ Note that this is different from what is described in \cite{Gondzio96}, where
 a corrector is accepted if ${\alpha}^{new} \geq \alpha + 0.1\delta$, 
 for an aspiration level $\delta = 0.1$.
 
+We implemented a simple linesearch procedure to localise $\hat\omega$.
+We choose 9 points uniformly distributed in the interval
+$[\alpha_P\alpha_D, 1]$ and evaluate, for each of these points,
+the stepsizes $\alpha^\omega_P$ and $\alpha^\omega_D$ in both spaces. 
+When a larger stepsize $\alpha^\omega_P$ or $\alpha^\omega_D$ is obtained, 
+the corresponding $\omega$ is stored as $\omega_P$ or $\omega_D$ 
+respectively. Hence, in our implementation we allow different
+weightings for directions in the primal and dual spaces.
+
 We present our results in terms of number of iterations and number 
 of backsolve operations. The rationale behind this decision is that 
 the multiple centrality correctors technique determines the number 
@@ -797,17 +798,17 @@ of \HOPDM and the paper \cite{Gondzio96}.
 
 %
 %
-\subsection{Mehrotra-Li test collection}
+\subsection{Comparison with Mehrotra and Li's approach}
 \label{ML-tests}
 
 We first considered the test set used in \cite{MehrotraLi}.
 It contains 101 problems from the Netlib and Kennington collections. 
-%
+We will refer to is as Mehrotra and Li's test collection.
 In Table~\ref{MLtotals} we present the computational comparison 
 outlining the total number of iterations and the total number 
-of backsolves necessary to solve the problems in Mehrotra and Li's test set. 
+of backsolves necessary to solve the problems in this test set. 
 Column \HO\ displays the results obtained
-by the previous implementation, while column d\HO\ reports
+by the previous implementation of \HOPDM, while column d\HO\ reports
 the results obtained by the current implementation of weighted
 correctors with a default choice of the number of centrality correctors. 
 The last column presents the relative change between the two 
@@ -885,6 +886,9 @@ in Section~\ref{BN-tests}.
 % However, only 13 problems out of 101 showed a reduction 
 % in computing time when using 4 Krylov directions. 
 %
+We were particularly interested in comparing the results produced by our 
+weighted correctors approach with those obtained by the subspace search
+scheme of Section~\ref{sec:MehrotraLi} and published in \cite{MehrotraLi}. 
 In the tables of results presented in \cite{MehrotraLi}, the best 
 performance in terms of iteration count is obtained by \PCx-4, which 
 uses 4 Krylov subspace vectors. These directions are combined with 
@@ -898,9 +902,8 @@ fails to satisfy some neighbourhood condition. In these cases
 the pure centering direction $\Delta_\mu w$ also needs to be computed,
 and a seventh backsolve is performed.
 
-We were particularly interested in comparing the results produced by our 
-weighted correctors approach with those published in \cite{MehrotraLi}. 
-A full comparison is presented in Table~\ref{MLresults}.
+In Table~\ref{MLresults} we present a full comparison of the
+weighted correctors and Mehrotra and Li's strategies.
 In columns \HO-0 and \HO-4, we present 
 the results obtained by \HOPDM when forcing the use of 0 and 4 
 multiple centrality correctors. 
@@ -914,9 +917,9 @@ As we understand the paper \cite{MehrotraLi}, \PCx-0 uses exactly
 another to compute Mehrotra's corrector; \PCx-4 computes
 four additional Krylov vectors, hence it uses
 6 backsolves per iteration.
-
 Consequently, up to 2 and 6 backsolves per iteration are allowed
 in \PCx-0 and \PCx-4 and in \HO-0 and \HO-4 runs, respectively.
+
 The number of backsolves reported for \HOPDM includes two needed by 
 the initialisation procedure: the number of backsolves 
 should not exceed $2 \times {\rm {Its}} + 2$, 
@@ -953,9 +956,6 @@ search directions, then it would be beneficial to have as many as possible.
 
 We have applied our algorithm to examples from other test collections 
 besides Netlib.
-These include other medium to large linear programming problems, 
-stochastic problems and quadratic programming problems.
-
 We used a collection of medium to large problems taken from different
 sources. Problems {\tt CH} through {\tt CO9}
 are MARKAL (market allocation) models; {\tt mod2} through {\tt worldl} are
@@ -989,9 +989,9 @@ has solved within $\tau$ times of the best. Hence, for
 $\tau = 1$ it indicates that d\HO\ has been the best solver on 72\%
 of the problems, against 28\% for \HO. For larger values of $\tau$,
 the performance profile for d\HO\ stays above the one for \HO, thus
-confirming its superiority. In particular, it solves all problems
+confirming its superiority. In particular, d\HO solves all problems
 within 1.3 times of the best.
-%
+
 \begin{figure}[ht]
   \centering
   \includegraphics[width=0.75\textwidth]{figures/perfprof-BN.eps}
@@ -1004,73 +1004,19 @@ More numerical results obtained on some collections of stochastic
 programming problems and quadratic problems can be found in
 \cite{ColomboGondzio05}.
 
-\begin{small}
-\begin{longtable}{|l|rrr|r|r|r|} \hline 
-  \multicolumn{1}{|c|}{\normalsize Problem}
-& \multicolumn{1}{c}{\normalsize Rows}
-& \multicolumn{1}{c}{\normalsize Columns}
-& \multicolumn{1}{c|}{\normalsize Nonzeros}
-& \multicolumn{1}{c|}{\normalsize \HO}
-& \multicolumn{1}{c|}{\normalsize d\HO}
-& \multicolumn{1}{c|}{\normalsize Change}\\ \hline
-\endhead
-\hline
-\multicolumn{7}{c}{\normalsize \raisebox{-1ex}{Table~\ref{TimeBN}: 
-Time comparison on larger problems (times are in seconds).}}
-\endfoot
-\label{TimeBN}
-CH       &   3,852 &    5,062 &    42,910 &    1.03 &    1.23 &  19.4\% \\
-GE       &  10,339 &   11,098 &    53,763 &    5.72 &    5.46 &  -4.5\% \\
-NL       &   7,195 &    9,718 &   102,570 &    4.37 &    3.95 &  -9.6\% \\
-BL       &   6,325 &    8,018 &    58,607 &    2.15 &    2.14 &  -0.5\% \\
-BL2      &   6,325 &    8,018 &    58,607 &    2.35 &    2.31 &  -1.7\% \\
-UK       &  10,131 &   14,212 &   128,341 &    2.48 &    3.21 &  29.4\% \\
-CQ5      &   5,149 &    7,530 &    83,564 &    2.54 &    2.60 &   2.4\% \\
-CQ9      &   9,451 &   13,778 &   157,598 &    9.67 &    8.84 &  -8.6\% \\
-CO5      &   5,878 &    7,993 &    92,788 &    3.16 &    3.59 &  13.6\% \\
-CO9      &  10,965 &   14,851 &   176,346 &   21.10 &   15.35 & -27.3\% \\
-mod2     &  35,664 &   31,728 &   220,116 &   20.59 &   21.68 &   5.3\% \\
-world    &  35,510 &   32,734 &   220,748 &   26.35 &   23.41 & -11.2\% \\
-world3   &  36,266 &   33,675 &   224,959 &   31.13 &   27.49 & -11.7\% \\
-world4   &  52,996 &   37,557 &   324,502 &   73.21 &   56.14 & -23.3\% \\
-world6   &  47,038 &   32,670 &   279,024 &   39.33 &   32.79 & -16.6\% \\
-world7   &  54,807 &   37,582 &   333,509 &   43.14 &   36.02 & -16.5\% \\
-worldl   &  49,108 &   33,345 &   291,942 &   43.95 &   36.82 & -16.2\% \\
-route    &  20,894 &   23,923 &   210,025 &   40.92 &   33.78 & -17.4\% \\
-ulevi    &   6,590 &   44,605 &   162,207 &    9.04 &    9.55 &   5.6\% \\
-ulevimin &   6,590 &   44,605 &   162,207 &   16.52 &   16.46 &  -0.4\% \\
-dbir1    &  18,804 &   27,355 & 1,067,815 &  162.18 &  146.51 &  -9.7\% \\
-dbir2    &  18,906 &   27,355 & 1,148,847 &  208.93 &  156.11 & -25.3\% \\
-dbic1    &  43,200 &  183,235 & 1,217,046 &   72.96 &   77.31 &   5.9\% \\
-pcb1000  &   1,565 &    2,428 &    22,499 &    0.26 &    0.33 &  26.9\% \\
-pcb3000  &   3,960 &    6,810 &    63,367 &    1.13 &    1.16 &   2.7\% \\
-rlfprim  &  58,866 &    8,052 &   265,975 &   15.63 &   15.08 &  -3.5\% \\
-rlfdual  &   8,052 &   66,918 &   328,891 &   71.17 &   49.79 & -30.0\% \\
-neos1    & 131,581 &    1,892 &   468,094 &  169.11 &  141.89 & -16.1\% \\
-neos2    & 132,568 &    1,560 &   552,596 &  113.86 &   86.13 & -24.4\% \\
-neos3    & 132,568 &    1,560 &   552,596 &  132.02 &  120.59 &  -8.7\% \\
-neos     & 479,119 &   36,786 & 1,084,461 &1,785.80 &1,386.58 & -22.4\% \\
-watson-1 & 201,155 &  383,927 & 1,053,564 &  138.60 &  166.21 &  19.9\% \\
-sgpf5y6  & 246,077 &  308,634 &   902,275 &   49.58 &   64.45 &  30.0\% \\
-stormG2-1000 & 528,185 & 1,259,121 & 4,228,817 & 1,661.54 & 1,623.19 & -2.3\%\\
-rail507  &     507 &   63,009 &   472,358 &    9.77 &   10.10 &   3.4\% \\
-rail516  &     516 &   47,311 &   362,207 &    7.59 &    5.89 & -22.4\% \\
-rail582  &     582 &   55,515 &   457,223 &    9.67 &    9.60 &  -0.7\% \\
-rail2586 &   2,586 &  920,683 & 8,929,459 &1,029.36 &  566.82 & -44.9\% \\
-rail4284 &   4,284 &1,092,610 &12,372,358 &2,779.63 &  978.48 & -64.8\% \\
-fome11   &  12,142 &   24,460 &    83,746 &  407.20 &  265.21 & -34.9\% \\
-fome12   &  24,284 &   48,920 &   167,492 &  766.96 &  508.61 & -33.7\% \\
-fome13   &  48,568 &   97,840 &   334,984 & 1,545.05 & 990.62 & -35.9\% \\
-\end{longtable} 
-\end{small}
+\newpage
 
-%\section{Tables of results}
+%
+% Section
+%
+\section{Tables of results}
+
 % shrink the spacing of the columns for the following tables
-\setlength{\tabcolsep}{4.2pt}
+\setlength{\tabcolsep}{4.6pt}
 
 %
 %
-%\subsection{Mehrotra and Li test collection}
+\subsection*{Mehrotra and Li's test collection}
 
 \begin{small}
 \begin{longtable}{|l|r|rr||r|rr||rr||rr|} \hline 
@@ -1088,7 +1034,8 @@ fome13   &  48,568 &   97,840 &   334,984 & 1,545.05 & 990.62 & -35.9\% \\
         & Its & Bks \\ \hline
 \endhead
 \hline
-\multicolumn{11}{c}{\raisebox{-1ex}{Table~\ref{MLresults}: Comparison with Mehrotra and Li's algorithm.}}
+\multicolumn{11}{c}{\raisebox{-1ex}{Table~\ref{MLresults}:
+Comparison with Mehrotra and Li's algorithm.}}
 \endfoot
 \label{MLresults}
 25fv47 & 25 & 27 & 55 & 15 & 15 & 95 & 14 & 184 & 18 & 76 \\
@@ -1192,14 +1139,75 @@ pds-02   & 25 & 19 & 38  & 15 & 14 & 77 & 11 & 124 & 15 & 60 \\
 pds-06   & 35 & 27 & 56  & 23 & 17 & 100 & 15 & 177 & 17 & 118 \\
 pds-10   & 41 & 32 & 66 & 27 & 20 & 120 & 18 & 199 & 18 & 155 \\
 pds-20   & 58 & 48 & 98 & 34 & 23 & 136 & 21 & 253 & 21 & 198 \\ \hline
-Totals & 2194 & 2047 & 4169 & 1438 & 1289 & 7608 & 1139 & 13699 & 1445 & 5717
+Totals & 2,194& 2,047& 4,169& 1,438& 1,289& 7,608& 1,139& 13,699& 1,445& 5,717
 \end{longtable} 
 \end{small}
 
 %
 %
-%\subsection{Other large LP problems}
+\subsection*{Other large LP problems}
 
+\begin{small}
+\begin{longtable}{|l|rrr|r|r|r|} \hline 
+  \multicolumn{1}{|c|}{\normalsize Problem}
+& \multicolumn{1}{c}{\normalsize Rows}
+& \multicolumn{1}{c}{\normalsize Columns}
+& \multicolumn{1}{c|}{\normalsize Nonzeros}
+& \multicolumn{1}{c|}{\normalsize \HO}
+& \multicolumn{1}{c|}{\normalsize d\HO}
+& \multicolumn{1}{c|}{\normalsize Change}\\ \hline
+\endhead
+\hline
+\multicolumn{7}{c}{\normalsize \raisebox{-1ex}{Table~\ref{TimeBN}: 
+Time comparison on larger problems (times are in seconds).}}
+\endfoot
+\label{TimeBN}
+CH       &   3,852 &    5,062 &    42,910 &    1.03 &    1.23 &  19.4\% \\
+GE       &  10,339 &   11,098 &    53,763 &    5.72 &    5.46 &  -4.5\% \\
+NL       &   7,195 &    9,718 &   102,570 &    4.37 &    3.95 &  -9.6\% \\
+BL       &   6,325 &    8,018 &    58,607 &    2.15 &    2.14 &  -0.5\% \\
+BL2      &   6,325 &    8,018 &    58,607 &    2.35 &    2.31 &  -1.7\% \\
+UK       &  10,131 &   14,212 &   128,341 &    2.48 &    3.21 &  29.4\% \\
+CQ5      &   5,149 &    7,530 &    83,564 &    2.54 &    2.60 &   2.4\% \\
+CQ9      &   9,451 &   13,778 &   157,598 &    9.67 &    8.84 &  -8.6\% \\
+CO5      &   5,878 &    7,993 &    92,788 &    3.16 &    3.59 &  13.6\% \\
+CO9      &  10,965 &   14,851 &   176,346 &   21.10 &   15.35 & -27.3\% \\
+mod2     &  35,664 &   31,728 &   220,116 &   20.59 &   21.68 &   5.3\% \\
+world    &  35,510 &   32,734 &   220,748 &   26.35 &   23.41 & -11.2\% \\
+world3   &  36,266 &   33,675 &   224,959 &   31.13 &   27.49 & -11.7\% \\
+world4   &  52,996 &   37,557 &   324,502 &   73.21 &   56.14 & -23.3\% \\
+world6   &  47,038 &   32,670 &   279,024 &   39.33 &   32.79 & -16.6\% \\
+world7   &  54,807 &   37,582 &   333,509 &   43.14 &   36.02 & -16.5\% \\
+worldl   &  49,108 &   33,345 &   291,942 &   43.95 &   36.82 & -16.2\% \\
+route    &  20,894 &   23,923 &   210,025 &   40.92 &   33.78 & -17.4\% \\
+ulevi    &   6,590 &   44,605 &   162,207 &    9.04 &    9.55 &   5.6\% \\
+ulevimin &   6,590 &   44,605 &   162,207 &   16.52 &   16.46 &  -0.4\% \\
+dbir1    &  18,804 &   27,355 & 1,067,815 &  162.18 &  146.51 &  -9.7\% \\
+dbir2    &  18,906 &   27,355 & 1,148,847 &  208.93 &  156.11 & -25.3\% \\
+dbic1    &  43,200 &  183,235 & 1,217,046 &   72.96 &   77.31 &   5.9\% \\
+pcb1000  &   1,565 &    2,428 &    22,499 &    0.26 &    0.33 &  26.9\% \\
+pcb3000  &   3,960 &    6,810 &    63,367 &    1.13 &    1.16 &   2.7\% \\
+rlfprim  &  58,866 &    8,052 &   265,975 &   15.63 &   15.08 &  -3.5\% \\
+rlfdual  &   8,052 &   66,918 &   328,891 &   71.17 &   49.79 & -30.0\% \\
+neos1    & 131,581 &    1,892 &   468,094 &  169.11 &  141.89 & -16.1\% \\
+neos2    & 132,568 &    1,560 &   552,596 &  113.86 &   86.13 & -24.4\% \\
+neos3    & 132,568 &    1,560 &   552,596 &  132.02 &  120.59 &  -8.7\% \\
+neos     & 479,119 &   36,786 & 1,084,461 &1,785.80 &1,386.58 & -22.4\% \\
+watson-1 & 201,155 &  383,927 & 1,053,564 &  138.60 &  166.21 &  19.9\% \\
+sgpf5y6  & 246,077 &  308,634 &   902,275 &   49.58 &   64.45 &  30.0\% \\
+stormG2-1000 & 528,185 & 1,259,121 & 4,228,817 & 1,661.54 & 1,623.19 & -2.3\%\\
+rail507  &     507 &   63,009 &   472,358 &    9.77 &   10.10 &   3.4\% \\
+rail516  &     516 &   47,311 &   362,207 &    7.59 &    5.89 & -22.4\% \\
+rail582  &     582 &   55,515 &   457,223 &    9.67 &    9.60 &  -0.7\% \\
+rail2586 &   2,586 &  920,683 & 8,929,459 &1,029.36 &  566.82 & -44.9\% \\
+rail4284 &   4,284 &1,092,610 &12,372,358 &2,779.63 &  978.48 & -64.8\% \\
+fome11   &  12,142 &   24,460 &    83,746 &  407.20 &  265.21 & -34.9\% \\
+fome12   &  24,284 &   48,920 &   167,492 &  766.96 &  508.61 & -33.7\% \\
+fome13   &  48,568 &   97,840 &   334,984 & 1,545.05 & 990.62 & -35.9\% \\
+\end{longtable} 
+\end{small}
+
+\ignore{
 \begin{small}
 \begin{longtable}{|l|rr|rr|rr|rr|} \hline 
 \raisebox{-1.5ex}[0ex][-1.5ex]{Problem}
@@ -1259,6 +1267,7 @@ rail4284 & 65 & 132 & 25 & 158 & 22 & 361 & 19 & 213 \\
 fome11 & 44 & 92 & 25 & 150 & 23 & 294 & 24 & 224 \\
 fome12 & 44 & 91 & 25 & 147 & 20 & 286 & 22 & 215 \\
 fome13 & 43 & 91 & 24 & 145 & 20 & 289 & 20 & 215 \\ \hline
-   Totals & 1934 & 3937 & 959 & 5857 & 845 & 11317 & 974 & 5926
+   Totals & 1,934 & 3,937 & 959 & 5,857 & 845 & 11,317 & 974 & 5,926
 \end{longtable} 
 \end{small}
+}
