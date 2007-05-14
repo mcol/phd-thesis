@@ -6,7 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  7,  8,  9, 11, 21, 22
 %Mar:  8,  9, 13, 15, 16, 17, 19, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2,  3, 16, 18
-%May:  1,  4,  8, 12
+%May:  1,  4,  8, 12, 14
 
 %
 % Chapter: Interior point methods
@@ -168,8 +168,7 @@ $\mathcal{D}^0 \ne \emptyset$. This is also referred to as the
 {\em interior point assumption}. 
 The interior point assumption corresponds to assuming that 
 the primal--dual optimal face is 
-bounded (this is mentioned in \cite{GonzagaCardia04} and also
-in \cite[Lemma~2.2]{GulerRoosTerlakyVial}).
+bounded \cite[Lemma~2.2]{GulerRoosTerlakyVial}.
 Cases when this assumption does not hold can be considered by allowing
 the algorithm to accept infeasible iterates 
 (see Section~\ref{sec:InfeasibleMethods}).
@@ -259,9 +258,9 @@ $w(\mu)$ is primal and dual feasible, we can state
 a similar result to the one expressed by 
 (\ref{eq:DualityComplementarityGap}), and define the duality cap
 $g(\mu)$ as a function of the barrier parameter:
-\[
+\be  \label{eq:DualityComplementarityGapMu}
   g(\mu) = c^Tx(\mu) - b^T y(\mu) = x(\mu)^T s(\mu).
-\]
+\ee
 That is, for any value of $\mu$
 the duality gap corresponds to the complementarity gap.
 Hence reducing either of them is identical.
@@ -272,8 +271,12 @@ we have
    x(\mu)^T s(\mu) = \sum_{i = 1}^n x_i(\mu) s_i(\mu) = n\mu,
 \ee
 and for $\mu \to 0$, also $g(\mu) \to 0$.
-This implies that $c^Tx(\mu)\to c^Tx^*$ and $b^Ty(\mu) \to b^Ty^*$ 
-as $\mu\to 0$, so the objective function values for the perturbed
+Equations \eqref{eq:DualityComplementarityGapMu} and
+\eqref{eq:AverageComplementarity} imply that as $\mu\to 0$
+\[
+   c^Tx(\mu)\to c^Tx^* \quad \text{ and } \quad b^Ty(\mu) \to b^Ty^*,
+\]
+so the objective function values for the perturbed
 problem converge to those of the original problem.
 Furthermore, the following, stronger result holds \cite{Megiddo}.
 %

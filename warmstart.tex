@@ -5,22 +5,20 @@
 %Feb:  4
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
-%May:  1,  4,  6,  8, 10, 11, 12, 13
+%May:  1,  4,  6,  8, 10, 11, 12, 13, 14
 
 %
 % Chapter: Warm-start
 %
 \label{ch:Warmstart}
 
-In this chapter we develop an efficient way of constructing a 
-starting point for large-scale stochastic linear programs.
-We first present the relevant
+In this chapter we present the relevant
 concepts of stochastic programming, stressing the fact that
 they lead to highly structured problems.
-Then we introduce 
-the proposed method of generating an advanced starting point for 
-stochastic programming that exploits the inherent structure of the
-problem. Finally, we present an analysis of the warm-start strategy.
+We develop an efficient way of constructing an advanced starting
+point that exploits the inherent structure of a stochastic programming
+problem. We present our analysis of the warm-start strategy and
+some very promising computational results.
 The results presented in this chapter have been the subject
 of joint work with Jacek Gondzio and Andreas Grothey
 \cite{ColomboGondzioGrothey06}. 
@@ -149,7 +147,7 @@ and
 	    &   &             & y(\xi) \ge 0.
   \end{array}
 \ee
-Notice that we use the convention that first-stage variables
+We use the convention that first-stage variables
 and coefficients carry the superscript 1.
 Problem \eqref{eq:SP1}-\eqref{eq:SP2} can be interpreted as an optimization
 problem in which some parameters or coefficients are unknown.
@@ -421,8 +419,8 @@ Then we discuss how to obtain a warm-start solution from the reduced
 tree that corresponds to the chosen scenarios.
 Our aim is to generate a warm-start iterate that allows
 the complete problem to be solved to optimality in fewer iterations
-(and less computing time) than an iterate chosen with a standard
-starting point heuristic \cite{Mehrotra92}.
+(and less computing time) than if starting from an iterate chosen with
+a standard initial point heuristic \cite{Mehrotra92}.
 With these aims, we propose a way of choosing a subset of scenarios 
 that we believe to be sufficiently representative of the whole tree.
 The algorithm can be summarised in the steps of
@@ -1427,15 +1425,15 @@ fxm2\_16     &  2 &   16 &  22 &   1.2 & 13 &   1.0 \\
 fxm3\_6      &  3 &   36 &  30 &   1.5 & 17 &   1.3 \\
 fxm3\_16     &  3 &  256 &  40 &  31.1 & 20 &  20.7 \\
 fxm4\_6      &  4 &  216 &  30 &   8.2 & 22 &   8.3 \\
-fxm4\_16     &  4 & 4096 &  41 & 218.3 & 27 & 182.6 \\ \hline
+fxm4\_16     &  4 &4,096 &  41 & 218.3 & 27 & 182.6 \\ \hline
 %\hline
 pltexpA3\_16 &  3 &  256 &  26 & 153.8 & 14 &  87.8 \\
 pltexpA4\_6  &  4 &  216 &  36 &  55.8 & 16 &  27.5 \\
-pltexpA5\_6  &  5 & 1296 &  81 & 772.0 & 30 & 311.5 \\ \hline
+pltexpA5\_6  &  5 &1,296 &  81 & 772.0 & 30 & 311.5 \\ \hline
 % \hline
 storm27      &  2 &   27 &  41 &  95.4 & 22 &  53.2 \\
 storm125     &  2 &  125 &  73 & 107.3 & 36 &  69.1 \\
-storm1000    &  2 & 1000 & 107 &1498.3 & 45 & 831.5 \\ \hline
+storm1000    &  2 &1,000 & 107 &1,498.3& 45 & 831.5 \\ \hline
 % \hline
 % stocfor2     &  2 &   64 &  19 &   0.9 & 18 &   1.1 \\
 % stocfor3     &  7 &  512 &  29 &   4.0 & 24 &   4.2 \\ \hline
@@ -1536,8 +1534,8 @@ average number of arcs in each path.
       Name      & Nodes & Arcs & Demands & Paths & Av.Length \\ \hline\hline
       mnx       &    12 &   50 &     66  &   189 & 2.6 \\
       jlg       &    26 &   84 &    264  &   697 & 5.6 \\
-      mgntA     &    53 &  158 &   1378  &  3574 & 6.7 \\
-      mgntB     &    70 &  210 &   2346  &  6137 & 6.4 \\ \hline
+      mgntA     &    53 &  158 &  1,378  & 3,574 & 6.7 \\
+      mgntB     &    70 &  210 &  2,346  & 6,137 & 6.4 \\ \hline
     \end{tabular}
     \caption{Characteristics of the telecommunication networks.}
     \label{table:ProblemData}
@@ -1555,6 +1553,7 @@ the number of demands, and $\#{\cal P}$ the total number of paths.
 The dimensions of the problems we generated and solved are
 collected in Table~\ref{table:ProblemSizes}.
 
+\setlength{\tabcolsep}{5.9pt}
 \begin{table}[ht]
   \begin{center}
     \begin{tabular}{|l||r|r|r||l|r|r|r|} \hline
@@ -1594,6 +1593,7 @@ of the reduced problem (included in time reported in the table)
 was always negligible. The savings of warm-start over cold-start 
 strategy vary between 40\% and 80\% in most cases.
 %
+\setlength{\tabcolsep}{6pt}
 \begin{table}[ht]
   \begin{center}
     \begin{tabular}{|l||rr|rr||rr|rr|} \hline
@@ -1617,11 +1617,11 @@ jlg-1600      &   32 &  855.3 &   13 &  360.6 &  35 &  286.1 &  14 &  129.7 \\ %
 \hline
 mgntA-100     &   28 &  260.0 &   14 &  156.2 &  28 &   76.9 &  14 &   51.6 \\
 mgntA-200     &   50 &  877.1 &   35 &  690.6 &  50 &  256.4 &  34 &  195.3 \\
-mgntA-400     &   40 & 1470.3 &   14 &  572.5 &  40 &  410.9 &  14 &  181.6 \\
+mgntA-400     &   40 &1,470.3 &   14 &  572.5 &  40 &  410.9 &  14 &  181.6 \\
 \hline
 mgntB-100     &   23 &  511.1 &   14 &  318.0 &  23 &  137.5 &  14 &  103.9 \\
 mgntB-200     &   25 &  909.4 &    8 &  332.4 &  25 &  284.2 &   8 &  140.5 \\
-mgntB-400     &   29 & 2154.5 &    7 &  538.1 &  29 &  605.5 &   7 &  211.6 \\
+mgntB-400     &   29 &2,154.5 &    7 &  538.1 &  29 &  605.5 &   7 &  211.6 \\
 \hline
     \end{tabular}
     \caption{Efficiency of the warm-start strategy in \OOPS in the serial

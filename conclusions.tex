@@ -1,7 +1,7 @@
 %Started on 5 February 2007
 %Mar: 31
 %Apr:  1,  2, 18, 28
-%May:  6,  7,  8, 10, 13
+%May:  6,  7,  8, 10, 13, 14
 
 %
 % Chapter: Conclusions
@@ -11,7 +11,7 @@
 In this chapter we summarise the results obtained and 
 present some observations derived from the experience
 gathered during this research.
-Our focus here is to draw together the original aspects of this research
+Our focus here is to draw together the original aspects of this work
 and present possible directions for future research.
 
 %
@@ -31,7 +31,7 @@ A feasible algorithm based on the symmetric neighbourhood $\Nhood_s(\gamma)$
 matches the theoretical complexity of one based on the wide
 $\Nhood_{-\infty}(\gamma)$ neighbourhood, as it converges
 in $\bigO(n)$ iterations (Theorem~\ref{th:SymNeighbourhoodConvergence}).
-The analysis presented shows that the presence of an upper bound does not
+Our analysis shows that the presence of an upper bound does not
 adversely affect the theoretical properties.
 As this neighbourhood is at the heart of the successful multiple
 centrality correctors technique \cite{Gondzio96}, we believe that
@@ -43,15 +43,14 @@ technique of multiple centrality correctors
 and added a new degree of freedom to it. 
 Instead of computing the corrected direction as
 $\Delta w = \Delta_p w + \Delta_c w$, where 
-$\Delta_p w$ and $\Delta_c w$ are the predictor and corrector terms, 
+$\Delta_p w$ and $\Delta_c w$ are generic predictor and corrector terms, 
 we allow the use of a weight $\omega \in (0,1]$ as a scaling factor
 for the corrector, and thus compute the search direction as
 $\Delta^\omega w = \Delta_p w + \omega \Delta_c w$.
-We combined this modification with the use of a symmetric neighbourhood
-of the central path as a tool to find appropriate target points.
 This led to the weighted correctors scheme of
 Algorithm~\ref{alg:WeightedCorrectors}.
-
+We combined this modification with the use of a symmetric neighbourhood
+of the central path as a tool to find appropriate target points.
 The analysis of Jarre and Wechs \cite{JarreWechs}
 discussed in Section~\ref{sec:JarreWechs}
 makes it very clear that the choice of the target $t$ in
@@ -64,7 +63,7 @@ correction to the current iterate.
 
 We compared our algorithm against the recently introduced 
 Krylov subspace scheme of Mehrotra and Li \cite{MehrotraLi}.
-The two approaches have similarities: they look for a set of attractive 
+The two approaches have similarities, as they look for a set of attractive 
 independent terms from which the final direction is constructed. 
 Mehrotra and Li's approach uses the first few elements from the basis
 of the Krylov space and solves an auxiliary linear program to find an
@@ -116,8 +115,8 @@ at the warm-start point, as these quantities play a major role in the
 success of a warm-start iterate.
 We obtained bounds on the scaled residuals at the warm-start point
 for which a full Newton step aimed at absorbing these residuals
-is feasible (Lemma~\ref{th:FullNewtonStep}).
-We proved that the recovery step keeps the point in a
+is feasible (Lemma~\ref{th:FullNewtonStep}), and
+proved that the recovery step keeps the point in a
 symmetric neighbourhood of the central path
 (Theorem~\ref{th:NeighbourhoodWarmstart}).
 In Lemma~\ref{th:BoundResiduals} and Theorem~\ref{th:Final} we specialised
@@ -133,11 +132,6 @@ provides an advanced starting point for the solution of the complete problem,
 in general resulting in a decrease in the number of iterations needed.
 As the computational cost of generating such an iterate is negligible,
 our warm-start strategy produces consistent savings in computational time.
-
-We believe that our approach allows to confirm once again 
-that also interior point methods can
-be efficiently warm-started and open some attractive avenues of 
-research for warm-start strategies in interior point methods.
 
 
 %
@@ -179,12 +173,18 @@ This opens some questions on what constitutes a valid
 previous direction (only affine scaling, the final composite direction
 or something else).
 
+Considering now the warm-start strategy for stochastic programming,
+we believe that such approach allows to confirm once again 
+that also interior point methods can be efficiently warm-started.
+Moreover, it open some attractive avenues of 
+research for warm-start strategies in interior point methods.
+
 If the iterate produced by a reduced tree is not good enough 
 in the sense that the warm-start strategy fails, then another one 
 can be produced by generating a modified reduced tree (more 
-bushy for example).
-This second tree provides a better approximation to the
-complete tree, and we can expect the infeasibilities of the 
+bushy, for example).
+Since this second tree provides a better approximation to the
+complete tree, we can expect the infeasibilities of the 
 corresponding warm-start point to be smaller.
 Hence, the chances for a successful 
 warm-start increase.
@@ -197,7 +197,7 @@ In our analysis we assumed not to have any information about the
 underlying stochastic process that governs the uncertainty.
 However, it is clear that such information would provide additional
 insight on which the choice of the reduced tree can be based.
-In such a situation, two trees would be generated: the complete one,
+In such a situation, two trees would be generated, the complete one,
 and an optimally reduced one.
 As we have seen, in constructing the warm-start point we need
 to know the mapping of nodes between the reduced and complete trees.

@@ -6,7 +6,7 @@
 %Feb:  1,  2,  4,  5,  6,  8,  9, 11, 22, 26
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
-%May:  2,  4,  8, 11, 12, 13
+%May:  2,  4,  8, 11, 12, 13, 14
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -70,7 +70,7 @@ in practical algorithms such as presolve techniques,
 detection of infeasibilities, linear algebra implementations, 
 use of iterative methods in the solution of the Newton system,
 and many others.
-For these additional topics we refer the reader to the references in 
+Valuable references for these additional topics can be found in
 \cite{AndersenGondzioMeszarosXu,GondzioTerlaky}.
 
 %
@@ -85,7 +85,7 @@ columns, discovering fixed variables, removing redundant constraints
 and tightening the bounds)
 and the process of finding an initial iterate.
 Here we discuss only the latter, and refer the reader 
-elsewhere
+to \cite{AndersenAndersen}
 for a treatment of the important topic of presolve techniques.
 
 The choice of an initial iterate for interior point methods is a
@@ -203,8 +203,11 @@ following \cite{GondzioTerlaky}:
 \qquad
 \frac{| c^Tx - b^Ty |}{1 + | b^Ty |} \le10 ^{-q}.
 \ee
+The values of $p$ and $q$ required depend on the specific application.
+In the literature, it is common to use the value $p = q = 8$.
 
-Another set of criteria is given by
+Another set of criteria, implemented in the interior point code
+\PCx \cite{PCx} is given by:
 \be  \label{eq:TerminationCriteriaPCx}
 \frac{\| Ax - b \|}{1 + \|b\|} \le 10^{-p},
 \qquad
@@ -212,9 +215,11 @@ Another set of criteria is given by
 \qquad
 \frac{\mu}{1 + |c^T x|} \le 10^{-q}.
 \ee
+The last condition in \eqref{eq:TerminationCriteriaPCx} is weaker
+than the corresponding one in \eqref{eq:TerminationCriteria} as,
+through $\mu$, it depends on $n$. Therefore, in this case it is common to 
+require $q = 10$.
 
-The values of $p$ and $q$ required depend on the specific application.
-In the literature, it is common to use the value $p = q = 8$.
 The third condition in each set is usually the most important, as it is
 commonly attained only after the feasibility requirements are satisfied.
 It is worth noting that the criteria (\ref{eq:TerminationCriteria})
