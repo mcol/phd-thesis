@@ -1,0 +1,319 @@
+%Started on Tuesday 4 September 2007
+%Sep:  5
+\documentclass{beamer}
+
+% Multiline comments
+\newcommand{\ignore}[1]{}
+
+%\usepackage{beamerthemesplit}
+\usepackage{epsfig}
+
+\title{Advances in interior point methods\\ for large-scale linear programming}
+\author{Marco Colombo}
+\institute{\includegraphics[width=2cm]{figures/uoecrest.eps} \\[3ex]
+  School of Mathematics\\ The University of Edinburgh}
+\date{Edinburgh, 6 September 2007}
+
+%
+% Beamer setup
+%
+\mode<presentation>
+{
+  \usetheme{Malmoe}
+  \usecolortheme{wolverine}
+
+  \setbeamercolor*{frametitle}{fg=structure}
+  \setbeamercolor{title}{bg=}
+  \setbeamercolor{palette primary}{fg=structure}
+  \setbeamercolor{palette secondary}{fg=structure}
+  \setbeamercolor{palette quaternary}{fg=structure}
+
+  % add some shading to the background canvas
+  \setbeamertemplate{background canvas}[vertical shading][bottom=orange!5,top=white]
+
+  % change the headline block
+  \setbeamertemplate{headline}{
+    \hbox{%
+      \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{section in head/foot}%
+	%{\tiny 	\insertauthor }
+      \end{beamercolorbox}%
+      \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{subsection in head/foot}%
+	%{\tiny 	\insertshorttitle }
+      \end{beamercolorbox}%
+    }
+  }
+
+  % change the footline block
+  \setbeamertemplate{footline}{
+    \hbox{%
+      \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{section in head/foot}%
+	\vspace{1ex}
+      \end{beamercolorbox}%
+      \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.25ex,dp=1ex,center]{subsection in head/foot}%
+	\vspace{1ex}
+      \end{beamercolorbox}%
+    }
+  }
+
+  % remove the navigation symbols
+  \beamertemplatenavigationsymbolsempty
+
+  % uncomment to partially see the next items in a list
+  % \setbeamercovered{transparent}
+}
+
+\renewcommand{\em}{\structure}
+
+%
+% Begin document
+%
+\begin{document}
+
+%
+% Title page
+%
+\frame{
+  \titlepage
+}
+
+%
+% Introduction
+%
+\frame{
+
+  \frametitle{Introduction}
+
+  My research concentrated on three main areas:
+  \begin{itemize}
+  \item Symmetric neighbourhood
+  \item Weighted centrality correctors
+  \item Warm-start for stochastic linear programming
+  \end{itemize}
+}
+
+%
+% Symmetric neighbourhood
+%
+\section{The symmetric neighbourhood}
+
+\frame
+{
+  \frametitle{Neighbourhoods}
+
+  Tight neighbourhood:
+  \[
+  \mathcal{N}_2(\theta) =
+         \{ (x,y,s)\in \mathcal{F}^0: \| XSe - \mu e \| \le \theta \}
+  \]
+  \vspace{-4ex}
+  \begin{itemize}
+  \item Convergence in $\mathcal{O}(\sqrt{n}L)$ iterations
+  \end{itemize}
+
+  \vfill
+  Wide neighbourhood:
+  \[
+  \mathcal{N}_{-\infty}(\gamma) =
+         \{ (x,y,s)\in \mathcal{F}^0: \gamma\mu\le x_is_i, i = 1,\ldots,n \}
+  \]
+  \vspace{-4ex}
+  \begin{itemize}
+  \item Convergence in $\mathcal{O}(nL)$ iterations
+  \end{itemize}
+}
+
+\frame
+{
+  \frametitle{Symmetric neighbourhood}
+
+  Complementarity pairs are upper bounded:
+  \[
+  \mathcal{N}_s(\gamma)=
+  \{ (x,y,s)\in \mathcal{F}^0: \gamma\mu\le x_is_i \em{\le\frac{1}{\gamma}\mu},
+			       i = 1,\ldots,n \}
+  \]
+
+  \begin{itemize}
+  \item The symmetric neighbourhood provides a description of the features
+    of a well-behaved iterate.
+  \item Allows to keep the complementarity pairs under control.
+  \item We prove convergence in $\mathcal{O}(nL)$ iterations of a feasible
+    algorithm based on the symmetric neighbourhood.
+  \item Practical success of techniques based on this neighbourhood
+    (multiple centrality correctors).
+  \end{itemize}
+}
+
+
+%
+% Weighted correctors
+%
+\section{Weighted centrality correctors}
+
+\frame
+{
+  \frametitle{The importance of the target $t$}
+
+  The target $t$ is the driving tool in finding effective search directions:
+  \[
+  \left[ \begin{array}{ccc}
+      A & 0   & 0 \\
+      0 & A^T & I \\
+      S & 0   & X
+    \end{array} \right]
+  \left[ \begin{array}{c}
+      \Delta x \\ \Delta y \\ \Delta s
+    \end{array} \right] =
+  \left[ \begin{array}{c}
+      b-Ax \\ c-A^Ty-s \\ \em{t}
+    \end{array} \right]
+  \]
+
+  \begin{tabular}{ll}
+  Primal--dual search direction: & $t = -XSe +\sigma\mu e$ \\
+  Affine-scaling direction:      & $t = -XSe$ \\
+  Mehrotra's corrector:          & $t = -\Delta_a X \Delta_a S +\sigma\mu e$ \\
+  Multiple centrality correctors:  \\
+  \end{tabular}
+  %
+  \[
+  t_i = \left\{
+  \begin{array}{ll}
+    \quad\;\; 0 & \mbox{ if } \tilde v_i \in \mathcal{N}_s(\gamma) \\
+    \gamma\mu -\tilde v_i& \mbox{ if }\tilde v_i < \gamma\mu\\
+    \frac{1}{\gamma}\mu-\tilde v_i& \mbox{ if }\tilde v_i>\frac{1}{\gamma}\mu\\
+  \end{array} \right\}
+  \tilde v_i= (x_i+\tilde\alpha_p \Delta x_i)(s_i+\tilde\alpha_d \Delta s_i)
+  \]
+}
+
+\frame
+{
+  \frametitle{Weighting the corrector direction}
+
+  Use a weighting scheme for all correctors:
+  \[
+  \Delta = \Delta_a +\em{\omega_c}\Delta_c + 
+           \textstyle \sum_i \em{\omega_i} \Delta_{m,i}
+  \]
+
+  Find the best weight in the weighted corrector direction:
+  \[
+  \Delta^\omega = \Delta_p +\omega\Delta_c
+  \]
+
+  Evaluate the stepsize $\alpha$ and stop the procedure when there is no
+  improvement in the stepsize.
+}
+
+\frame{
+
+  \frametitle{Outcomes}
+
+  Conclusions:
+  \begin{itemize}
+  \item Weighting the correctors generate better search directions, and allows
+    stronger recentering in multiple centrality correctors.
+  \item Need to explore the subspace with new search directions.
+  \item Consideration on search directions: if we had a cheap way of generating
+  directions, we should use as many as possible.
+  \end{itemize}
+
+  \vfill
+  Impact:
+  \begin{itemize}
+  \item Improve implementations of available codes for large-scale problems.
+  \item Practical value in warm-start context for feasibility restoration
+    and centering.
+  \end{itemize}
+}
+
+
+%
+% Warm-start
+%
+\section{A warm-start strategy for stochastic linear programming}
+
+\frame
+{
+  \frametitle{Warm-start algorithm for stochastic programming}
+
+  Very detailed event trees provide a fine-grained solution to a problem
+  that could have been solved more coarsely with a much smaller tree.
+
+  \vfill
+  Use the solution to a smaller instance of the problem to generate
+  a warm-start point.
+
+  \vfill
+  \em{Algorithm:}\\
+  \begin{enumerate}
+  \item Solve a reduced deterministic equivalent with 
+    \em{loose accuracy}.
+  \item Use this advanced point to generate a warm-start iterate 
+    for the complete problem.
+  \item Solve the complete problem to \em{optimality}.
+  \end{enumerate}
+}
+
+\frame
+{
+  \frametitle{Theoretical analysis}
+
+  Sufficient conditions for the reduced tree to guarantee a successful 
+  warm-start of the complete problem.
+
+  \begin{itemize}
+  \item Conditions on the scaled residuals at the warm-start point: bounds
+    for which a full Newton step aimed at absorbing these residuals is
+    feasible.
+  \item The recovery step keeps the point in a (larger) symmetric neighbourhood
+    of the central path.
+  \item Bounds on the implied infeasibilities at the warm-start point
+    depending on the choice of the reduced scenario tree.
+
+  \end{itemize}
+}
+
+\frame
+{
+
+  \frametitle{Outcomes}
+
+  Conclusions:
+  \begin{itemize}
+  \item Reduced tree solutions contain valuable information to construct 
+    a good warm-start iterate.
+  \item We exploit the structure inherent to any stochastic programming problem
+    in an algorithmic way.
+  \item We have some control on the perturbation, as we can control the way
+    we generate a reduced tree.
+  \end{itemize}
+
+  \vfill
+  Impact:
+  \begin{itemize}
+  \item Multi-start strategies: using reduced trees of growing dimensions.
+  \item Extend work to different areas that have a similarly structured
+    problems (discretization of differential equations).
+  \end{itemize}
+}
+
+\frame
+{
+  \frametitle{Future directions and challenges}
+
+  \begin{itemize}
+  \item Research on general search directions (correctors) and specialised
+    directions (absorbtion of perturbations).
+  \item Embedding in the stochastic modelling process by integrating the
+    problem generation procedure with the solution phase.
+  \item Development of structure-aware and structure-exploiting algorithms
+    and codes.
+  \end{itemize}
+}
+
+%
+% End document
+%
+\end{document}
