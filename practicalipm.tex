@@ -7,6 +7,7 @@
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
 %May:  2,  4,  8, 11, 12, 13, 14
+%Sep: 18
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -15,7 +16,7 @@
 
 In this chapter we turn our attention to the computational side of
 interior point methods. We concentrate on the main strategies which are
-the basis of effective implementations of interior point methods
+at the basis of effective implementations of interior point methods
 for linear programming, and present other issues that are specific
 to practical algorithms.
 These have been documented extensively; for example, see
@@ -147,7 +148,8 @@ warm-start strategies.
 \subsection{Computation of the stepsize}
 
 The computation of different stepsizes in the primal and dual spaces is
-almost the rule for linear programming.
+done almost universally in implementations of interior point methods
+for linear programming.
 % (while for quadratic programs the stepsizes have to be identical). 
 This has the advantage of
 speeding up the restoration of feasibility. According to
@@ -171,6 +173,8 @@ in the primal and dual space respectively, are computed as:
   \quad\;
   \alpha_D =\min \left\{ -\frac{s_i}{\Delta s_i} : \Delta s_i < 0 \right\}.
 \ee
+These stepsizes are then shortened with a factor $\alpha_0 = 0.99995$
+to ensure strict positivity \cite{GondzioTerlaky,LustigMarstenShanno}.
 
 We remark that in the computation of the stepsizes, we 
 maintain the strict positivity of the iterates, without restricting
@@ -183,7 +187,7 @@ iterates in a neighbourhood of the central path.
 %
 \subsection{Termination criteria}
 
-Contrary to active set algorithms, interior point methods reach a
+In contrast to active set algorithms, interior point methods reach a
 solution only asymptotically. 
 Because of the presence of the barrier term that keeps the iterates
 away from the boundary, they can never produce an exact solution.
@@ -344,7 +348,7 @@ in the overall number of factorisations.
 These 
 techniques have been implemented in most commercial and academic 
 interior point solvers for linear and quadratic programming such 
-as {\sc bpmpd}, Cplex, \HOPDM, Mosek, \OOPS, {\sc ooqp}, \PCx and Xpress
+as {\sc bpmpd}, Cplex, \HOPDM, Mosek, Ipopt, \OOPS, {\sc ooqp}, \PCx and Xpress
 (see Appendix B in \cite{ipm:Wright97}).
 
 Since these two methods were developed, there have been a number of 
@@ -391,17 +395,16 @@ considering the right-hand as
 thus splitting the computation 
 of the Newton direction into two steps, corresponding to solving the linear
 system (\ref{eq:NewtonSystem}) independently for the two right-hand 
-sides. 
+sides above.
 
 First, we can postpone the choice of the centering parameter 
 $\sigma$ and base it on the assessment of the quality of the 
 pure Newton direction computed with the first part of the right-hand side;
 second, the error made by this direction may be 
 taken into account and
-corrected. Mehrotra's predictor--corrector technique \cite{Mehrotra92}
+corrected. Mehrotra's predictor--corrector algorithm \cite{Mehrotra92}
 translates these observations into a powerful computational method.
-
-Mehrotra's predictor--corrector algorithm 
+This technique
 is extremely efficient in practice \cite{LustigMarstenShanno,Mehrotra92}. 
 Since its introduction, it has 
 been considered the method of choice for practical implementations 
@@ -783,7 +786,7 @@ However, as the trial point is used exclusively in
 determining a target for the centrality corrector, we will not
 worry about it.
 
-The products $\tilde v$ are very unlikely to align to the same value $\mu$.
+The products in $\tilde v$ are very unlikely all to be equal to $\mu$.
 Some of them are significantly smaller than $\mu$, 
 including cases of negative components in $\tilde v$, 
 and some exceed $\mu$. Instead of trying to correct 
@@ -863,7 +866,8 @@ multiple centrality correctors technique.
            \smallskip
            \STATE Set $\Delta_p w := \Delta_p w + \Delta_m w$.
            \smallskip
-	   \STATE Evaluate the maximum the stepsize $\alpha_k$ in $\Delta_p w$.
+	   \STATE Evaluate the maximum stepsize $\alpha_k$ in direction
+	          $\Delta_p w$.
            \smallskip
         \UNTIL The stepsize does not increase by at least a fraction of
 	       the aspiration level $\delta$ or the number of correctors 
@@ -1050,7 +1054,7 @@ Gondzio \cite{Gondzio98} presents a warm-start procedure for primal--dual
 interior point methods in the context of a cutting plane method.
 The interior point method is used to solve a sequence of restricted
 master problems, which differ by one or more cutting planes.
-By construction, in such a setting, the solution to one problem
+By construction, in such a setting the solution to one problem
 deeply violates some of the newly added constraints.
 The optimal solution to a problem is necessarily very close 
 to the boundary, thus is an unattractive starting point 
@@ -1200,7 +1204,7 @@ A different approach has been studied by Benson and Shanno
 \cite{BensonShanno}. They investigate how to improve the efficiency 
 of interior point methods in a reoptimization context by the use of 
 a primal--dual penalty approach.
-While standard penalty techniques are effective only in one space, 
+While standard penalty techniques are applied only in one space, 
 the introduction of penalty parameters in both the primal and the 
 dual problems allows the handling of perturbations in both spaces.
 For example, an $l_1$ penalty can deal with changes in the right-hand
@@ -1217,8 +1221,6 @@ the immediate advantage of allowing larger stepsizes along
 the computed search direction to be accepted. This favours faster progress
 especially in the first few iterations, when the perturbation needs
 to be absorbed.
-This is of particular importance in reoptimization, as the optimal
-solution of the previous problem is necessarily close to a boundary.
 Benson and Shanno \cite{BensonShanno} also provide some computational
 evidence of the effectiveness of their strategy.
 

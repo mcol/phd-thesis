@@ -6,6 +6,7 @@
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
 %May:  1,  4,  6,  8, 10, 11, 12, 13, 14
+%Sep: 18
 
 %
 % Chapter: Warm-start
@@ -239,7 +240,8 @@ recourse problem:
 %
 \be \label{eq:SLPRecourse}
 \begin{array}{rl}
-  \min & (q^1)^T x^1 + \E_\xi[\min\, q(\xi)^T y(\xi)] \\
+  \displaystyle \min_x & \displaystyle (q^1)^T x^1 
+                         + \E_\xi\big[\min_{y(\xi)}\, q(\xi)^T y(\xi)\big] \\
   \text{s.t.} &  W^1x^1                   = h^1,      \\
 	      &  T(\xi) x^1 + W(\xi) y(\xi) = h(\xi), \\
 	      &  x^1 \geq 0,\; y(\xi) \ge 0,
@@ -281,8 +283,7 @@ stochastic programming problem we first need to enumerate all nodes
 of the event tree. We use a breadth-first 
 search order, i.e. we start from a root node corresponding 
 to the initial stage and end with leaf nodes corresponding 
-to the last stage. In this case, the constraint matrix displays
-a nested dual-block angular structure.
+to the last stage.
 
 Let $t = 1,2,\ldots,T$ denote the stages and let $\mathcal{L}_t$ 
 be the set of nodes at stage $t$.
@@ -423,7 +424,7 @@ the complete problem to be solved to optimality in fewer iterations
 a standard initial point heuristic \cite{Mehrotra92}.
 With these aims, we propose a way of choosing a subset of scenarios 
 that we believe to be sufficiently representative of the whole tree.
-The algorithm can be summarised in the steps of
+Our strategy can be summarised in the steps of
 Algorithm~\ref{alg:OverallAlgorithm}.
 %
 \begin{algorithm}[h]
@@ -613,7 +614,7 @@ a totally balanced aggregation we would expect
 \]
 We define the deviation from this as
 \be  \label{eq:rho}
-  \rho = \min_{i\in\Rtree}\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
+  \rho = \min_{i\in\Ctree}\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
                                  \frac{p_R^{r(i)}}{p^i}\frac{n_R}{n}\right\}.
 \ee
 
@@ -654,7 +655,7 @@ corresponds to the deterministic equivalent \eqref{DetEquiv} generated from a
 given event tree $\Ctree$. We will refer to it as the 
 {\em complete problem}.
 
-From the reduced tree, which we denote by $\Rtree$, 
+From the reduced tree $\Rtree$ 
 we build the reduced deterministic 
 equivalent problem
 \be \label{eq:ReducedProblem}
@@ -699,7 +700,7 @@ problem in the following manner:
  (\hat y^{i}, \hat s^{i}) = \frac{p^{i}}{p_R^{r(i)}} (y_R^{r(i)}, s_R^{r(i)}),
   \qquad i \in \Ctree,
 \ee
-where $p^i_R$ is computed according to (\ref{eq:UpdatePathProbs}).
+where $p^{r(i)}_R$ is computed according to (\ref{eq:UpdatePathProbs}).
 This means that the dual reduced-tree solution is spread among the
 nodes it initialises, as can be seen here:
 \[
@@ -963,7 +964,7 @@ denoting the symmetric neighbourhoods
 for the expanded problem \eqref{eq:ExpandedProblem}
 and the complete problem \eqref{eq:CompleteProblem}, respectively.
 
-After some straightforward manipulation following the arguments of 
+After some straightforward manipulations following the arguments of 
 \cite{GondzioGrothey03}, the Newton
 direction (\ref{eq:NewtonSystem2}) can be expressed in terms 
 of the primal and dual residuals $\xi_b$, $\xi_c$ as
@@ -1042,10 +1043,12 @@ the relations (\ref{eq:Directions}) simplify to
 yielding the bound
 %
 \be  \label{boundx}
+\begin{split}
 \|X^{-1}\Delta x\|_\infty
-  \le \|Q\|_\infty\|\tilde{\xi}_c\|_\infty 
-       + (1 + \|Q\|_\infty)\|\tilde{\xi}_b\|_\infty
-  \le (1 +\|Q\|_\infty)(\|\tilde{\xi}_b\|_\infty + \|\tilde{\xi}_c\|_\infty).
+  &\le \|Q\|_\infty\|\tilde{\xi}_c\|_\infty 
+        + (1 + \|Q\|_\infty)\|\tilde{\xi}_b\|_\infty \\
+  &\le (1 +\|Q\|_\infty)(\|\tilde{\xi}_b\|_\infty + \|\tilde{\xi}_c\|_\infty).
+\end{split}
 \ee
 %
 As $(x,y,s)\in \widehat{\Nhood}_s(\gamma)$, using Lemma~\ref{th:BoundQ} we get
@@ -1259,8 +1262,8 @@ The contribution of a node $l \in \Ctree$ to $\xi_c$ is
 \]
 where the step from the first to the second line uses 
 (\ref{eq:RedTreeDualContribution}) and the next step uses
-(\ref{eq:WarmstartSolution}) together with $p^i = p^l\delta^i,
-p_R^{r(i)} = p_R^{r(l)}\delta_R^{r(i)}$.
+(\ref{eq:WarmstartSolution}) together with $p^i = p^l\delta^i$ and
+$p_R^{r(i)} = p_R^{r(l)}\delta_R^{r(i)}$.
 % and in the last line we 
 %exploited the fact that $T^i - T^{r(i)} = 0$
 %for $i \in \mathcal{D}_{l}\cap\mathcal{D}_{r(l)}^R$.
@@ -1646,7 +1649,7 @@ we report the parallel performance
 of \OOPS on a cluster of four machines with a 3.0GHz Intel Pentium 
 processor and 2GB of RAM each.
 In this case, we choose the size of the reduced tree to be equal 
-to the number of processors employed for two complementary reasons.
+to the number of processors employed for two different reasons.
 First, it is preferable to assign to \OOPS a balanced number of blocks 
 on each processor, so we needed to guarantee that each processor 
 gets at least one block; second, we obtain a more refined 

@@ -7,6 +7,7 @@
 %Mar:  8,  9, 13, 15, 16, 17, 19, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2,  3, 16, 18
 %May:  1,  4,  8, 12, 14
+%Sep: 18
 
 %
 % Chapter: Interior point methods
@@ -19,10 +20,10 @@ and a number of survey papers, monographs and academic books are available
 RoosTerlakyVial,Terlaky96,MWright92,ipm:Wright97}.
 This chapter is devoted to the derivation and analysis of primal--dual
 path-following interior point methods. 
-We present the elements that are at the base of this successful class
+We present the elements that are at the basis of this successful class
 of algorithms, concentrating on their theoretical properties and
 attractive features.
-We also introduce and analyse the concept of symmetric neighbourhood,
+We also introduce and analyse the concept of a symmetric neighbourhood,
 and its consequences for practical algorithms.
 
 
@@ -120,7 +121,7 @@ there exists a pair $(y,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
 \end{lemma}
 
 Problem $(P)$ has a solution if and only if $\mathcal{P} \ne \emptyset$.
-If $\mathcal{D} \ne \emptyset$ and $\mathcal{D} \ne \emptyset$,
+If $\mathcal{P} \ne \emptyset$ and $\mathcal{D} \ne \emptyset$,
 then both $(P)$ and $(D)$ admit an
 optimal solution $w^* = (x^*, y^*, s^*)$, and by Lemma~\ref{th:StrongDuality}
 the objective function 
@@ -208,7 +209,8 @@ then both $(P)$ and $(P_\mu)$ admit optimal solutions.
 
 The objective function of problem $(P_\mu)$
 is a strictly convex function. 
-Therefore, for a fixed $\mu$, the problem has at most one global minimum. 
+Therefore, for a fixed $\mu$, the problem is either unbounded 
+or has exactly one minimum. 
 The minimizer, if it exists, is completely characterised 
 by the associated \KKT conditions:
 \[
@@ -256,7 +258,7 @@ Megiddo \cite{Megiddo} and Bayer and Lagarias \cite{BayerLagarias}.
 Under the assumptions that for a particular $\mu > 0$ the point
 $w(\mu)$ is primal and dual feasible, we can state
 a similar result to the one expressed by 
-(\ref{eq:DualityComplementarityGap}), and define the duality cap
+(\ref{eq:DualityComplementarityGap}), and define the duality gap
 $g(\mu)$ as a function of the barrier parameter:
 \be  \label{eq:DualityComplementarityGapMu}
   g(\mu) = c^Tx(\mu) - b^T y(\mu) = x(\mu)^T s(\mu).
@@ -341,7 +343,7 @@ this situation as having determined the whole set of optimal solutions.
 In contrast, the choice of the solution vertex provided by the simplex
 method is arbitrary, and depends on factors like the pivoting rule.
 
-Often having a basis solution that identifies a vertex is considered
+Often having a basic solution that identifies a vertex is considered
 to be an exact solution.
 However, we should discuss what we mean by ``exact'' solution. In most
 cases we do not need the additional precision of being on a vertex 
@@ -510,7 +512,7 @@ we would like the perturbed \KKT conditions (\ref{eq:PerturbedKKT})
 to better and better approximate
 the system (\ref{eq:KKT}) of optimality conditions for the original
 problem.
-Hence, at each iteration, $\mu$ is monotonically decreased by the quantity
+Hence, at each iteration, $\mu$ is monotonically decreased by the factor
 $\sigma \in (0,1)$, called the {\em centering parameter} for reasons that
 will become clear later on.
 The choice of the centering parameter $\sigma$ 
@@ -586,9 +588,7 @@ a new iterate
 \]
 where $\alpha \in (0,1]$ is the largest feasible stepsize computed in
 such a way that
-\[
-   w + \alpha \Delta w \in \Nhood.
-\]
+$w^{k+1} \in \Nhood$.
 
 In Algorithm~\ref{alg:PrimalDual} we present the general framework of a 
 primal--dual path-following algorithm.
@@ -693,8 +693,8 @@ This is an aggressive update, and it implies that a full Newton
 step is usually not feasible, so the stepsize needs to be damped.
 Also, more than one iteration may have to be performed before
 reducing the barrier parameter again.
-This algorithm, as well as many similar variants, has
-property of convergence in $\bigO(nL)$ iterations.
+This algorithm, as well as many similar variants,
+converges in $\bigO(nL)$ iterations.
 
 This result was then refined by the same group \cite{KojimaMizunoYoshise89b} 
 and by Monteiro and Adler \cite{MonteiroAdler89a},
@@ -703,7 +703,6 @@ based on the tight $\Nhood_2$ neighbourhood
 with the property of convergence in $\bigO(\sqrt{n}L)$ iterations.
 This is still the best complexity result for interior point methods
 for linear programming.
-
 In a short-step feasible method based on the $\Nhood_2$ neighbourhood
 the barrier parameter is reduced by 
 \be  \label{eq:ShortStepSigma}
@@ -715,7 +714,7 @@ As $\sigma$ is always very close to 1, a lot of emphasis is put
 on maintaining centrality rather than advancing towards optimality. 
 %
 The slight reduction of the barrier parameter at
-each iteration guarantees that one iteration of Newton's
+each step guarantees that one iteration of Newton's
 method can keep the point in the tight neighbourhood of the central path.
 The choice of (\ref{eq:ShortStepSigma}) allows convergence
 in $\bigO(\sqrt{n}L)$ iterations to be proved.
@@ -738,7 +737,7 @@ by choosing $\sigma = 0$ in (\ref{eq:NewtonSystem}),
 the predictor direction gains optimality, possibly at the expense of
 worsening centrality, keeping the iterate in a larger neighbourhood
 $\Nhood_2(\theta)$ of the central path. 
-Then, a pure re-centering step is performed, by setting $\sigma = 1$,
+Then, a pure re-centering step is performed by setting $\sigma = 1$,
 leaving the duality gap unchanged but moving the iterate back into a 
 tighter $\Nhood_2(\theta^2)$ neighbourhood. Hence, on every second step the 
 algorithm produces a point in $\Nhood_2(\theta^2)$.
@@ -820,7 +819,7 @@ an infeasible interior point method as well as
 a stepsize rule that guarantees global convergence of the algorithm.
 
 In such 
-an algorithm, all iterates are infeasible, but the limit points 
+an algorithm, all iterates are usually infeasible, but the limit points 
 are feasible and optimal. This is obtained by using a 
 neighbourhood that admits infeasible points:
 \[

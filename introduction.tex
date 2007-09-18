@@ -7,6 +7,7 @@
 %Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16
 %May:  2,  8, 12, 14
+%Sep: 18
 
 %
 % Chapter: Background and introduction.
@@ -125,7 +126,6 @@ algorithm running in time proportional to a polynomial function
 of its input size. That is, we consider an algorithm efficient
  if it runs in time $\bigO(n^k)$ on any input of size $n$, 
 for some constant $k>0$.
-
 An exhaustive presentation of this topic exceeds the aims of this thesis.
 We refer the reader to available introductions in the area, 
 \cite[Chapter~2]{Schrijver86} among others.
@@ -169,7 +169,7 @@ Algorithm~\ref{alg:GenericOptimization}.
 
 Each element of this generic framework
 (starting point, search direction, stepsize, termination criteria)
-has to be accurately specialised in order to define a specific algorithm.
+has to be accurately specified in order to define a particular algorithm.
 In what follows, we will introduce the main ideas behind three 
 different solution methods for linear programming: the simplex method,
 the ellipsoid method, and the class of interior point methods.
@@ -178,7 +178,7 @@ the ellipsoid method, and the class of interior point methods.
 %
 \subsection{The simplex method}
 
-The simplex method was introduced in 1947 by George Dantzig 
+The {\em simplex method} was introduced in 1947 by George Dantzig 
 \cite{Dantzig63}. The
 introduction of the simplex method happened simultaneously with
 the realisation of linear programming as an efficient modelling tool
@@ -244,7 +244,8 @@ characterised by a polynomial-time bound.
 \subsection{The ellipsoid method}
 
 In 1979 a breakthrough occurred, as Khachiyan showed how to adapt 
-the ellipsoid method for convex programming to the linear programming case,
+the {\em ellipsoid method} for convex programming
+to the linear programming case,
 and determined the computational complexity of linear programming.
 
 In Khachiyan's ellipsoid method, the feasible polyhedron is inscribed in 
@@ -434,7 +435,8 @@ In this sense,
 the quality of centrality (understood in a simplified way 
 as complementarity) in a practical algorithm is not 
 conveniently characterised by either of the two neighbourhoods 
-$\Nhood_2$ or $\Nhood_{-\infty}$ which are usually employed in 
+$\Nhood_2$ or $\Nhood_{-\infty}$ (see Section~\ref{sec:Neighbourhoods}
+for their definition) which are usually employed in 
 theoretical developments of interior point methods.
 The symmetric neighbourhood $\Nhood_s$ is a variation on the more common
 $\Nhood_{-\infty}$ neighbourhood in which the complementarity pairs
@@ -497,7 +499,7 @@ of the targeting procedure of the multiple centrality correctors technique
 with improved performance.
 We have implemented the weighted correctors strategy in the \HOPDM
 interior point code, and have studied its performance with thorough
-computational experience. 
+computational experiments. 
 From this testing we see that such a strategy 
 produces considerable improvements, particularly for large-scale
 problems.
@@ -542,7 +544,7 @@ and move along such direction with full step.
 The implementation within the \HOPDM and \OOPS interior point solvers 
 shows remarkable advantages on a series of problem instances.
 
-The original results presented in this thesis have been the base for two
+The original results presented in this thesis have been the basis for two
 papers that have been submitted for publication, jointly with
 Jacek Gondzio \cite{ColomboGondzio05}, and with Jacek Gondzio and 
 Andreas Grothey \cite{ColomboGondzioGrothey06}.
@@ -594,4 +596,4 @@ experience on some standard test problems and larger instances coming
 from the telecommunication industry.
 
 Finally, in Chapter~\ref{ch:Conclusions} we present our conclusions
-and directions for future work.
+and discuss directions for future work.
