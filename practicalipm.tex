@@ -7,7 +7,7 @@
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
 %May:  2,  4,  8, 11, 12, 13, 14
-%Sep: 18
+%Sep: 18, 19
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -843,7 +843,7 @@ $\Delta_p w := \Delta_p w + \Delta_m w$.
 The maximum number of centrality correctors allowed is
 problem dependent. Such a number is determined 
 heuristically, trying to balance the cost of additional backsolves to 
-the savings in iteration count.
+the savings in iteration count, as detailed in \cite{Gondzio96}.
 Each corrector computed is accepted as long as the stepsizes increase 
 at least by a fraction of the aspiration level $\delta$.
 

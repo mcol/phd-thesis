@@ -6,7 +6,7 @@
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
 %May:  1,  4,  6,  8, 10, 11, 12, 13, 14
-%Sep: 18
+%Sep: 18, 19
 
 %
 % Chapter: Warm-start
@@ -192,11 +192,6 @@ The discrete stochastic process can be represented as an
 {\em event tree} $\Ctree$,
 where each node denotes a stage when a realisation 
 of the random process becomes known and a subsequent decision is taken.
-It is common to consider balanced trees, where the number of
-branches for each node is the same at each stage.
-However, a better approach is to consider more branches in the
-earlier stages than in the later ones. This leads to the
-so-called {\em left-heavy trees}.
 A very simple event tree is shown in Figure~\ref{fig:EventTree}.
 %
 \begin{figure}[ht]
@@ -207,6 +202,12 @@ A very simple event tree is shown in Figure~\ref{fig:EventTree}.
   \end{center}
   \vspace{-3ex}
 \end{figure}
+%
+It is common to consider balanced trees, where the number of
+branches for each node is the same at each stage.
+However, a better approach is to consider more branches in the
+earlier stages than in the later ones. This leads to the
+so-called {\em left-heavy trees}.
 
 To each node of the event tree we associate a set of constraints, an 
 objective function, and the conditional probability of visiting the 
@@ -646,7 +647,7 @@ in each subtree.
 
 Consider the linear programming problem in standard form
 \be  \label{eq:CompleteProblem}
-  \min\; c^T x \;\quad \mbox{s.t. }\; Ax = b, \;\; x \ge 0,
+  \min_x\; c^T x \;\quad \mbox{s.t. }\; Ax = b, \;\; x \ge 0,
 \ee
 where $A \in \R^{m \times n}$ is full rank, 
 $x, c \in \R^{n}$ and $b \in \R^{m}$. 
@@ -659,7 +660,7 @@ From the reduced tree $\Rtree$
 we build the reduced deterministic 
 equivalent problem
 \be \label{eq:ReducedProblem}
-\min\; c_R^T x_R \;\quad \mbox{s.t. }\; A_R x_R = b_R, \; x_R \ge 0,
+\min_{x_R}\; c_R^T x_R \;\quad \mbox{s.t. }\; A_R x_R = b_R, \; x_R \ge 0,
 \ee
 with $A_R \in \R^{m_R\times n_R}$, $x_R \in 
 \R^{n_R}$ and $b_R \in \R^{m_R}$. 
@@ -763,7 +764,7 @@ side vectors, as shown in Figure~\ref{fig:ExpandedSystem}.
 %
 \begin{figure}[ht]
   \begin{center}
-    \includegraphics[scale=.50]{figures/expandedsystem.eps}
+    \includegraphics[scale=.49]{figures/expandedsystem.eps}
     \caption{The expanded system for the event tree of Figure~\ref{fig:Tree}.}
     \label{fig:ExpandedSystem}
   \end{center}
@@ -772,7 +773,7 @@ side vectors, as shown in Figure~\ref{fig:ExpandedSystem}.
 
 This corresponds to creating the (artificial) {\em expanded problem}
 \be \label{eq:ExpandedProblem}
-\min\; \hat{c}^T x \;\quad \mbox{s.t. }\; \hat{A} x = \hat{b},
+\min_x\; \hat{c}^T x \;\quad \mbox{s.t. }\; \hat{A} x = \hat{b},
     \; x \ge 0,
 \ee
 the dimension of which, $\hat{A} \in \R^{m\times n}$, 
@@ -1487,7 +1488,8 @@ The function $f(x,d)$ is defined in the following model, which
 describes the second stage decisions:
 \[
 \begin{array}{rll}
-  f(x,d) =\min & \displaystyle\sum_{k\in {\cal D}} (d_k -\sum_{p\in P_k} z_p)\\
+  f(x,d) = \displaystyle\min_{z_p}
+               & \displaystyle\sum_{k\in {\cal D}} (d_k -\sum_{p\in P_k} z_p)\\
   \mbox{s.t.}  & \displaystyle\sum_{k\in {\cal D}} \sum_{p\in {\cal P}_k: l\in p} z_p \le x_l
                                         & \forall l \in {\cal A} \\
                & \displaystyle\sum_{p\in {\cal P}_k} z_p \le d_k
