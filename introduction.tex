@@ -7,7 +7,7 @@
 %Mar:  8, 12, 17, 19, 20, 21, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16
 %May:  2,  8, 12, 14
-%Sep: 18
+%Sep: 18, 20, 27
 
 %
 % Chapter: Background and introduction.
@@ -134,7 +134,7 @@ Complexity proofs rely on two assumptions that are necessary
 simplifications:
 \begin{enumerate}
 \item Computations are performed in exact arithmetic;
-\item The numerical data $(A, b, c)$ of a problem instance is rational.
+\item The numerical data of a problem instance is rational.
 \end{enumerate}
 
 Computational complexity is measured by the number of elementary operations
@@ -440,7 +440,7 @@ for their definition) which are usually employed in
 theoretical developments of interior point methods.
 The symmetric neighbourhood $\Nhood_s$ is a variation on the more common
 $\Nhood_{-\infty}$ neighbourhood in which the complementarity pairs
-are bounded both from above and below by a quantity 
+are bounded above and below by a quantity 
 that depends on the barrier parameter $\mu$ but does
 not depend directly on $n$.
 Within the $\Nhood_s$ neighbourhood, the spread among 
@@ -587,13 +587,14 @@ a rich computational study on the implementation of the
 weighted correctors technique.
 
 In Chapter~\ref{ch:Warmstart} we turn our attention to the field
-of stochastic programming, explain its relevance and introduce some
+of stochastic programming, explain its relevance and present some
 basic concepts.
-We present a warm-start technique
+We introduce a warm-start technique
 that exploits the inherent structure of stochastic linear programs.
 Alongside some theoretical results, we show our computational
 experience on some standard test problems and larger instances coming
 from the telecommunication industry.
 
+\enlargethispage{\baselineskip}
 Finally, in Chapter~\ref{ch:Conclusions} we present our conclusions
 and discuss directions for future work.

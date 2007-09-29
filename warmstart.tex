@@ -6,7 +6,7 @@
 %Mar:  8, 18, 19, 20, 28, 30
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
 %May:  1,  4,  6,  8, 10, 11, 12, 13, 14
-%Sep: 18, 19
+%Sep: 18, 19, 21, 27
 
 %
 % Chapter: Warm-start
@@ -133,7 +133,7 @@ Following \cite{BirgeLouveaux}, this can be illustrated by the
 %
 \be  \label{eq:SP1}
   \begin{array}{rl}
-    \min        & (q^1)^T x^1 + \E_\xi Q(x^1, \xi) \\
+    \displaystyle \min_{x^1} & (q^1)^T x^1 + \E_\xi Q(x^1, \xi) \\
     \mbox{s.t.} & W^1x^1 = h^1,  \\
                 & x^1\geq 0, \\
   \end{array}
@@ -143,7 +143,7 @@ where $\xi$ is a random variable, $\E_\xi$ is the expectation function
 and
 \be  \label{eq:SP2}
   \begin{array}{rcrl}
-  Q(x^1,\xi)& \!\!\! = \!\!\! & \min & q(\xi)^T y(\xi) \\
+  Q(x^1,\xi)& \!\!\! = \!\!\! & \displaystyle\min_{y(\xi)} & q(\xi)^T y(\xi) \\
             &   & \mbox{s.t.} & W(\xi)y(\xi) = h(\xi) - T(\xi)x^1, \\
 	    &   &             & y(\xi) \ge 0.
   \end{array}
@@ -241,7 +241,7 @@ recourse problem:
 %
 \be \label{eq:SLPRecourse}
 \begin{array}{rl}
-  \displaystyle \min_x & \displaystyle (q^1)^T x^1 
+  \displaystyle \min_{x^1} & \displaystyle (q^1)^T x^1 
                          + \E_\xi\big[\min_{y(\xi)}\, q(\xi)^T y(\xi)\big] \\
   \text{s.t.} &  W^1x^1                   = h^1,      \\
 	      &  T(\xi) x^1 + W(\xi) y(\xi) = h(\xi), \\
@@ -261,7 +261,8 @@ problem (\ref{eq:SLPRecourse}) can be written in the
 {\em deterministic equivalent formulation}:
 \be \label{eq:DetEq-2stage}
 \begin{array}{rlllll}
-\min & (q^1)^T x^1 + \displaystyle\sum_{i=2}^n p^i(q^i)^T y^i \\
+\displaystyle \min_{(x^1,y)}
+            & (q^1)^T x^1 + \displaystyle\sum_{i=2}^n p^i(q^i)^T y^i \\
 \mbox{s.t.} & W^1x^1          &        &          & = h^1, \\
             & T^2x^1 + W^2y^1 &        &          & = h^2, \\
 	    & \quad\vdots     & \hspace{-1em}\ddots & & \;\vdots \\
@@ -310,7 +311,8 @@ The deterministic equivalent formulation of the multi-stage
 problem has the following general form:
 \begin{equation}  \label{DetEquiv}
   \begin{array}{rlcll}
-  \min & \displaystyle\sum_{t=1}^T\sum_{l\in\mathcal{L}_t} p^l (q^l)^T x^{l}\\
+  \displaystyle\min_x 
+    & \displaystyle\sum_{t=1}^T\sum_{l\in\mathcal{L}_t} p^l (q^l)^T x^{l}\\
   \mbox{s.t.} & W^1 x^1            & \hspace{-1.5em} = h^1, \\
     & T^{l} x^{a(l)} + W^{l} x^{l} & \hspace{-1.5em} = h^{l}, 
                                &\quad l\in\mathcal{L}_t,\; t = 2,\dots,T, \\
@@ -567,6 +569,13 @@ where, since our ultimate goal is to find the most representative scenario in
 the subtree, we use the term $(1-p^i)$ to ``bring closer'' scenarios 
 that have a higher probability of occurring.
 
+Continuing the example started above, we consider two subsets of 
+scenarios, corresponding to nodes 9--12 (for the subtree rooted at 
+node 2) and to nodes 13--18 (for the subtree rooted at node 3). Within 
+each subset we build the scenario of average nodes and then find the 
+representative scenario.
+The resulting reduced tree is shown in the right of Figure~\ref{fig:Tree}.
+
 The reduced tree selection induces a function $r: \Ctree \to \Rtree$ 
 that maps each node of the complete tree to a corresponding node 
 in the reduced tree in the following way: if $i \in \Rtree$, then
@@ -576,6 +585,18 @@ same stage $t$ as node $i$. In other words, to get from node
 $i\in\Ctree$ to $r(i)\in\Rtree$ we walk up the tree $\Ctree$ until we
 find a node that is also in $\Rtree$, and from there walk back down
 the reduced tree until we arrive at the same stage as the original node.
+This is shown in Figure~\ref{fig:Mapping}.
+%
+\begin{figure}[ht]
+  \begin{center}
+    \includegraphics[scale=.6]{figures/mapping.eps}
+    \caption{Mapping of the nodes in the complete tree to the corresponding
+             reduced tree nodes (nodes on the bold arcs map to themselves).}
+    \label{fig:Mapping}
+  \end{center}
+  \vspace{-3ex}
+\end{figure}
+
 This mapping is used to decide how to initialise 
 the warm-start iterate for the complete tree, as presented in the
 next section. We remark that our generation process guarantees
@@ -585,13 +606,6 @@ that for each $i \in \Ctree$, the following properties hold:
 \ee
 that is, if a node is in the reduced tree then so is its parent, and the
 mapping $r(\cdot)$ preserves the parent-child relationship. 
-
-Continuing the example started above, we consider two subsets of 
-scenarios, corresponding to nodes 9--12 (for the subtree rooted at 
-node 2) and to nodes 13--18 (for the subtree rooted at node 3). Within 
-each subset we build the scenario of average nodes and then find the 
-representative scenario.
-The resulting reduced tree is shown in the right of Figure~\ref{fig:Tree}.
 
 We introduce the set $\mathcal{I}_l$ of nodes in the complete tree 
 that are initialised by a given node $l\in\Rtree$, that is
@@ -758,9 +772,14 @@ complete problem.
 
 However, similarly to what we did with the solution vector, 
 we can expand the reduced problem to one which has the same dimension 
-as the complete problem (\ref{eq:CompleteProblem}) by replicating
+as the complete problem (\ref{eq:CompleteProblem}). This happens by replicating
 the blocks in the coefficient matrix and in the objective and right-hand 
-side vectors, as shown in Figure~\ref{fig:ExpandedSystem}.
+side vectors:
+\[
+  \hat W^i = W^{r(i)},\;\; \hat T^i = T^{r(i)},\;\;
+  \hat q^i = q^{r(i)},\;\; \hat h^i = h^{r(i)}, \qquad i \in \Ctree,
+\]
+as illustrated in Figure~\ref{fig:ExpandedSystem}.
 %
 \begin{figure}[ht]
   \begin{center}

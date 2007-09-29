@@ -7,7 +7,7 @@
 %Mar:  8, 12, 13, 16, 17, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
 %May:  2,  4,  8, 11, 12, 13, 14
-%Sep: 18, 19
+%Sep: 18, 19, 20, 27
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -105,8 +105,8 @@ that attempts to fulfil the above requirements. In this
 heuristic, we solve two least squares problems which aim to
 satisfy the primal and dual constraints:
 \begin{eqnarray*}
-  \min_x    \!\! & x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
-  \min_{y,s}\!\! & s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c.
+  \min_x      \!\! & x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
+  \min_{(y,s)}\!\! & s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c.
 \end{eqnarray*}
 These problems have solution
 \[
@@ -126,8 +126,8 @@ strict positivity.
 
 The following variation is described in \cite{GondzioTerlaky}:
 \begin{eqnarray*} 
-  \min_x    \!\! & c^Tx + \rho x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
-  \min_{y,s}\!\! & b^Ty + \rho s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c,
+  \min_x      \!\! & c^Tx + \rho x^Tx & \;\;\mbox{s.t. }\; Ax = b,      \\
+  \min_{(y,s)}\!\! & b^Ty + \rho s^Ts & \;\;\mbox{s.t. }\; A^Ty + s = c,
 \end{eqnarray*}
 where the parameter $\rho$ is fixed to a predetermined value, in order
 to compensate for the contribution of the primal and dual objectives.
@@ -409,7 +409,7 @@ is extremely efficient in practice \cite{LustigMarstenShanno,Mehrotra92}.
 Since its introduction, it has 
 been considered the method of choice for practical implementations 
 because it is usually very fast and reliable. Moreover, it has a 
-convincing interpretation in terms of second order approximations
+convincing interpretation in terms of second-order approximations
 to the central path.
 
 %
@@ -587,7 +587,7 @@ with respect to the direction $\Delta_M w$ of (\ref{eq:CompositeDirection}).
 Mehrotra's algorithm exploits the Jacobian matrix employed in 
 finding the affine-scaling direction when calculating 
 the corrector direction. Hence it reuses the same Cholesky factors,
-and this exploitation improves computational efficiency.
+which improves the computational efficiency.
 The cost of a single iteration in the predictor--corrector 
 method is only slightly larger than that of the standard 
 method because two backsolves per iteration have to be executed, 
@@ -692,7 +692,7 @@ the stepsize if this was a blocking component in the
 affine-scaling direction.
 
 As mentioned above, Mehrotra's way of assessing the value of $\sigma$
-and the computation of the second order term is a heuristic procedure,
+and the computation of the second-order term is a heuristic procedure,
 thus there are 
 no global convergence results or polynomial complexity results. 
 Tapia \etal \cite{TapiaZhangSaltzmanWeiser} interpreted the Newton step 
@@ -729,7 +729,7 @@ Besides, practitioners noticed that this technique may sometimes
 behave erratically, especially when used for a predictor direction 
 applied from highly infeasible and badly centered points. 
 Finally, Mehrotra's corrector does not provide CPU time savings 
-when used recursively \cite{CarpenterLustigMulveyShanno}.
+when used iteratively \cite{CarpenterLustigMulveyShanno}.
 
 Trying to provide a remedy to the above considerations, Gondzio 
 \cite{Gondzio96} introduced the multiple centrality correctors technique 
@@ -754,6 +754,8 @@ In this context,
 Mehrotra's predictor--corrector direction 
 (\ref{eq:CompositeDirection}) is considered to be a new predictor direction
 $\Delta_p w$ to which one or more centrality correctors can be applied. 
+In this sense, multiple centrality correctors can be interpreted
+as higher-order corrector terms.
 Different choices for the first predictor direction are also possible and, 
 in certain special circumstances, such as warm-starting, 
 may be justified.
@@ -1119,8 +1121,9 @@ iterate.
 To ensure the availability of an approximate $\mu$-center from which 
 the perturbation can be absorbed in one step, a subset of 
 iterates for different values of $\mu$ is stored.
-When the size of the perturbation becomes known, the closest $\mu$ 
-available is retrieved, and the corresponding iterate is used as a 
+When the size of the perturbation becomes known, the smallest $\mu$ 
+that allows to absorb the perturbation
+is retrieved, and the corresponding iterate is used as a 
 warm-start point for the next problem in the sequence.
 %
 In \cite{YildirimWright}, two different corrections for the perturbation

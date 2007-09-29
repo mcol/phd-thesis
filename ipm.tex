@@ -7,7 +7,7 @@
 %Mar:  8,  9, 13, 15, 16, 17, 19, 20, 21, 22, 27, 28, 29, 30, 31
 %Apr:  1,  2,  3, 16, 18
 %May:  1,  4,  8, 12, 14
-%Sep: 18, 19
+%Sep: 18, 19, 20, 21, 24, 27
 
 %
 % Chapter: Interior point methods
@@ -38,7 +38,7 @@ in standard form
 %
 \be \label{eq:PrimalDualPair}
   \begin{array}{crlp{2cm}crl}
-     & \min        & c^T x     & &     & \max        & b^T y \\
+     & \displaystyle \min_x & c^T x & & & \displaystyle \max_{(y,s)} & b^T y \\
  (P) & \mbox{s.t.} & Ax = b,   & & (D) & \mbox{s.t.} & A^T y + s = c, \\
      &             & x \geq 0; & &     &             & s \geq 0,
   \end{array}
@@ -62,8 +62,8 @@ dual feasible points as
 and, using this notation, we can rewrite the primal--dual pair 
 (\ref{eq:PrimalDualPair}) as
 \[
-\min \; c^T x \;\quad \mbox{s.t. }\;  x    \in \mathcal{P}; \qquad
-\max \; b^T y \;\quad \mbox{s.t. }\; (y,s) \in \mathcal{D}.
+\min_x \; c^T x \;\quad \mbox{s.t. }\;  x    \in \mathcal{P}; \qquad
+\max_{(y,s)} \; b^T y \;\quad \mbox{s.t. }\; (y,s) \in \mathcal{D}.
 \]
 
 In the derivation of interior point methods we will concentrate on
@@ -120,7 +120,7 @@ A point $x \in \mathcal{P}$ is an optimal solution if and only if
 there exists a pair $(y,s) \in \mathcal{D}$ such that $c^Tx = b^Ty$.
 \end{lemma}
 
-Problem $(P)$ has a solution if and only if $\mathcal{P} \ne \emptyset$.
+Problem $(P)$ has a feasible solution if and only if $\mathcal{P}\ne\emptyset$.
 If $\mathcal{P} \ne \emptyset$ and $\mathcal{D} \ne \emptyset$,
 then both $(P)$ and $(D)$ admit an
 optimal solution $w^* = (x^*, y^*, s^*)$, and by Lemma~\ref{th:StrongDuality}
@@ -172,7 +172,9 @@ the primal--dual optimal face is
 bounded \cite[Lemma~2.2]{GulerRoosTerlakyVial}.
 Cases when this assumption does not hold can be considered by allowing
 the algorithm to accept infeasible iterates 
-(see Section~\ref{sec:InfeasibleMethods}).
+(see Section~\ref{sec:InfeasibleMethods}) or by introducing 
+some controlled perturbations that enlarge the primal--dual 
+feasible set \cite{CartisGould}.
 
 %
 %
@@ -185,7 +187,7 @@ by the use of a logarithmic barrier function in linear programming.
 Given the linear program in standard form $(P)$,
 it is possible to write the corresponding {\em barrier problem}:
 \[
-  (P_\mu) \quad \min\; c^Tx - \mu \displaystyle\sum_{i=1}^n \ln x_i
+  (P_\mu) \quad \min_x\; c^Tx - \mu \displaystyle\sum_{i=1}^n \ln x_i
           \;\quad \mbox{s.t }\; x \in \mathcal{P}^0.
 \]
 Problem $(P_\mu)$ denotes a family of problems parameterised by the scalar
@@ -279,7 +281,8 @@ Equations \eqref{eq:DualityComplementarityGapMu} and
    c^Tx(\mu)\to c^Tx^* \quad \text{ and } \quad b^Ty(\mu) \to b^Ty^*,
 \]
 so the objective function values for the perturbed
-problem converge to those of the original problem.
+problem converge to those achieved by an optimal solution
+$(x^*,y^*,s^*)$ of the original problem.
 Furthermore, the following, stronger result holds \cite{Megiddo}.
 %
 \begin{theorem}
@@ -303,7 +306,7 @@ in Section~\ref{sec:PathFollowingAlgorithms}.
 
 The solution reached by following the central path is 
 characterised by {\em strict complementarity}. 
-This is described in the following result.
+This is described in the following result \cite{ipm:Wright97,Ye97}.
 
 \begin{theorem}[Strict complementarity]
 If $(P)$ and $(D)$ are feasible, then there exist a point $x^* \in\mathcal{P}$
@@ -628,10 +631,10 @@ in the right-hand side of system (\ref{eq:NewtonSystem}).
 Since
 the search direction computed from (\ref{eq:NewtonSystem})
 guarantees
-\[
+\be  \label{eq:FeasibleSearchDirection}
   A \Delta x = 0 \quad \text{and} \quad
   A^T \Delta y + \Delta s = 0,
-\]
+\ee
 we can easily verify that feasibility is maintained 
 throughout the algorithm: 
 \[
@@ -640,6 +643,10 @@ throughout the algorithm:
   A^T(y +\Delta y) + (s +\Delta s) &= (A^T y +s) + (A^T\Delta y +\Delta s) = c.
   \end{split}
 \]
+Moreover, using \eqref{eq:FeasibleSearchDirection} we obtain
+\be  \label{eq:DeltaxDeltas}
+  \Delta x^T \Delta s = -\Delta x^T (A^T\Delta y) = -(A\Delta x)^T\Delta y = 0.
+\ee
 
 As far as the progress in optimization is concerned,
 we can evaluate the complementarity gap that we would
@@ -648,7 +655,7 @@ obtain when taking a step of length $\alpha$ in the direction $\Delta w$:
    x(\alpha)^Ts(\alpha) = x^Ts + \alpha(s^T \Delta x + x^T \Delta s)
      + \alpha^2 \Delta x^T \Delta s = (1 - \alpha (1 - \sigma)) x^Ts,
 \]
-where we used the fact that
+where we used \eqref{eq:DeltaxDeltas} and the fact that
 $s^T \Delta x + x^T \Delta s = -x^Ts + \sigma\mu$.
 Now, dividing through by $n$, we obtain
 \be  \label{eq:OptimalityProgress}
@@ -689,7 +696,7 @@ happens for a constant
   \sigma \in [\sigma_{\min},\, \sigma_{\max}]
 \]
 independent of $n$. 
-This is an aggressive update, and it implies that a full Newton
+This is an aggressive update, and a full Newton
 step is usually not feasible, so the stepsize needs to be damped.
 Also, more than one iteration may have to be performed before
 reducing the barrier parameter again.
@@ -767,10 +774,8 @@ The results presented up to here concentrated on feasible methods.
 For these methods we assume that a strictly feasible starting point is
 readily available.
 However, finding a strictly feasible starting point is, 
-in general, a nontrivial task.
-Solving the feasibility problem is an optimization problem in its
-own right, and is as difficult as solving the original problem
-to optimality.
+in general, a nontrivial task, as solving the feasibility problem
+is an optimization problem in its own right.
 Moreover, the feasible region may have an empty interior,
 in which case the theory developed above does not apply.
 Allowing an infeasible starting point is particularly important
@@ -868,7 +873,8 @@ complementarity gap
   x(\alpha)^Ts(\alpha)=(1-\alpha(1 -\sigma))x^Ts +\alpha^2 \Delta x^T \Delta s,
 \]
 a reduction happens for a sufficiently small $\alpha$. 
-When feasibility is restored, an infeasible algorithm becomes identical
+When feasibility is restored, that is when $\xi_b = \xi_c = 0$,
+an infeasible algorithm becomes identical
 to a feasible algorithm. 
 
 A globally convergent infeasible interior point algorithm has
@@ -890,7 +896,7 @@ employed in the theory of interior point methods,
 and illustrated their main features and drawbacks.
 The $\Nhood_2$ neighbourhood follows the central path very tightly, 
 and the short-step methods
-based on it are extremely conservative and, ultimately, very slow.
+based on it are extremely conservative and, in practice, very slow.
 The $\Nhood_{-\infty}$ provides a much better framework 
 for practical algorithms, as it allows 
 the barrier parameter to reduce quickly. However, as it does not actively
@@ -899,7 +905,7 @@ iterates to produce very unbalanced products.
 
 The issue of unbalanced complementary products is very important for
 the practical success of an interior point code. 
-We should stress how
+It's important to stress how
 the complementary pairs play a role in the Newton system, and how
 their bad scaling causes a bad behaviour of Newton's method, which
 produces unreliable directions.
@@ -941,7 +947,7 @@ may not properly consider the presence of very small products,
 which then become blocking components when the stepsizes are computed.
 
 The notion of spread in complementarity products
-is not adequately represented by either 
+is not adequately represented in a computational setting by either 
 of the two neighbourhoods $\Nhood_2$ or $\Nhood_{-\infty}$.
 To overcome this disadvantage, here we formalise a variation 
 on the usual $\Nhood_{-\infty}(\gamma)$ neighbourhood, 
