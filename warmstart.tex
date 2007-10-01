@@ -7,6 +7,7 @@
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
 %May:  1,  4,  6,  8, 10, 11, 12, 13, 14
 %Sep: 18, 19, 21, 27
+%Oct:  1
 
 %
 % Chapter: Warm-start
@@ -620,18 +621,6 @@ with each node $l\in\Rtree$; we use:
 \ee
 Here and in the following we use the convention that symbols referring
 to the reduced tree (such as $\Rtree$, $p_R^i$) carry the subscript $_R$.
-As will be seen later it is advantageous if the aggregation of nodes
-is balanced throughout the tree. On average every node in the reduced
-tree corresponds to $n/n_R$ nodes in the full tree, so for
-a totally balanced aggregation we would expect 
-\[
-  \frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}\approx 1.
-\]
-We define the deviation from this as
-\be  \label{eq:rho}
-  \rho = \min_{i\in\Ctree}\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
-                                 \frac{p_R^{r(i)}}{p^i}\frac{n_R}{n}\right\}.
-\ee
 
 It is worth noting the effect of the probability update
 (\ref{eq:UpdatePathProbs}) on the conditional probabilities.
@@ -897,7 +886,11 @@ the dual constraints in the expanded problem.
 If $(x_R, y_R, s_R) \in \mathcal{N}^R_s(\gamma)$ 
 for some $\gamma\in(0,1)$, then $(\hat{x}, \hat{y}, \hat{s})\in
 \widehat{\mathcal{N}}_s(\rho\gamma)$,
-with $\rho$ defined in (\ref{eq:rho}).
+where
+\be  \label{eq:rho}
+  \rho = \min_{i\in\Ctree}\left\{\frac{p^i}{p_R^{r(i)}}\frac{n}{n_R}, 
+                                 \frac{p_R^{r(i)}}{p^i}\frac{n_R}{n}\right\}.
+\ee
 \end{theorem}
 %
 \begin{proof}
@@ -1379,7 +1372,7 @@ a change in the accuracy of the reduced-tree solution $(x^*, y^*, s^*)$
 affects the value of $B$ that appears in the left-hand side of
 the bound of Theorem~\ref{th:Final}.
 
-It is important to remember, however,
+It is important to note, however,
 that the bounds we derived in Lemma~\ref{th:BoundResiduals}
 and Theorem~\ref{th:Final} express theoretical requirements.
 There is a gap between theory and

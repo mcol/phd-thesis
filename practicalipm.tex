@@ -8,6 +8,7 @@
 %Apr:  1,  2, 16, 18, 19, 21, 28, 29, 30
 %May:  2,  4,  8, 11, 12, 13, 14
 %Sep: 18, 19, 20, 27
+%Oct:  1
 
 %
 % Chapter: Practical implementations of Interior point methods
@@ -956,6 +957,7 @@ from the central path of the perturbed problem
 
 \begin{figure}[ht]
 \centering
+\vspace{-2ex}
 \includegraphics[scale=0.75]{figures/ws-path.eps}
 \caption{Effect of a perturbation on the central path.}
 \label{fig:ws-path}
@@ -981,6 +983,7 @@ very slow progress is achieved (see Figure~\ref{fig:ws-behaviour}).
 
 \begin{figure}[ht]
 \centering
+\vspace{-2ex}
 \includegraphics[scale=0.75]{figures/ws-behaviour.eps}
 \caption{Typical behaviour of an interior point method if warm-started
          from the previously optimal solution.}
@@ -1142,7 +1145,7 @@ the primal and the dual spaces independently.
 
 This reoptimization procedure is based on two phases. First, an attempt 
 is made to absorb the infeasibilities caused by the perturbation with a full 
-Newton step; second, the centrality of the iterate is improved. Another 
+Newton step; second, the centrality of the iterate is improved. A
 key feature of Gondzio and Grothey's approach \cite{GondzioGrothey03}
 is that the primal search 
 direction is governed only by the primal perturbation,
