@@ -8,6 +8,7 @@
 %Apr:  1,  2,  3, 16, 18
 %May:  1,  4,  8, 12, 14
 %Sep: 18, 19, 20, 21, 24, 27
+%Oct:  9
 
 %
 % Chapter: Interior point methods
@@ -276,7 +277,8 @@ we have
 \ee
 and for $\mu \to 0$, also $g(\mu) \to 0$.
 Equations \eqref{eq:DualityComplementarityGapMu} and
-\eqref{eq:AverageComplementarity} imply that as $\mu\to 0$
+\eqref{eq:AverageComplementarity}, together with the fact that
+$c^Tx(\mu) \ge c^Tx^* = b^Ty^* \ge b^Ty(\mu)$, imply that as $\mu\to 0$
 \[
    c^Tx(\mu)\to c^Tx^* \quad \text{ and } \quad b^Ty(\mu) \to b^Ty^*,
 \]
@@ -308,7 +310,7 @@ The solution reached by following the central path is
 characterised by {\em strict complementarity}. 
 This is described in the following result \cite{ipm:Wright97,Ye97}.
 
-\begin{theorem}[Strict complementarity]
+\begin{theorem}[Strict complementarity]  \label{th:StrictComplementarity}
 If $(P)$ and $(D)$ are feasible, then there exist a point $x^* \in\mathcal{P}$
 and a pair $(y^*,s^*) \in \mathcal{D}$ such that
 \[
@@ -329,12 +331,11 @@ and partition the set of indices $\{1,\ldots,n \}$ as
 \[
    \mathcal{B} = \sigma(x^*), \quad \mathcal{M} = \sigma(s^*).
 \]
-This partition is well-defined in the sense that a 
+From Theorem~\ref{th:StrictComplementarity} it follows that
+this partition is well-defined, in the sense that a 
 strictly complementary solution satisfies both 
 $\mathcal{B} \cap \mathcal{M} = \emptyset$ and 
 $\mathcal{B} \cup \mathcal{M} = \{1,\ldots,n \}$. 
-A proof of the latter result, also known as the Goldman-Tucker theorem, 
-can be found in \cite{ipm:Wright97}.
 The notions of strict complementarity and optimal partition are
 recurrent motifs in the analysis of interior point methods.
 

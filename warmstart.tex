@@ -7,7 +7,7 @@
 %Apr:  2,  3,  4,  5, 18, 21, 28, 30
 %May:  1,  4,  6,  8, 10, 11, 12, 13, 14
 %Sep: 18, 19, 21, 27
-%Oct:  1
+%Oct:  1,  9
 
 %
 % Chapter: Warm-start
@@ -193,22 +193,25 @@ The discrete stochastic process can be represented as an
 {\em event tree} $\Ctree$,
 where each node denotes a stage when a realisation 
 of the random process becomes known and a subsequent decision is taken.
-A very simple event tree is shown in Figure~\ref{fig:EventTree}.
+It is common to consider {\em balanced trees}, in which the number of
+branches leaving from each node is the same at all stages.
+An alternative approach, preferred in multi-stage models of very
+large dimensions, is to consider more branches in the
+earlier stages than in the later ones, giving rise to the
+so-called {\em left-heavy trees}.
+The framework we introduce in Section~\ref{sec:ReducedTree} can deal
+with any shape of trees.
+A very simple event tree, which we will use later on for illustration,
+is shown in Figure~\ref{fig:EventTree}.
 %
 \begin{figure}[ht]
   \begin{center}
     \includegraphics[scale=0.6]{figures/tree.eps}
-    \caption{Event tree.}
+    \caption{An event tree.}
     \label{fig:EventTree}
   \end{center}
   \vspace{-3ex}
 \end{figure}
-%
-It is common to consider balanced trees, where the number of
-branches for each node is the same at each stage.
-However, a better approach is to consider more branches in the
-earlier stages than in the later ones. This leads to the
-so-called {\em left-heavy trees}.
 
 To each node of the event tree we associate a set of constraints, an 
 objective function, and the conditional probability of visiting the 
